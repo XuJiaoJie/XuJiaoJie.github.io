@@ -93,21 +93,21 @@
 
 
 
-<meta name="description" content="title: 设计模式之装饰者模式 概述装饰者模式，动态地将责任附加到对象上。若要扩展功能，装饰者提供了比继承更加有弹性的替代方案  Component抽象组件，是一个接口或者是抽象类，就是定义我们最核心的对象，也就是最原始的对象。（注：在装饰模式中，必然有一个最基本、最核心、最原始的接口或者抽象类充当Component抽象组件） ConcreteComponent具体组件，是最核心、最原始、最基">
+<meta name="description" content="概述装饰者模式，动态地将责任附加到对象上。若要扩展功能，装饰者提供了比继承更加有弹性的替代方案 结构说明   Component抽象组件，是一个接口或者是抽象类，就是定义我们最核心的对象，也就是最原始的对象。（注：在装饰模式中，必然有一个最基本、最核心、最原始的接口或者抽象类充当Component抽象组件） ConcreteComponent具体组件，是最核心、最原始、最基本的接口或抽象类的实现，">
 <meta property="og:type" content="article">
-<meta property="og:title" content="XuBlog">
+<meta property="og:title" content="设计模式之装饰者模式">
 <meta property="og:url" content="http://yoursite.com/2017/07/24/设计模式之装饰者模式/index.html">
 <meta property="og:site_name" content="XuBlog">
-<meta property="og:description" content="title: 设计模式之装饰者模式 概述装饰者模式，动态地将责任附加到对象上。若要扩展功能，装饰者提供了比继承更加有弹性的替代方案  Component抽象组件，是一个接口或者是抽象类，就是定义我们最核心的对象，也就是最原始的对象。（注：在装饰模式中，必然有一个最基本、最核心、最原始的接口或者抽象类充当Component抽象组件） ConcreteComponent具体组件，是最核心、最原始、最基">
+<meta property="og:description" content="概述装饰者模式，动态地将责任附加到对象上。若要扩展功能，装饰者提供了比继承更加有弹性的替代方案 结构说明   Component抽象组件，是一个接口或者是抽象类，就是定义我们最核心的对象，也就是最原始的对象。（注：在装饰模式中，必然有一个最基本、最核心、最原始的接口或者抽象类充当Component抽象组件） ConcreteComponent具体组件，是最核心、最原始、最基本的接口或抽象类的实现，">
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="http://note.youdao.com/yws/public/resource/4c369c34309b4e820e847f1d5f720560/xmlnote/9E0661B532ED4A1FB1DDBF82613A67E5/26">
 <meta property="og:image" content="http://note.youdao.com/yws/public/resource/4c369c34309b4e820e847f1d5f720560/xmlnote/E9935B9BD31B4BA3990159477C3F034B/29">
 <meta property="og:image" content="http://note.youdao.com/yws/public/resource/4c369c34309b4e820e847f1d5f720560/xmlnote/311163C64FE14145B8DC7B365A718898/31">
 <meta property="og:image" content="http://note.youdao.com/yws/public/resource/4c369c34309b4e820e847f1d5f720560/xmlnote/8AE6DB8E38E748B28E834F26CA6B8F63/33">
-<meta property="og:updated_time" content="2017-07-24T06:57:23.622Z">
+<meta property="og:updated_time" content="2017-07-24T07:02:28.646Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="XuBlog">
-<meta name="twitter:description" content="title: 设计模式之装饰者模式 概述装饰者模式，动态地将责任附加到对象上。若要扩展功能，装饰者提供了比继承更加有弹性的替代方案  Component抽象组件，是一个接口或者是抽象类，就是定义我们最核心的对象，也就是最原始的对象。（注：在装饰模式中，必然有一个最基本、最核心、最原始的接口或者抽象类充当Component抽象组件） ConcreteComponent具体组件，是最核心、最原始、最基">
+<meta name="twitter:title" content="设计模式之装饰者模式">
+<meta name="twitter:description" content="概述装饰者模式，动态地将责任附加到对象上。若要扩展功能，装饰者提供了比继承更加有弹性的替代方案 结构说明   Component抽象组件，是一个接口或者是抽象类，就是定义我们最核心的对象，也就是最原始的对象。（注：在装饰模式中，必然有一个最基本、最核心、最原始的接口或者抽象类充当Component抽象组件） ConcreteComponent具体组件，是最核心、最原始、最基本的接口或抽象类的实现，">
 <meta name="twitter:image" content="http://note.youdao.com/yws/public/resource/4c369c34309b4e820e847f1d5f720560/xmlnote/9E0661B532ED4A1FB1DDBF82613A67E5/26">
 
 
@@ -142,7 +142,7 @@
 
 
 
-  <title> | XuBlog</title>
+  <title>设计模式之装饰者模式 | XuBlog</title>
   
 
 
@@ -288,7 +288,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline"></h1>
+          <h1 class="post-title" itemprop="name headline">设计模式之装饰者模式</h1>
         
 
         <div class="post-meta">
@@ -335,16 +335,15 @@
       
 
       
-        <p>title: 设计模式之装饰者模式</p>
-<h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p><strong>装饰者模式，动态地将责任附加到对象上。若要扩展功能，装饰者提供了比继承更加有弹性的替代方案</strong></p>
+        <h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p><strong>装饰者模式，动态地将责任附加到对象上。若要扩展功能，装饰者提供了比继承更加有弹性的替代方案</strong></p>
+<p><strong>结构说明</strong></p>
+<p><img src="http://note.youdao.com/yws/public/resource/4c369c34309b4e820e847f1d5f720560/xmlnote/9E0661B532ED4A1FB1DDBF82613A67E5/26" alt="image"></p>
 <ul>
 <li>Component抽象组件，是一个接口或者是抽象类，就是定义我们最核心的对象，也就是最原始的对象。（注：在装饰模式中，必然有一个最基本、最核心、最原始的接口或者抽象类充当Component抽象组件）</li>
 <li>ConcreteComponent具体组件，是最核心、最原始、最基本的接口或抽象类的实现，我们需要装饰的就是它。</li>
 <li>Decorator装饰角色，一般是一个抽象类，实现接口或者抽象方法，它的属性里必然有一个private变量引用指向Component抽象组件。（功能多的话可以独立出个抽象类来，也可以直接ConcreteDecorator）</li>
 <li>ConcreteDecorator具体装饰角色，,我们要把我们最核心的、最原始的、最基本的东西装饰成其它东西。</li>
 </ul>
-<p><strong>结构说明</strong></p>
-<p><img src="http://note.youdao.com/yws/public/resource/4c369c34309b4e820e847f1d5f720560/xmlnote/9E0661B532ED4A1FB1DDBF82613A67E5/26" alt="image"></p>
 <h2 id="优点"><a href="#优点" class="headerlink" title="优点"></a>优点</h2><ul>
 <li>装饰类和被装饰类可以独立发展，而不会相互耦合。换句话说，Component类无须知道Decorator类，Decorator类是从外部来扩展Component类的功能，而Decorator也不用知道具体的组件。 </li>
 <li>装饰模式是继承关系的一个替代方案。我们看装饰类Decorator，不管装饰多少层，返回的对象还是Component。</li>

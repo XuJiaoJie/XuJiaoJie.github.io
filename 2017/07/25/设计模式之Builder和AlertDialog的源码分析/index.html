@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Hexo, NexT" />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.1" />
+
+
+
+
+
+
+<meta name="description" content="BuilderBuilder模式是一步步创建一个复杂对象的创建型模式，它允许用户在不知道内部构建细节的情况下，可以更精细的控制对象的构造流程。该模式是为了将构造复杂对象的过程和它的部件解耦，使得构建过程和部件的表示隔离开来。 栗子我们通过一个例子来引出Builder模式。假设有一个Person类，我们通过该Person类来构建一大批人，这个Person类里有很多 属性，最常见的比如name，age">
+<meta property="og:type" content="article">
+<meta property="og:title" content="设计模式之Builder和AlertDialog的源码分析">
+<meta property="og:url" content="http://yoursite.com/2017/07/25/设计模式之Builder和AlertDialog的源码分析/index.html">
+<meta property="og:site_name" content="XuBlog">
+<meta property="og:description" content="BuilderBuilder模式是一步步创建一个复杂对象的创建型模式，它允许用户在不知道内部构建细节的情况下，可以更精细的控制对象的构造流程。该模式是为了将构造复杂对象的过程和它的部件解耦，使得构建过程和部件的表示隔离开来。 栗子我们通过一个例子来引出Builder模式。假设有一个Person类，我们通过该Person类来构建一大批人，这个Person类里有很多 属性，最常见的比如name，age">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2017-07-25T08:23:52.258Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="设计模式之Builder和AlertDialog的源码分析">
+<meta name="twitter:description" content="BuilderBuilder模式是一步步创建一个复杂对象的创建型模式，它允许用户在不知道内部构建细节的情况下，可以更精细的控制对象的构造流程。该模式是为了将构造复杂对象的过程和它的部件解耦，使得构建过程和部件的表示隔离开来。 栗子我们通过一个例子来引出Builder模式。假设有一个Person类，我们通过该Person类来构建一大批人，这个Person类里有很多 属性，最常见的比如name，age">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"right","display":"always","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2017/07/25/设计模式之Builder和AlertDialog的源码分析/"/>
+
+
+
+
+
+  <title>设计模式之Builder和AlertDialog的源码分析 | XuBlog</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-right page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">XuBlog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/07/25/设计模式之Builder和AlertDialog的源码分析/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="XuJiaoJie">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/userpic.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="XuBlog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">设计模式之Builder和AlertDialog的源码分析</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-07-25T16:23:52+08:00">
+                2017-07-25
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/2017/07/25/设计模式之Builder和AlertDialog的源码分析/" class="leancloud_visitors" data-flag-title="设计模式之Builder和AlertDialog的源码分析">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">阅读次数 </span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="Builder"><a href="#Builder" class="headerlink" title="Builder"></a>Builder</h2><p><strong>Builder模式是一步步创建一个复杂对象的创建型模式，它允许用户在不知道内部构建细节的情况下，可以更精细的控制对象的构造流程。该模式是为了将构造复杂对象的过程和它的部件解耦，使得构建过程和部件的表示隔离开来。</strong></p>
+<h2 id="栗子"><a href="#栗子" class="headerlink" title="栗子"></a>栗子</h2><p>我们通过一个例子来引出Builder模式。假设有一个Person类，我们通过该Person类来构建一大批人，这个Person类里有很多 属性，最常见的比如name，age，weight，height等等<a id="more"></a>，并且我们允许这些值不被设置，也就是允许为null，该类的定义如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Person</span> </span>&#123;  </div><div class="line">  <span class="keyword">private</span> String name;  </div><div class="line">  <span class="keyword">private</span> <span class="keyword">int</span> age;  </div><div class="line">  <span class="keyword">private</span> <span class="keyword">double</span> height;  </div><div class="line">  <span class="keyword">private</span> <span class="keyword">double</span> weight;  </div><div class="line">  <span class="function"><span class="keyword">public</span> String <span class="title">getName</span><span class="params">()</span> </span>&#123;  </div><div class="line">    <span class="keyword">return</span> name;  </div><div class="line">  &#125;  </div><div class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setName</span><span class="params">(String name)</span> </span>&#123;  </div><div class="line">    <span class="keyword">this</span>.name = name;  </div><div class="line">  &#125;  </div><div class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">getAge</span><span class="params">()</span> </span>&#123;  </div><div class="line">    <span class="keyword">return</span> age;  </div><div class="line">  &#125;  </div><div class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setAge</span><span class="params">(<span class="keyword">int</span> age)</span> </span>&#123;  </div><div class="line">    <span class="keyword">this</span>.age = age;  </div><div class="line">  &#125;  </div><div class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">double</span> <span class="title">getHeight</span><span class="params">()</span> </span>&#123;  </div><div class="line">    <span class="keyword">return</span> height;  </div><div class="line">  &#125;  </div><div class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setHeight</span><span class="params">(<span class="keyword">double</span> height)</span> </span>&#123;  </div><div class="line">    <span class="keyword">this</span>.height = height;  </div><div class="line">  &#125;  </div><div class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">double</span> <span class="title">getWeight</span><span class="params">()</span> </span>&#123;  </div><div class="line">    <span class="keyword">return</span> weight;  </div><div class="line">  &#125;  </div><div class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setWeight</span><span class="params">(<span class="keyword">double</span> weight)</span> </span>&#123;  </div><div class="line">    <span class="keyword">this</span>.weight = weight;  </div><div class="line">  &#125;  </div><div class="line">  <span class="function"><span class="keyword">public</span> <span class="title">Person</span><span class="params">()</span> </span>&#123;&#125;  </div><div class="line">  <span class="function"><span class="keyword">public</span> <span class="title">Person</span><span class="params">(String name)</span> </span>&#123;  </div><div class="line">    <span class="keyword">this</span>.name = name;  </div><div class="line">  &#125;  </div><div class="line">  <span class="function"><span class="keyword">public</span> <span class="title">Person</span><span class="params">(String name, <span class="keyword">int</span> age)</span> </span>&#123;  </div><div class="line">    <span class="keyword">this</span>.name = name;  </div><div class="line">    <span class="keyword">this</span>.age = age;  </div><div class="line">  &#125;  </div><div class="line">  <span class="function"><span class="keyword">public</span> <span class="title">Person</span><span class="params">(String name, <span class="keyword">int</span> age, <span class="keyword">double</span> height)</span> </span>&#123;  </div><div class="line">    <span class="keyword">this</span>.name = name;  </div><div class="line">    <span class="keyword">this</span>.age = age;  </div><div class="line">    <span class="keyword">this</span>.height = height;  </div><div class="line">  &#125;  </div><div class="line">  <span class="function"><span class="keyword">public</span> <span class="title">Person</span><span class="params">(String name, <span class="keyword">int</span> age, <span class="keyword">double</span> height, <span class="keyword">double</span> weight)</span> </span>&#123;  </div><div class="line">        <span class="keyword">this</span>.name = name;  </div><div class="line">        <span class="keyword">this</span>.age = age;  </div><div class="line">        <span class="keyword">this</span>.height = height;  </div><div class="line">        <span class="keyword">this</span>.weight = weight;  </div><div class="line">  &#125;  </div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>于是你就可以这样创建各个需要的对象：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">Person p1=<span class="keyword">new</span> Person();  </div><div class="line">Person p2=<span class="keyword">new</span> Person(<span class="string">"张三"</span>);  </div><div class="line">Person p3=<span class="keyword">new</span> Person(<span class="string">"李四"</span>,<span class="number">18</span>);  </div><div class="line">Person p4=<span class="keyword">new</span> Person(<span class="string">"王五"</span>,<span class="number">21</span>,<span class="number">180</span>);  </div><div class="line">Person p5=<span class="keyword">new</span> Person(<span class="string">"赵六"</span>,<span class="number">17</span>,<span class="number">170</span>,<span class="number">65.4</span>);</div></pre></td></tr></table></figure></p>
+<p>可以想象一下这样创建的坏处，最直观的就是四个参数的构造方法的最后面的两个参数到底是什么意思，可读性不怎么好，还有一个问题就是当有很多参数时，编写这个构造函数就会显得异常麻烦，这时候便可以用Builder模式。</p>
+<p>我们给Person增加一个静态内部类Builder类，并修改Person类的构造函数，代码如下：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Person</span> </span>&#123;  </div><div class="line">  <span class="keyword">private</span> String name;  </div><div class="line">  <span class="keyword">private</span> <span class="keyword">int</span> age;  </div><div class="line">  <span class="keyword">private</span> <span class="keyword">double</span> height;  </div><div class="line">  <span class="keyword">private</span> <span class="keyword">double</span> weight;  </div><div class="line">  privatePerson(Builder builder)&#123;  </div><div class="line">    <span class="keyword">this</span>.name=builder.name;  </div><div class="line">    <span class="keyword">this</span>.age=builder.age;  </div><div class="line">    <span class="keyword">this</span>.height=builder.height;  </div><div class="line">    <span class="keyword">this</span>.weight=builder.weight;  </div><div class="line">  &#125;    </div><div class="line"><span class="function"><span class="keyword">public</span> String <span class="title">getName</span><span class="params">()</span></span>&#123;  </div><div class="line">    <span class="keyword">return</span> name;  </div><div class="line">  &#125;    </div><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setName</span><span class="params">(String name)</span></span>&#123;  </div><div class="line">    <span class="keyword">this</span>.name = name;    </div><div class="line">&#125;    </div><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">getAge</span><span class="params">()</span></span>&#123;  </div><div class="line">    <span class="keyword">return</span> age;  </div><div class="line">  &#125;    </div><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setAge</span><span class="params">(<span class="keyword">int</span> age)</span></span>&#123;  </div><div class="line">    <span class="keyword">this</span>.age = age;  </div><div class="line">  &#125;  </div><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">double</span> <span class="title">getHeight</span><span class="params">()</span></span>&#123;  </div><div class="line">    <span class="keyword">return</span> height;  </div><div class="line">  &#125;    </div><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setHeight</span><span class="params">(<span class="keyword">double</span> height)</span></span>&#123;  </div><div class="line">    <span class="keyword">this</span>.height = height;  </div><div class="line">  &#125;    </div><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">double</span> <span class="title">getWeight</span><span class="params">()</span> </span>&#123;  </div><div class="line">    <span class="keyword">return</span> weight;  </div><div class="line">  &#125;    </div><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setWeight</span><span class="params">(<span class="keyword">double</span> weight)</span></span>&#123;  </div><div class="line">    <span class="keyword">this</span>.weight = weight;  </div><div class="line">  &#125;    </div><div class="line">    </div><div class="line"><span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">Builder</span></span>&#123;  </div><div class="line">    <span class="keyword">private</span> String name;  </div><div class="line">    <span class="keyword">private</span> <span class="keyword">int</span> age;  </div><div class="line">    <span class="keyword">private</span> <span class="keyword">double</span> height;  </div><div class="line">    <span class="keyword">private</span> <span class="keyword">double</span> weight;  </div><div class="line">    <span class="function"><span class="keyword">public</span> Builder <span class="title">name</span><span class="params">(String name)</span></span>&#123;  </div><div class="line">      <span class="keyword">this</span>.name=name;  </div><div class="line">      <span class="keyword">return</span> <span class="keyword">this</span>;  </div><div class="line">    &#125;  </div><div class="line">    <span class="function"><span class="keyword">public</span> Builder <span class="title">age</span><span class="params">(<span class="keyword">int</span> age)</span></span>&#123;  </div><div class="line">      <span class="keyword">this</span>.age=age;  </div><div class="line">      <span class="keyword">return</span> <span class="keyword">this</span>;  </div><div class="line">    &#125;  </div><div class="line">    <span class="function"><span class="keyword">public</span> Builder <span class="title">height</span><span class="params">(<span class="keyword">double</span> height)</span></span>&#123;  </div><div class="line">      <span class="keyword">this</span>.height=height;  </div><div class="line">      <span class="keyword">return</span> <span class="keyword">this</span>;  </div><div class="line">    &#125;  </div><div class="line">    <span class="function"><span class="keyword">public</span> Builder <span class="title">weight</span><span class="params">(<span class="keyword">double</span> weight)</span></span>&#123;  </div><div class="line">      <span class="keyword">this</span>.weight=weight;  </div><div class="line">      <span class="keyword">return</span> <span class="keyword">this</span>;  </div><div class="line">    &#125;  </div><div class="line">    <span class="function"><span class="keyword">public</span> Person <span class="title">build</span><span class="params">()</span></span>&#123;  </div><div class="line">      <span class="keyword">return</span> <span class="keyword">new</span> Person(<span class="keyword">this</span>);  </div><div class="line">    &#125;  </div><div class="line">  &#125;  </div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>在Builder类里定义了一份与Person类一模一样的变量，通过一系列的成员函数进行设置属性值，但是返回值都是this，也就是都是Builder对象，最后提供了一个build函数用于创建Person对象，返回的是Person对象，对应的构造函数在Person类中进行定义，也就是构造函数的入参是Builder对象，然后依次对自己的成员变量进行赋值，对应的值都是Builder对象中的值。此外Builder类中的成员函数返回Builder对象自身的另一个作用就是让它支持链式调用，使代码可读性大大增强。<br>于是我们就可以这样创建Person类：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">Person.Builder builder=<span class="keyword">new</span> Person.Builder();  </div><div class="line">Person person=builder  </div><div class="line">  .name(<span class="string">"张三"</span>)  </div><div class="line">  .age(<span class="number">18</span>)  </div><div class="line">  .height(<span class="number">178.5</span>)  </div><div class="line">  .weight(<span class="number">67.4</span>)  </div><div class="line">  .build();</div></pre></td></tr></table></figure></p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><ul>
+<li><p>定义一个静态内部类Builder，内部的成员变量和外部类一样</p>
+</li>
+<li><p>Builder类通过一系列的方法用于成员变量的赋值，并返回当前对象本身（this）</p>
+</li>
+<li><p>Builder类提供一个build方法或者create方法用于创建对应的外部类，该方法内部调用了外部类的一个私有构造函数，该构造函数的参数就是内部类Builder</p>
+</li>
+<li><p>外部类提供一个私有构造函数供内部类调用，在该构造函数中完成成员变量的赋值，取值为Builder对象中对应的值</p>
+</li>
+</ul>
+<h2 id="Android源码中Builder模式实现"><a href="#Android源码中Builder模式实现" class="headerlink" title="Android源码中Builder模式实现"></a>Android源码中Builder模式实现</h2><p>在Android源码中，最常用到的Builder模式就是AlertDialog.Builder，使用该Builder来构造复杂的AlertDialog对象。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">AlertDialog.Builder builder = <span class="keyword">new</span> AlertDialog.Builder(<span class="keyword">this</span>);</div></pre></td></tr></table></figure></p>
+<p>我们先来看一下AlertDialog的相关源码：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">AlertDialog</span> <span class="keyword">extends</span> <span class="title">Dialog</span> <span class="keyword">implements</span> <span class="title">DialogInterface</span> </span>&#123;  </div><div class="line">    <span class="keyword">private</span> AlertController mAlert;  </div><div class="line">    <span class="comment">//构造函数  </span></div><div class="line">    <span class="function"><span class="keyword">protected</span> <span class="title">AlertDialog</span><span class="params">(Context context, @StyleRes <span class="keyword">int</span> themeResId)</span> </span>&#123;  </div><div class="line">        <span class="keyword">this</span>(context, themeResId, <span class="keyword">true</span>);  </div><div class="line">    &#125;  </div><div class="line">    AlertDialog(Context context, <span class="meta">@StyleRes</span> <span class="keyword">int</span> themeResId, <span class="keyword">boolean</span> createContextThemeWrapper) &#123;  </div><div class="line">        <span class="keyword">super</span>(context, createContextThemeWrapper ? resolveDialogTheme(context, themeResId) : <span class="number">0</span>,  </div><div class="line">                createContextThemeWrapper);  </div><div class="line">        mWindow.alwaysReadCloseOnTouchAttr();  </div><div class="line">        mAlert = AlertController.create(getContext(), <span class="keyword">this</span>, getWindow());  </div><div class="line">    &#125;  </div><div class="line">  </div><div class="line">    <span class="comment">//实际上调用的是mAlert的setText方法  </span></div><div class="line">    <span class="meta">@Override</span>  </div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setTitle</span><span class="params">(CharSequence title)</span> </span>&#123;  </div><div class="line">        <span class="keyword">super</span>.setTitle(title);  </div><div class="line">        mAlert.setTitle(title);  </div><div class="line">    &#125;  </div><div class="line">  </div><div class="line">    <span class="comment">//实际上调用的是mAlert的setMessage方法  </span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setMessage</span><span class="params">(CharSequence message)</span> </span>&#123;  </div><div class="line">        mAlert.setMessage(message);  </div><div class="line">    &#125;  </div><div class="line">    ......  </div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>接下来看一下AlertDialog的内部类Builder的源码：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">Builder</span> </span>&#123;    </div><div class="line">        <span class="keyword">private</span> <span class="keyword">final</span> AlertController.AlertParams P;    </div><div class="line">        <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">int</span> mTheme;    </div><div class="line">    </div><div class="line">           </div><div class="line">        <span class="function"><span class="keyword">public</span> <span class="title">Builder</span><span class="params">(@NonNull Context context)</span> </span>&#123;    </div><div class="line">            <span class="keyword">this</span>(context, resolveDialogTheme(context, <span class="number">0</span>));    </div><div class="line">        &#125;    </div><div class="line">    </div><div class="line">           </div><div class="line">        <span class="function"><span class="keyword">public</span> <span class="title">Builder</span><span class="params">(@NonNull Context context, @StyleRes <span class="keyword">int</span> themeResId)</span> </span>&#123;    </div><div class="line">            P = <span class="keyword">new</span> AlertController.AlertParams(<span class="keyword">new</span> ContextThemeWrapper(    </div><div class="line">                    context, resolveDialogTheme(context, themeResId)));    </div><div class="line">            mTheme = themeResId;    </div><div class="line">        &#125;    </div><div class="line">    </div><div class="line">        <span class="meta">@NonNull</span>    </div><div class="line">        <span class="function"><span class="keyword">public</span> Context <span class="title">getContext</span><span class="params">()</span> </span>&#123;    </div><div class="line">            <span class="keyword">return</span> P.mContext;    </div><div class="line">        &#125;    </div><div class="line">    </div><div class="line">        <span class="function"><span class="keyword">public</span> Builder <span class="title">setTitle</span><span class="params">(@StringRes <span class="keyword">int</span> titleId)</span> </span>&#123;    </div><div class="line">            P.mTitle = P.mContext.getText(titleId);    </div><div class="line">            <span class="keyword">return</span> <span class="keyword">this</span>;    </div><div class="line">        &#125;    </div><div class="line">    </div><div class="line">        <span class="function"><span class="keyword">public</span> Builder <span class="title">setTitle</span><span class="params">(CharSequence title)</span> </span>&#123;    </div><div class="line">            P.mTitle = title;    </div><div class="line">            <span class="keyword">return</span> <span class="keyword">this</span>;    </div><div class="line">        &#125;    </div><div class="line">    </div><div class="line">       ........    </div><div class="line">         </div><div class="line">        <span class="function"><span class="keyword">public</span> Builder <span class="title">setPositiveButton</span><span class="params">(@StringRes <span class="keyword">int</span> textId, <span class="keyword">final</span> OnClickListener listener)</span> </span>&#123;    </div><div class="line">            P.mPositiveButtonText = P.mContext.getText(textId);    </div><div class="line">            P.mPositiveButtonListener = listener;    </div><div class="line">            <span class="keyword">return</span> <span class="keyword">this</span>;    </div><div class="line">        &#125;    </div><div class="line">    </div><div class="line">        <span class="function"><span class="keyword">public</span> AlertDialog <span class="title">create</span><span class="params">()</span> </span>&#123;    </div><div class="line">               </div><div class="line">            <span class="keyword">final</span> AlertDialog dialog = <span class="keyword">new</span> AlertDialog(P.mContext, mTheme);    </div><div class="line">            P.apply(dialog.mAlert);<span class="comment">//这里调用了apply真正创建了需要显示的dialog，也就是说之前的设置都是以P做一个数据缓存    </span></div><div class="line">            dialog.setCancelable(P.mCancelable);    </div><div class="line">            <span class="keyword">if</span> (P.mCancelable) &#123;    </div><div class="line">                dialog.setCanceledOnTouchOutside(<span class="keyword">true</span>);    </div><div class="line">            &#125;    </div><div class="line">            dialog.setOnCancelListener(P.mOnCancelListener);    </div><div class="line">            dialog.setOnDismissListener(P.mOnDismissListener);    </div><div class="line">            <span class="keyword">if</span> (P.mOnKeyListener != <span class="keyword">null</span>) &#123;    </div><div class="line">                dialog.setOnKeyListener(P.mOnKeyListener);    </div><div class="line">            &#125;    </div><div class="line">            <span class="keyword">return</span> dialog;    </div><div class="line">        &#125;    </div><div class="line">          </div><div class="line">        <span class="function"><span class="keyword">public</span> AlertDialog <span class="title">show</span><span class="params">()</span> </span>&#123;    </div><div class="line">            <span class="keyword">final</span> AlertDialog dialog = create();    </div><div class="line">            dialog.show();    </div><div class="line">            <span class="keyword">return</span> dialog;    </div><div class="line">        &#125;    </div><div class="line">    &#125;</div></pre></td></tr></table></figure></p>
+<p>Builder类可以设置AlertDialog中的title、message、button等参数，这些参数存储在类型为AlertController.AlertParams的成员变量P中，AlertController.AlertParams中包含了AlertDialog视图中对应的成员变量。在调用Builder的creat函数时会创建AlertDialog，并且将Builder成员变量中P的参数应用到AlertDialog的mAlert对象中，即P.apply（dialog.mAlert）代码段，看看AlertParams类中apply方法的实现：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">AlertParams</span> </span>&#123;    </div><div class="line">        <span class="keyword">public</span> <span class="keyword">final</span> Context mContext;    </div><div class="line">        <span class="keyword">public</span> <span class="keyword">final</span> LayoutInflater mInflater;   </div><div class="line">        <span class="keyword">public</span> <span class="keyword">int</span> mIconId = <span class="number">0</span>;    </div><div class="line">        <span class="keyword">public</span> Drawable mIcon;    </div><div class="line">        <span class="keyword">public</span> <span class="keyword">int</span> mIconAttrId = <span class="number">0</span>;    </div><div class="line">        <span class="keyword">public</span> CharSequence mTitle;    </div><div class="line">        <span class="keyword">public</span> View mCustomTitleView;    </div><div class="line">        <span class="keyword">public</span> CharSequence mMessage;    </div><div class="line">        <span class="keyword">public</span> CharSequence mPositiveButtonText;    </div><div class="line">      ........    </div><div class="line">    </div><div class="line">        <span class="function"><span class="keyword">public</span> <span class="title">AlertParams</span><span class="params">(Context context)</span> </span>&#123;    </div><div class="line">            mContext = context;    </div><div class="line">            mCancelable = <span class="keyword">true</span>;    </div><div class="line">            mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);    </div><div class="line">        &#125;    </div><div class="line">    </div><div class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">apply</span><span class="params">(AlertController dialog)</span> </span>&#123;<span class="comment">//传入一个dialog，获取AlertParams缓存的数据。    </span></div><div class="line">            <span class="keyword">if</span> (mCustomTitleView != <span class="keyword">null</span>) &#123;    </div><div class="line">                dialog.setCustomTitle(mCustomTitleView);    </div><div class="line">            &#125; <span class="keyword">else</span> &#123;    </div><div class="line">                <span class="keyword">if</span> (mTitle != <span class="keyword">null</span>) &#123;    </div><div class="line">                    dialog.setTitle(mTitle);    </div><div class="line">                &#125;    </div><div class="line">                <span class="keyword">if</span> (mIcon != <span class="keyword">null</span>) &#123;    </div><div class="line">                    dialog.setIcon(mIcon);    </div><div class="line">                &#125;    </div><div class="line">                <span class="keyword">if</span> (mIconId != <span class="number">0</span>) &#123;    </div><div class="line">                    dialog.setIcon(mIconId);    </div><div class="line">                &#125;    </div><div class="line">                <span class="keyword">if</span> (mIconAttrId != <span class="number">0</span>) &#123;    </div><div class="line">                    dialog.setIcon(dialog.getIconAttributeResId(mIconAttrId));    </div><div class="line">                &#125;    </div><div class="line">            &#125;    </div><div class="line">            <span class="keyword">if</span> (mMessage != <span class="keyword">null</span>) &#123;    </div><div class="line">                dialog.setMessage(mMessage);    </div><div class="line">            &#125;    </div><div class="line">            <span class="keyword">if</span> (mPositiveButtonText != <span class="keyword">null</span>) &#123;    </div><div class="line">                dialog.setButton(DialogInterface.BUTTON_POSITIVE, mPositiveButtonText,    </div><div class="line">                        mPositiveButtonListener, <span class="keyword">null</span>);    </div><div class="line">            &#125;    </div><div class="line">            <span class="keyword">if</span> (mNegativeButtonText != <span class="keyword">null</span>) &#123;    </div><div class="line">                dialog.setButton(DialogInterface.BUTTON_NEGATIVE, mNegativeButtonText,    </div><div class="line">                        mNegativeButtonListener, <span class="keyword">null</span>);    </div><div class="line">            &#125;    </div><div class="line">            <span class="keyword">if</span> (mNeutralButtonText != <span class="keyword">null</span>) &#123;    </div><div class="line">                dialog.setButton(DialogInterface.BUTTON_NEUTRAL, mNeutralButtonText,    </div><div class="line">                        mNeutralButtonListener, <span class="keyword">null</span>);    </div><div class="line">            &#125;    </div><div class="line">            <span class="comment">// For a list, the client can either supply an array of items or an    </span></div><div class="line">            <span class="comment">// adapter or a cursor    </span></div><div class="line">            <span class="keyword">if</span> ((mItems != <span class="keyword">null</span>) || (mCursor != <span class="keyword">null</span>) || (mAdapter != <span class="keyword">null</span>)) &#123;    </div><div class="line">                createListView(dialog);    </div><div class="line">            &#125;    </div><div class="line">            <span class="keyword">if</span> (mView != <span class="keyword">null</span>) &#123;    </div><div class="line">                <span class="keyword">if</span> (mViewSpacingSpecified) &#123;    </div><div class="line">                    dialog.setView(mView, mViewSpacingLeft, mViewSpacingTop, mViewSpacingRight,    </div><div class="line">                            mViewSpacingBottom);    </div><div class="line">                &#125; <span class="keyword">else</span> &#123;    </div><div class="line">                    dialog.setView(mView);    </div><div class="line">                &#125;    </div><div class="line">            &#125; <span class="keyword">else</span> <span class="keyword">if</span> (mViewLayoutResId != <span class="number">0</span>) &#123;    </div><div class="line">                dialog.setView(mViewLayoutResId);    </div><div class="line">            &#125;    </div><div class="line">    </div><div class="line">            <span class="comment">/*  </span></div><div class="line">            dialog.setCancelable(mCancelable);  </div><div class="line">            dialog.setOnCancelListener(mOnCancelListener);  </div><div class="line">            if (mOnKeyListener != null) &#123;  </div><div class="line">                dialog.setOnKeyListener(mOnKeyListener);  </div><div class="line">            &#125;  </div><div class="line">            */    </div><div class="line">        &#125;    </div><div class="line">    </div><div class="line">        ......    </div><div class="line">    &#125;</div></pre></td></tr></table></figure></p>
+<p>在apply方法中，只是将AlertParams参数设置到AlertController中，我们来看一下AlertController类：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">AlertController</span> </span>&#123;    </div><div class="line">    <span class="keyword">private</span> <span class="keyword">final</span> Context mContext;    </div><div class="line">    <span class="keyword">final</span> AppCompatDialog mDialog;    </div><div class="line">    <span class="keyword">private</span> <span class="keyword">final</span> Window mWindow;    </div><div class="line">    </div><div class="line">    <span class="keyword">private</span> CharSequence mTitle;    </div><div class="line">    <span class="keyword">private</span> CharSequence mMessage;    </div><div class="line">    ListView mListView;    </div><div class="line">    <span class="keyword">private</span> View mView;    </div><div class="line">    </div><div class="line">    <span class="keyword">private</span> <span class="keyword">int</span> mViewLayoutResId;    </div><div class="line">    </div><div class="line">    <span class="keyword">private</span> <span class="keyword">int</span> mViewSpacingLeft;    </div><div class="line">    <span class="keyword">private</span> <span class="keyword">int</span> mViewSpacingTop;    </div><div class="line">    <span class="keyword">private</span> <span class="keyword">int</span> mViewSpacingRight;    </div><div class="line">    <span class="keyword">private</span> <span class="keyword">int</span> mViewSpacingBottom;    </div><div class="line">    <span class="keyword">private</span> <span class="keyword">boolean</span> mViewSpacingSpecified = <span class="keyword">false</span>;    </div><div class="line">    </div><div class="line">    Button mButtonPositive;    </div><div class="line">    <span class="keyword">private</span> CharSequence mButtonPositiveText;    </div><div class="line">    Message mButtonPositiveMessage;    </div><div class="line">    </div><div class="line">    Button mButtonNegative;    </div><div class="line">    <span class="keyword">private</span> CharSequence mButtonNegativeText;    </div><div class="line">    Message mButtonNegativeMessage;    </div><div class="line">    </div><div class="line">    Button mButtonNeutral;    </div><div class="line">    <span class="keyword">private</span> CharSequence mButtonNeutralText;    </div><div class="line">    Message mButtonNeutralMessage;    </div><div class="line">    </div><div class="line">    NestedScrollView mScrollView;    </div><div class="line">    </div><div class="line">    <span class="keyword">private</span> <span class="keyword">int</span> mIconId = <span class="number">0</span>;    </div><div class="line">    <span class="keyword">private</span> Drawable mIcon;    </div><div class="line">    </div><div class="line">    <span class="keyword">private</span> ImageView mIconView;    </div><div class="line">    <span class="keyword">private</span> TextView mTitleView;    </div><div class="line">    <span class="keyword">private</span> TextView mMessageView;    </div><div class="line">    <span class="keyword">private</span> View mCustomTitleView;    </div><div class="line">    </div><div class="line">    ListAdapter mAdapter;    </div><div class="line">    </div><div class="line">    <span class="keyword">int</span> mCheckedItem = -<span class="number">1</span>;    </div><div class="line">    </div><div class="line">    <span class="keyword">private</span> <span class="keyword">int</span> mAlertDialogLayout;    </div><div class="line">    <span class="keyword">private</span> <span class="keyword">int</span> mButtonPanelSideLayout;    </div><div class="line">    <span class="keyword">int</span> mListLayout;    </div><div class="line">    <span class="keyword">int</span> mMultiChoiceItemLayout;    </div><div class="line">    <span class="keyword">int</span> mSingleChoiceItemLayout;    </div><div class="line">    <span class="keyword">int</span> mListItemLayout;    </div><div class="line">    </div><div class="line">    <span class="keyword">private</span> <span class="keyword">int</span> mButtonPanelLayoutHint = AlertDialog.LAYOUT_HINT_NONE;    </div><div class="line">    </div><div class="line">    Handler mHandler;    </div><div class="line">    </div><div class="line">    ..........  </div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>AlertController.AlertParams 持有AlertController的所有属性，在调用builder里的设置属性方法时，就是给AlertController.AlertParams做一个缓存。在调用了builder 的show方法之后。里面在调用具体dialog的show方法显示弹窗。</p>
+<p>那么AlertDialog在建造者模式中担任的是指挥者，Bilder就是具体的建造者。采用了链式调用。AlertController是产品，而AlertController.AlertParams是产品的缓存。比如我调用了两次setTitle()，在缓存时后一次会覆盖前一次，这样就解决了开发者冲动调用的问题。最后不论是调用Builder的show方法，还是调用调用AlertDialog的show方法。都是允许的。</p>
+<p>我们来看一下Dialog的show方法：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">show</span><span class="params">()</span> </span>&#123;  </div><div class="line">    <span class="keyword">if</span> (mShowing) &#123;  </div><div class="line">        <span class="keyword">if</span> (mDecor != <span class="keyword">null</span>) &#123;  </div><div class="line">            <span class="keyword">if</span> (mWindow.hasFeature(Window.FEATURE_ACTION_BAR)) &#123;  </div><div class="line">                mWindow.invalidatePanelMenu(Window.FEATURE_ACTION_BAR);  </div><div class="line">            &#125;  </div><div class="line">            mDecor.setVisibility(View.VISIBLE);  </div><div class="line">        &#125;  </div><div class="line">        <span class="keyword">return</span>;  </div><div class="line">    &#125;  </div><div class="line">    mCanceled = <span class="keyword">false</span>;  </div><div class="line">    <span class="keyword">if</span> (!mCreated) &#123;  </div><div class="line">        dispatchOnCreate(<span class="keyword">null</span>);  </div><div class="line">    &#125; <span class="keyword">else</span> &#123;  </div><div class="line">        <span class="comment">// Fill the DecorView in on any configuration changes that  </span></div><div class="line">        <span class="comment">// may have occured while it was removed from the WindowManager.  </span></div><div class="line">        <span class="keyword">final</span> Configuration config = mContext.getResources().getConfiguration();  </div><div class="line">        mWindow.getDecorView().dispatchConfigurationChanged(config);  </div><div class="line">    &#125;  </div><div class="line">    onStart();  </div><div class="line">    mDecor = mWindow.getDecorView();  </div><div class="line">    <span class="keyword">if</span> (mActionBar == <span class="keyword">null</span> &amp;&amp; mWindow.hasFeature(Window.FEATURE_ACTION_BAR)) &#123;  </div><div class="line">        <span class="keyword">final</span> ApplicationInfo info = mContext.getApplicationInfo();  </div><div class="line">        mWindow.setDefaultIcon(info.icon);  </div><div class="line">        mWindow.setDefaultLogo(info.logo);  </div><div class="line">        mActionBar = <span class="keyword">new</span> WindowDecorActionBar(<span class="keyword">this</span>);  </div><div class="line">    &#125;  </div><div class="line">    WindowManager.LayoutParams l = mWindow.getAttributes();  </div><div class="line">    <span class="keyword">if</span> ((l.softInputMode  </div><div class="line">            &amp; WindowManager.LayoutParams.SOFT_INPUT_IS_FORWARD_NAVIGATION) == <span class="number">0</span>) &#123;  </div><div class="line">        WindowManager.LayoutParams nl = <span class="keyword">new</span> WindowManager.LayoutParams();  </div><div class="line">        nl.copyFrom(l);  </div><div class="line">        nl.softInputMode |=  </div><div class="line">                WindowManager.LayoutParams.SOFT_INPUT_IS_FORWARD_NAVIGATION;  </div><div class="line">        l = nl;  </div><div class="line">    &#125;  </div><div class="line">    mWindowManager.addView(mDecor, l);  </div><div class="line">    mShowing = <span class="keyword">true</span>;  </div><div class="line">    sendShowMessage();  </div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>在调用底层的show方法时，会先进行一次判断，第一次show之后mShowing已经设为true。那么第二次调用时，判断到已经显示，就不会再次调用绘制逻辑</p>
+<h2 id="在show方法中主要做了如下几件事："><a href="#在show方法中主要做了如下几件事：" class="headerlink" title="在show方法中主要做了如下几件事："></a>在show方法中主要做了如下几件事：</h2><ol>
+<li>通过dispatchOnCreate函数来调用AlertDialog的onCreate函数</li>
+<li>然后调用AlertDialog的onStart函数</li>
+<li>最后将Dialog的DecorView的添加到WindowManager中</li>
+</ol>
+<p>那么建造者模式就到这儿了，更详细的挖掘还得去挖源码</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/07/25/RemoteViews的内部机制/" rel="next" title="RemoteViews的内部机制">
+                <i class="fa fa-chevron-left"></i> RemoteViews的内部机制
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/userpic.jpg"
+               alt="XuJiaoJie" />
+          <p class="site-author-name" itemprop="name">XuJiaoJie</p>
+           
+              <p class="site-description motion-element" itemprop="description">Never stop, search for better yourself</p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives/">
+                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Builder"><span class="nav-number">1.</span> <span class="nav-text">Builder</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#栗子"><span class="nav-number">2.</span> <span class="nav-text">栗子</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number">3.</span> <span class="nav-text">总结</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Android源码中Builder模式实现"><span class="nav-number">4.</span> <span class="nav-text">Android源码中Builder模式实现</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#在show方法中主要做了如下几件事："><span class="nav-number">5.</span> <span class="nav-text">在show方法中主要做了如下几件事：</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">XuJiaoJie</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+  
+  <script type="text/javascript" src="/lib/canvas-nest/canvas-nest.min.js"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.1"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.1"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.1"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.1"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.4.js"></script>
+  <script>AV.initialize("ijvKIHTx641VhncUAOKxTgyS-gzGzoHsz", "v3lnrYnhWmGzphYCPQ3GhyA0");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

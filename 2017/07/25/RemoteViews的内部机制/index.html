@@ -93,17 +93,20 @@
 
 
 
-<meta name="description" content="Welcome to Hexo! This is your very first post. Check documentation for more info. If you get any problems when using Hexo, you can find the answer in troubleshooting or you can ask me on GitHub. Quick">
+<meta name="description" content="RemoteView**RemoteViews的作用是在其他进程中显示并更新View的界面，主要用于通知栏和桌面小部件。RemoteViews并不能支持所有的View类型，它所支持的所有类型如下所示： Layout：FrameLayout、LinearLayout、RelativeLayout、GridLayout View：AnalogClock、Button、Chronometer、Iamge">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Hello World">
-<meta property="og:url" content="http://yoursite.com/2017/07/23/hello-world/index.html">
+<meta property="og:title" content="RemoteViews的内部机制">
+<meta property="og:url" content="http://yoursite.com/2017/07/25/RemoteViews的内部机制/index.html">
 <meta property="og:site_name" content="XuBlog">
-<meta property="og:description" content="Welcome to Hexo! This is your very first post. Check documentation for more info. If you get any problems when using Hexo, you can find the answer in troubleshooting or you can ask me on GitHub. Quick">
+<meta property="og:description" content="RemoteView**RemoteViews的作用是在其他进程中显示并更新View的界面，主要用于通知栏和桌面小部件。RemoteViews并不能支持所有的View类型，它所支持的所有类型如下所示： Layout：FrameLayout、LinearLayout、RelativeLayout、GridLayout View：AnalogClock、Button、Chronometer、Iamge">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2017-07-23T10:21:41.506Z">
+<meta property="og:image" content="http://img.blog.csdn.net/20170718125724356?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvWHVKaWFvSmll/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center">
+<meta property="og:image" content="http://img.blog.csdn.net/20170718125823892?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvWHVKaWFvSmll/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center">
+<meta property="og:updated_time" content="2017-07-25T08:21:06.768Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Hello World">
-<meta name="twitter:description" content="Welcome to Hexo! This is your very first post. Check documentation for more info. If you get any problems when using Hexo, you can find the answer in troubleshooting or you can ask me on GitHub. Quick">
+<meta name="twitter:title" content="RemoteViews的内部机制">
+<meta name="twitter:description" content="RemoteView**RemoteViews的作用是在其他进程中显示并更新View的界面，主要用于通知栏和桌面小部件。RemoteViews并不能支持所有的View类型，它所支持的所有类型如下所示： Layout：FrameLayout、LinearLayout、RelativeLayout、GridLayout View：AnalogClock、Button、Chronometer、Iamge">
+<meta name="twitter:image" content="http://img.blog.csdn.net/20170718125724356?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvWHVKaWFvSmll/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center">
 
 
 
@@ -131,13 +134,13 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com/2017/07/23/hello-world/"/>
+  <link rel="canonical" href="http://yoursite.com/2017/07/25/RemoteViews的内部机制/"/>
 
 
 
 
 
-  <title>Hello World | XuBlog</title>
+  <title>RemoteViews的内部机制 | XuBlog</title>
   
 
 
@@ -266,7 +269,7 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/07/23/hello-world/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/07/25/RemoteViews的内部机制/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="XuJiaoJie">
@@ -283,7 +286,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">Hello World</h1>
+          <h1 class="post-title" itemprop="name headline">RemoteViews的内部机制</h1>
         
 
         <div class="post-meta">
@@ -295,8 +298,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-07-23T18:21:41+08:00">
-                2017-07-23
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-07-25T16:21:06+08:00">
+                2017-07-25
               </time>
             
 
@@ -313,7 +316,7 @@
 
           
           
-             <span id="/2017/07/23/hello-world/" class="leancloud_visitors" data-flag-title="Hello World">
+             <span id="/2017/07/25/RemoteViews的内部机制/" class="leancloud_visitors" data-flag-title="RemoteViews的内部机制">
                <span class="post-meta-divider">|</span>
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -341,15 +344,22 @@
       
 
       
-        <p>Welcome to <a href="https://hexo.io/" target="_blank" rel="external">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/" target="_blank" rel="external">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html" target="_blank" rel="external">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues" target="_blank" rel="external">GitHub</a>.</p>
-<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ hexo new <span class="string">"My New Post"</span></div></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/writing.html" target="_blank" rel="external">Writing</a></p>
-<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ hexo server</div></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/server.html" target="_blank" rel="external">Server</a></p>
-<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ hexo generate</div></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/generating.html" target="_blank" rel="external">Generating</a></p>
-<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ hexo deploy</div></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/deployment.html" target="_blank" rel="external">Deployment</a></p>
+        <h2 id="RemoteView"><a href="#RemoteView" class="headerlink" title="RemoteView"></a>RemoteView</h2><p>**RemoteViews的作用是在其他进程中显示并更新View的界面，主要用于通知栏和桌面小部件。<br>RemoteViews并不能支持所有的View类型，它所支持的所有类型如下所示：</p>
+<p><strong>Layout：</strong>FrameLayout、LinearLayout、RelativeLayout、GridLayout</p>
+<p><strong>View：</strong>AnalogClock、Button、Chronometer、IamgeView、ProgressBar、TextView、ViewFlipper、ListView、GridView、StackView、AdapterViewFlipper、ViewStub</p>
+<p>RemoteViews由于跨进程，没有提供findViewById方法，而是提供了一系列set方法（大部分set方法是通过反射实现的）来完成，部分set方法如下所示：</p>
+<a id="more"></a>
+<p><img src="http://img.blog.csdn.net/20170718125724356?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvWHVKaWFvSmll/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center" alt=""></p>
+<p>通知栏和桌面小部件分别由NotificationManager和AppWidgetManager管理，而NotificationManager和AppWidgetManager通过Binder分别和SystemServer进程中的NotifitionManagerService以及AppWidgetService进行通信。由此可见，通知栏和桌面小部件中的布局文件实际上市在NotifitionManagerService和AppWidgetService中被加载的，而它们运行在系统的SystemServer中，这就和我们的进程构成了跨进程通信的场景。</p>
+<h2 id="具体过程"><a href="#具体过程" class="headerlink" title="具体过程"></a>具体过程</h2><p><strong>首先RemoteViews会通过Binder传递到SystemServer进程，这是因为RemoteViews实现了Parcelable接口，因此它可以跨进程传输，系统会根据RemoteViews中的包名等信息区得到该应用的资源。然后会通过LayoutInflater加载RemoteViews中的布局文件，在SystemServer进程中加载后的布局文件是一个普通的View，只不过相对我们的进程它是一个RemoteViews而已。接着系统会对View执行一系列的界面更新任务，这些任务就是我们通过set方法提交的。set方法对View所做的更新并不是立刻执行的，在RemoteViews内部会记录所有的更新操作，具体的执行操作要等到RemoteViews被加载以后才能执行，这样RemoteViews就可以在SystemServer进程中显示了。当需要更新RemoteViews时，我们需要调用一系列set方法并通过NotificationManager和AppWidgetManager来提交更新任务，具体的更新操作也是在SystemServer进程中文成的。</strong></p>
+<p>RemoteViews内部提供了一个Action的概念，Action代表一个View操作，Action同样实现了Parcelable接口。系统首先将VIew操作封装带Action对象并将这些对象传输到远程进程，接着在远程进程中执行Action对象的具体操作。我们在应用中每调用一次set方法，RemoteViews中就会添加一个对应的Action对象，当我们通过NotificationManager和AppWidgetManager来提交我们的更新时，这些Action对象就会传输到远程进程并在远程进程中依次执行。远程进程通过RemoteViews的apply方法进行View的更新操作，RemoteViews的apply方法内部则会去调用所有Action对象并调用它们的apply方法，具体的View更新操作游Action对象的apply方法来完成。大致过程 可参看下图：</p>
+<p><img src="http://img.blog.csdn.net/20170718125823892?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvWHVKaWFvSmll/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center" alt=""></p>
+<h2 id="源码分析"><a href="#源码分析" class="headerlink" title="源码分析"></a>源码分析</h2><p>分析一下setTextViewText方法，源码如下：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setTextViewText</span><span class="params">(<span class="keyword">int</span> viewId, CharSequence text)</span> </span>&#123;  </div><div class="line">    setCharSequence(viewId, <span class="string">"setText"</span>, text);  </div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>看一下setCharSequence方法的源码：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setCharSequence</span><span class="params">(<span class="keyword">int</span> viewId, String methodName, CharSequence value)</span> </span>&#123;  </div><div class="line">    addAction(<span class="keyword">new</span> ReflectionAction(viewId, methodName, ReflectionAction.CHAR_SEQUENCE, value));  </div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>addAction方法的源码是这样的：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">addAction</span><span class="params">(Action a)</span> </span>&#123;  </div><div class="line">    <span class="keyword">if</span> (hasLandscapeAndPortraitLayouts()) &#123;  </div><div class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> RuntimeException(<span class="string">"RemoteViews specifying separate landscape and portrait"</span> +  </div><div class="line">                <span class="string">" layouts cannot be modified. Instead, fully configure the landscape and"</span> +  </div><div class="line">                <span class="string">" portrait layouts individually before constructing the combined layout."</span>);  </div><div class="line">    &#125;  </div><div class="line">    <span class="keyword">if</span> (mActions == <span class="keyword">null</span>) &#123;  </div><div class="line">        mActions = <span class="keyword">new</span> ArrayList&lt;Action&gt;();  </div><div class="line">    &#125;  </div><div class="line">    mActions.add(a);  </div><div class="line">    <span class="comment">// update the memory usage stats  </span></div><div class="line">    a.updateMemoryUsageEstimate(mMemoryUsageCounter);  </div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>RemoteViews内部有一个ArrayList的mActions成员，每调用一次set方法，就会创建一个Action对象并加入到ArrayList中。<br>接下来看一下RemoteView的apply方法：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> View <span class="title">apply</span><span class="params">(Context context, ViewGroup parent, OnClickHandler handler)</span> </span>&#123;  </div><div class="line">    RemoteViews rvToApply = getRemoteViewsToApply(context);  </div><div class="line">    View result = inflateView(context, rvToApply, parent);  </div><div class="line">    loadTransitionOverride(context, handler);  </div><div class="line">    rvToApply.performApply(result, parent, handler);  </div><div class="line">    <span class="keyword">return</span> result;  </div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>由上面代码可看出，加载出RemoteViews的布局文件后通过performApply方法执行操作，performApply方法内部则是遍历mActions并执行每一个Action对象的apply方法。</p>
+<p><strong>通知栏和桌面小部件的工作过程和上面的描述过程是一致的，通过NotificationManager和AppWidgetManager更新界面，在其内部的确是通过RemoteView是的apply和reapply方法来加载或者更新界面的，apply和reapply的区别在于：apply会加载局部并更新界面，而reapply则只会更新界面。</strong></p>
 
       
     </div>
@@ -386,14 +396,18 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
+              <a href="/2017/07/25/源码分析多进程下的SharedPreferences/" rel="next" title="源码分析多进程下的SharedPreferences">
+                <i class="fa fa-chevron-left"></i> 源码分析多进程下的SharedPreferences
+              </a>
+            
           </div>
 
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2017/07/24/设计模式之装饰者模式/" rel="prev" title="设计模式之装饰者模式">
-                设计模式之装饰者模式 <i class="fa fa-chevron-right"></i>
+              <a href="/2017/07/25/设计模式之Builder和AlertDialog的源码分析/" rel="prev" title="设计模式之Builder和AlertDialog的源码分析">
+                设计模式之Builder和AlertDialog的源码分析 <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
@@ -506,7 +520,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Quick-Start"><span class="nav-number">1.</span> <span class="nav-text">Quick Start</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Create-a-new-post"><span class="nav-number">1.1.</span> <span class="nav-text">Create a new post</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Run-server"><span class="nav-number">1.2.</span> <span class="nav-text">Run server</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Generate-static-files"><span class="nav-number">1.3.</span> <span class="nav-text">Generate static files</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Deploy-to-remote-sites"><span class="nav-number">1.4.</span> <span class="nav-text">Deploy to remote sites</span></a></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#RemoteView"><span class="nav-number">1.</span> <span class="nav-text">RemoteView</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#具体过程"><span class="nav-number">2.</span> <span class="nav-text">具体过程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#源码分析"><span class="nav-number">3.</span> <span class="nav-text">源码分析</span></a></li></ol></div>
             
 
           </div>

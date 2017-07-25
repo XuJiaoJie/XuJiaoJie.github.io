@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Hexo, NexT" />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.1" />
+
+
+
+
+
+
+<meta name="description" content="概述IPC方式，即Android中的跨进程通信方式，主要有讲了：Bundle、文件共享、AIDL、Messenger、ContentProvider、Socket 使用Bundle（最简单的进程间通信方式）四大组件中的三大组件（Activity、Service、Receiver）都是支持在Intent中传递Bundle数据的，由于Bundle实现了Parcelable接口，所以它可以方便地在不同的">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Android中的IPC方式">
+<meta property="og:url" content="http://yoursite.com/2017/07/25/Android中的IPC方式/index.html">
+<meta property="og:site_name" content="XuBlog">
+<meta property="og:description" content="概述IPC方式，即Android中的跨进程通信方式，主要有讲了：Bundle、文件共享、AIDL、Messenger、ContentProvider、Socket 使用Bundle（最简单的进程间通信方式）四大组件中的三大组件（Activity、Service、Receiver）都是支持在Intent中传递Bundle数据的，由于Bundle实现了Parcelable接口，所以它可以方便地在不同的">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://yoursite.com/2017/07/25/Android中的IPC方式/index_files/83e55523-c4ed-454c-9a56-249a019de44d.jpg">
+<meta property="og:image" content="http://img.blog.csdn.net/20170522180731080?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvWHVKaWFvSmll/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center">
+<meta property="og:updated_time" content="2017-07-25T09:21:32.823Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Android中的IPC方式">
+<meta name="twitter:description" content="概述IPC方式，即Android中的跨进程通信方式，主要有讲了：Bundle、文件共享、AIDL、Messenger、ContentProvider、Socket 使用Bundle（最简单的进程间通信方式）四大组件中的三大组件（Activity、Service、Receiver）都是支持在Intent中传递Bundle数据的，由于Bundle实现了Parcelable接口，所以它可以方便地在不同的">
+<meta name="twitter:image" content="http://yoursite.com/2017/07/25/Android中的IPC方式/index_files/83e55523-c4ed-454c-9a56-249a019de44d.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"right","display":"always","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2017/07/25/Android中的IPC方式/"/>
+
+
+
+
+
+  <title>Android中的IPC方式 | XuBlog</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-right page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">XuBlog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/07/25/Android中的IPC方式/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="XuJiaoJie">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/userpic.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="XuBlog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Android中的IPC方式</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-07-25T17:21:32+08:00">
+                2017-07-25
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/2017/07/25/Android中的IPC方式/" class="leancloud_visitors" data-flag-title="Android中的IPC方式">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">阅读次数 </span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p><strong>IPC方式，即Android中的跨进程通信方式，主要有讲了：Bundle、文件共享、AIDL、Messenger、ContentProvider、Socket</strong></p>
+<h2 id="使用Bundle（最简单的进程间通信方式）"><a href="#使用Bundle（最简单的进程间通信方式）" class="headerlink" title="使用Bundle（最简单的进程间通信方式）"></a>使用Bundle（最简单的进程间通信方式）</h2><p>四大组件中的三大组件（Activity、Service、Receiver）都是支持在Intent中传递Bundle数据的，由于Bundle实现了Parcelable接口，所以它可以方便地在不同的进程间传输。</p>
+<a id="more"></a>
+<p>基于这一点，当我们在一个进程中启动了另一个进程的Activity、Service和Receiver，我们可以在Bundle中附加我们需要传输给远程进程的信息并通过Intent发送出去。当然，我们传输的数据必须是能够被序列化的，比如基本类型，实现了Parcelable接口的对象、实现了Serializable接口的对象以及一些Android支持的特殊对象，具体内容可以看Bundle这个类，就可以看到它所有支持的类型。</p>
+<p><strong>除了直接传递数据外，还有一种特殊情况</strong><br>       比如A进程正在进行一个计算，计算完成后它要启动B进程的一个组件并把计算结果传递给B进程，可是遗骸的是这个计算结果不支持放入Bundle中，因此无法通过Intent来传输，这个时候如果我们用其他IPC方式就会略显复杂。可以kaolv如下方式，我们通过Intent启动B进程的一个Service组件（比如IntentService），让Service在后台进行计算，计算完毕后再启动B进程中真正要启动的目标组件，由于Service也运行在B进程中，所以目标组件就可以直接获取计算结果，这样一来就轻松解决了跨进程的问题。这种方式的核心思想在于将原本需要在A进程的计算任务转移到B进程的后台Service中去执行，这样就成功避免了进程间通信问题，而且只用了很小的代价。</p>
+<h2 id="使用文件共享"><a href="#使用文件共享" class="headerlink" title="使用文件共享"></a>使用文件共享</h2><p><strong>共享文件也是一种不错的进程间通信方式，两个进程通过读/写同一个文件来交换数据，比如A进程把数据写入文件，B进程通过读取这个文件来获取数据</strong><br>Android系统是基于Linux的，使得其并发读/写文件可以没有限制地进行，甚至两个线程同时对一个文件进行写操作都是允许的，尽管这可能chuwenti。通过文件交换数据很好使用，除了可以交换一些文本信息外，我们还可以序列化一个对象到文本系统中的同时从另一个进程中恢复这个对象，下面就展示这种使用方法。</p>
+<h3 id="栗子"><a href="#栗子" class="headerlink" title="栗子:"></a>栗子:</h3><p>在MainActivity的onResume中序列化一个User对象到sd卡上的一个文件里，然后在SecondActivity的onResume中去反序列化。关键代码如下：<br><strong>MainActivity</strong><br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">persistToFile</span><span class="params">()</span> </span>&#123;</div><div class="line">        <span class="keyword">new</span> Thread(<span class="keyword">new</span> Runnable() &#123;</div><div class="line">            <span class="meta">@Override</span></div><div class="line">            <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</div><div class="line">                User user = <span class="keyword">new</span> User(<span class="string">"1"</span>, <span class="string">"jek"</span>, <span class="keyword">false</span>);</div><div class="line">                File dir = <span class="keyword">new</span> File(PATH);</div><div class="line">                <span class="keyword">if</span> (!dir.exists()) &#123;</div><div class="line">                    dir.mkdir();</div><div class="line">                &#125;</div><div class="line">                File cachedFile = <span class="keyword">new</span> File(PATH);</div><div class="line">                ObjectOutputStream objectOutputStream = <span class="keyword">null</span>;</div><div class="line">                <span class="keyword">try</span> &#123;</div><div class="line">                    objectOutputStream = <span class="keyword">new</span> ObjectOutputStream(<span class="keyword">new</span> FileOutputStream(cachedFile));</div><div class="line">                    objectOutputStream.writeObject(user);</div><div class="line">                &#125; <span class="keyword">catch</span> (IOException e) &#123;</div><div class="line">                    e.printStackTrace();</div><div class="line">                &#125;</div><div class="line">            &#125;</div><div class="line">        &#125;).start();</div><div class="line">  &#125;</div></pre></td></tr></table></figure></p>
+<p><strong>SecondActivity</strong><br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">recoverFromFile</span><span class="params">()</span> </span>&#123;</div><div class="line">       <span class="keyword">new</span> Thread(<span class="keyword">new</span> Runnable() &#123;</div><div class="line">           <span class="meta">@Override</span></div><div class="line">           <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</div><div class="line">               User user = <span class="keyword">null</span>;</div><div class="line">               File cachedFile = <span class="keyword">new</span> File(MainActivity.PATH);</div><div class="line">               <span class="keyword">if</span>(cachedFile.exists())&#123;</div><div class="line">                   ObjectInputStream objectInputStream = <span class="keyword">null</span>;</div><div class="line">                   <span class="keyword">try</span> &#123;</div><div class="line">                       objectInputStream = <span class="keyword">new</span> ObjectInputStream(<span class="keyword">new</span> FileInputStream(cachedFile));</div><div class="line">                       user = (User) objectInputStream.readObject();</div><div class="line">                   &#125; <span class="keyword">catch</span> (IOException e) &#123;</div><div class="line">                       e.printStackTrace();</div><div class="line">                   &#125; <span class="keyword">catch</span> (ClassNotFoundException e) &#123;</div><div class="line">                       e.printStackTrace();</div><div class="line">                   &#125;</div><div class="line">               &#125;</div><div class="line">           &#125;</div><div class="line">       &#125;).start();</div><div class="line">   &#125;</div></pre></td></tr></table></figure></p>
+<p> 通过文件共享的方式来共享数据对文件格式是没有具体要求的，比如可以是文本文件，也可以是XML文件，只要读/写双方约定数据格式即可。但也有局限性，比如并发读/写的问题，像上面的例子，如果并发读/写，那么我们读出的内容有可能不是最新的，如果是并发写的话那就更加严重。因此我们要尽量避免并发写这种情况的发生或者考虑使用线程同步来限制多个线程的写操作。<br><strong>文件共享方式适合在对数据同步要求不高的进程之间进行通信，并且要妥善处理并发读/写的问题</strong></p>
+<p><strong>SharedPreferences是个特例，众所周知，sharedPreferences是Android中提供的轻量级存储方案，它通过键值对的方式来存储数据，在底层实现上它采用XML文件来存储键值对，每个应用的sharedPreferences文件都可以在当前包所在的data目录下查看到（一般来说，它的目录位于/data/data/package name/shared_prefs目录下，其中package name表示当前应用的包名）。从本质上来讲，Sharedpreferences也属于文件的一种，但是由于系统对它的读/写有一定的缓存策略，即在内存中会有一份SharePreferences文件的缓存，因此在多进程模式下，系统对他的读/写就变得不可靠了，当面对高并发的读/写访问，SharedPreferences有很大的几率会丢失数据，因此，不建议在进程间通信中使用SharedPreferences。</strong></p>
+<h2 id="使用Messenger"><a href="#使用Messenger" class="headerlink" title="使用Messenger"></a>使用Messenger</h2><p><strong>Messenger可以翻译为信使，顾名思义，通过它可以在不同进程中传递Message对象，在Message中放入我们需要传递的数据，就可以轻松地实现数据的进程传递了。Messenger是一种轻量级的IPC方案，它的底层实现是AIDL。</strong><br>从Messenger的构造方法的实现上可以看出AIDL的痕迹，不管是IMessenger还是Stub.asInterface，这种使用方法都表明它的底层是AIDL<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="title">Messenger</span><span class="params">(Handler target)</span> </span>&#123;</div><div class="line">    mTarget = target.getIMessenger();</div><div class="line">&#125;</div><div class="line"> </div><div class="line"><span class="function"><span class="keyword">public</span> <span class="title">Messenger</span><span class="params">(IBinder target)</span></span>&#123;</div><div class="line">    mTarget = IMessenger.Stud.asInterface(target);</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>Messenger是对AIDL做了封装，使得我们可以更简单地进行进程间通信，由于Messenger进行跨进程通信时请求队列是同步进行的，无法并发执行，一次处理一个请求，因此在服务端我们不用考虑线程同步的问题，这是因为服务端中不存在并发执行的情况<br><strong>实现一个Messenger有如下步骤，分为服务端和客户端：</strong></p>
+<ol>
+<li><strong>服务端进程</strong><br>首先，我们需要在服务端创建一个Service来处理客户端的连接请求，同时创建一个Handler并通过它来创建一个Messenger对象，然后在Service的onBind中返回这个Messenger对象底层的Binder即可。</li>
+<li><strong>客户端进程</strong><br>客户端进程中，首先要绑定服务端的Service，绑定成功后用服务端返回的IBinder对象创建一个Messenger，通过这个Messenger就可以向服务端发送消息了，发送消息类型为Message对象。如果需要服务端能够回应客户端，就像服务端一样，我们还需要创建一个Handler并创建一个新的Messenger，并把这个Messenger对象通过Message的replyTo参数传递给服务端，服务端通过这个replyTo参数就可以回应客户端了。</li>
+</ol>
+<h3 id="例子："><a href="#例子：" class="headerlink" title="例子："></a>例子：</h3><h4 id="服务端实现"><a href="#服务端实现" class="headerlink" title="服务端实现"></a>服务端实现</h4><p>　　实现一个 Service 类, 定义处理消息的 Messenger 对象, 在 OnBind 时使用 Messenger 对象的 getBinder() 方法返回 Binder 对象.<br>　　创建 Messenger 对象时, 使用一个 Handler 对象构造, 此 Handler 用于处理客户端发来的消息<br>　　如果服务端需要向客户端返回数据, 在 Message 对象中取出客户端的 Messenger 对象(Message 对象的 replyTo 参数), 向其发送消息即可<br><figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div></pre></td><td class="code"><pre><div class="line">public class MyService extends Service &#123;</div><div class="line"> </div><div class="line">    protected static final String TAG = "debug";</div><div class="line">    </div><div class="line">    private Messenger mMessenger = new Messenger(new MessengerHandler());</div><div class="line"> </div><div class="line">    @Override</div><div class="line">    public IBinder onBind(Intent intent) &#123;</div><div class="line">        return mMessenger.getBinder();</div><div class="line">    &#125;</div><div class="line">    </div><div class="line">    private static class MessengerHandler extends Handler &#123;</div><div class="line">        @Override</div><div class="line">        public void handleMessage(Message msg) &#123;</div><div class="line">            switch (msg.what) &#123;</div><div class="line">            case MsgConstants.MESSGE_FROM_CLIENT:</div><div class="line">                Log.d(TAG, "service get message");</div><div class="line">                Bundle data = msg.getData();</div><div class="line">                String msgContent = data.getString("msg"); </div><div class="line">                Log.d(TAG, "" + msgContent);</div><div class="line">                </div><div class="line">                // 回复客户端</div><div class="line">                Messenger client = msg.replyTo;</div><div class="line">                Bundle replyData = new Bundle();</div><div class="line">                replyData.putString("reply", "你的消息&lt;" + msgContent +"&gt;,我已收到");</div><div class="line">                Message replyMsg = Message.obtain();</div><div class="line">                replyMsg.what = MsgConstants.MESSGE_FROM_SERVICE;</div><div class="line">                replyMsg.setData(replyData);</div><div class="line">                try &#123;</div><div class="line">                    client.send(replyMsg);</div><div class="line">                &#125; catch (RemoteException e) &#123;</div><div class="line">                    Log.e(TAG, "", e);</div><div class="line">                &#125;</div><div class="line">                break;</div><div class="line">            default:</div><div class="line">                super.handleMessage(msg);</div><div class="line">                break;</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line"> </div><div class="line">// AndoidManifest.xml 中注册服务</div><div class="line">&lt;service</div><div class="line">    android:name="com.example.MyService"</div><div class="line">    android:exported="true"</div><div class="line">    android:process=":remote" &gt;</div><div class="line">    &lt;intent-filter&gt;</div><div class="line">        &lt;action android:name="com.example.MyService" /&gt;</div><div class="line">    &lt;/intent-filter&gt;</div><div class="line">&lt;/service&gt;</div></pre></td></tr></table></figure></p>
+<h4 id="客户端实现"><a href="#客户端实现" class="headerlink" title="客户端实现"></a>客户端实现</h4><p>　　首先需要 bindService, 成功时在 ServiceConnection 的 onServiceConnected() 方法中, 将传入 IBinder 对象构造一个 Messenger 对象, 此 Messager 对象用于向服务端发送消息.<br>　　如果需要处理服务端返回的数据, 则还需要创建另外一个 Messenger 对象. 在向服务端发送数据时, 将 Message 对象的 replyTo 设置为该 Messenger 对象<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MessengerActivity</span> <span class="keyword">extends</span> <span class="title">Activity</span></span>&#123;</div><div class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> String TAG = <span class="string">"MessengerActivity"</span>;</div><div class="line">    <span class="keyword">private</span> Messenger mService;</div><div class="line"> </div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">onCreate</span><span class="params">(Bundle savedInstanceState)</span></span>&#123;</div><div class="line">       <span class="keyword">super</span>.onCreate(savedInstanceState);</div><div class="line">       setContentView(R.layout.activity_messenger);</div><div class="line">       <span class="comment">// 连接 Service</span></div><div class="line">       Intent service = <span class="keyword">new</span> Intent(<span class="keyword">this</span>,MyService.class);</div><div class="line">       bindService(service, mConnection, Service.BIND_AUTO_CREATE);</div><div class="line">    &#125;</div><div class="line"> </div><div class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">MessengerHandler</span> <span class="keyword">extends</span> <span class="title">Handler</span> </span>&#123;</div><div class="line">        <span class="meta">@Override</span></div><div class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">handleMessage</span><span class="params">(Message msg)</span> </span>&#123;</div><div class="line">            Log.d(TAG, <span class="string">"client get message"</span>);</div><div class="line">            <span class="keyword">switch</span> (msg.what) &#123;</div><div class="line">            <span class="keyword">case</span> MsgConstants.MESSGE_FROM_SERVICE:</div><div class="line">                Bundle data = msg.getData();</div><div class="line">                Log.d(TAG, <span class="string">""</span> + data.getString(<span class="string">"reply"</span>));</div><div class="line">                <span class="keyword">break</span>;</div><div class="line">            <span class="keyword">default</span>:</div><div class="line">                <span class="keyword">super</span>.handleMessage(msg);</div><div class="line">                <span class="keyword">break</span>;</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">    </div><div class="line">    <span class="keyword">private</span> Messenger mMessenger = <span class="keyword">new</span> Messenger(<span class="keyword">new</span> MessengerHandler());</div><div class="line"></div><div class="line">    <span class="keyword">private</span> ServiceConnection mConnection = <span class="keyword">new</span> ServiceConnection() &#123;</div><div class="line">        <span class="meta">@Override</span></div><div class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onServiceDisconnected</span><span class="params">(ComponentName name)</span> </span>&#123;</div><div class="line">        &#125;</div><div class="line">        </div><div class="line">        <span class="meta">@Override</span></div><div class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onServiceConnected</span><span class="params">(ComponentName name, IBinder service)</span> </span>&#123;</div><div class="line">            mService = <span class="keyword">new</span> Messenger(service);</div><div class="line">            <span class="comment">// 向服务端发送数据</span></div><div class="line">            <span class="keyword">try</span> &#123;</div><div class="line">               Message msg = Message.obtain();</div><div class="line">               msg.what = MsgConstants.MESSGE_FROM_CLIENT;</div><div class="line">               Bundle data = <span class="keyword">new</span> Bundle();</div><div class="line">               data.putString(<span class="string">"msg"</span>, <span class="string">"kkkk"</span>);</div><div class="line">               msg.setData(data);</div><div class="line">        </div><div class="line">              <span class="comment">// 设置服务端回复的Messenger</span></div><div class="line">              msg.replyTo = mMessenger;</div><div class="line">        </div><div class="line">              mService.send(msg);</div><div class="line">           &#125; <span class="keyword">catch</span> (RemoteException e) &#123;</div><div class="line">               Log.e(TAG, <span class="string">""</span>, e);</div><div class="line">           &#125;</div><div class="line">        &#125;</div><div class="line">    &#125;;</div><div class="line"> </div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">onDestroy</span><span class="params">()</span></span>&#123;</div><div class="line">        unbindService(mConnection);</div><div class="line">        <span class="keyword">super</span>.onDestory();</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p><strong>通过上面的例子可以看出，在Messenger中进行数据传递必须将数据放入Message中而Messenger和Message都实现了Parcelable接口，因此可以跨进程传输。简单单来说，Message中所支持的数据类型都是Messenger所支持的传输类型。实际上，通过Messenger来传输Message，Message中所能使用的载体只有what、arg1、arg2、Bundle以及repyTo。Message的另一个字段object在同一个进程中是很实用的，但是在进程间通信的时候，在Android2.2以前object字段不支持跨进程传输，即便是在2.2之后，也仅仅是系统提供的实现了的Parcelable接口的对象才能通过它来传输。这就意味着我们自定义的Parcelable对象是无法通过object对象来传输的，非系统的Parcelable对象无法通过object字段来传输。</strong><br><strong>最后给出一张Messenger的工作原理图以方便读者更好地理解Messenger</strong><br><img src="index_files/83e55523-c4ed-454c-9a56-249a019de44d.jpg" alt=""></p>
+<p>以上示例是针对同一个应用中不同进程间的通信的，但对于同一个应用中的不同组件，如果它们运行在不同进程中，那么和它们分别属于两个应用没有本质区别，关于这点需要深刻理解，因为这是理解进程间通信的基础。</p>
+<h2 id="使用AIDL"><a href="#使用AIDL" class="headerlink" title="使用AIDL"></a>使用AIDL</h2><p><strong>Messenger是串行的方式处理客户端发来的消息，如果大量的并发请求，那么用Messenger就不太合适了。同时，Messenger的做用户主要是为了传递消息，很多时候我们需要跨进程调用服务端的方法，这种情形用Messenger就无法做到了，但是我们可以使用AIDL来实现跨进程的方法调用，AIDL也是Messenger的底层实现，因此，Messenger本质上也是AIDL，只不过系统为我们做了封装从而方便上层的调用而已。</strong></p>
+<h3 id="服务端"><a href="#服务端" class="headerlink" title="服务端"></a>服务端</h3><p>服务端首先要创建一个Service用来监听客户端的连接请求，然后创建一个AIDL文件，将暴漏给客户端的接口在这个AIDL文件中声明，最后在Service中实现这个AID接口即可</p>
+<h3 id="客户端"><a href="#客户端" class="headerlink" title="客户端"></a>客户端</h3><p>客户端所要做的是，首先需要绑定服务端的Service绑定成功后，将服务端返回的Binder对象转化成AIDl接口所属的类型，接着就可以调用AIDL中的方法<br><strong>下面为一个完整的流程栗子：</strong><br><strong>AIDL接口的创建</strong><br>首先创建一个后缀为AIDL的文件，在里面声明一个接口和两个接口方法。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// IBookManager.aidl</span></div><div class="line"><span class="keyword">package</span> com.liuguilin.ipcsample;</div><div class="line"> </div><div class="line"><span class="keyword">import</span> com.liuguilin.ipcsample.Book;</div><div class="line"><span class="keyword">import</span> com.liuguilin.ipcsample.IOnNewBookArrivedListener.aidl;</div><div class="line"> </div><div class="line"><span class="class"><span class="keyword">interface</span> <span class="title">IBookManager</span> </span>&#123;</div><div class="line"> </div><div class="line">    List&lt;Book&gt;getBookList();</div><div class="line">    <span class="function"><span class="keyword">void</span> <span class="title">addBook</span><span class="params">(in Book book)</span></span>;</div><div class="line">    <span class="function"><span class="keyword">void</span> <span class="title">registerListener</span><span class="params">(IOnNewBookArrivedListener listener)</span></span>;</div><div class="line">    <span class="function"><span class="keyword">void</span> <span class="title">unregisterListener</span><span class="params">(IOnNewBookArrivedListener listener)</span></span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p><strong>AIDL所支持的所有类型：</strong></p>
+<ul>
+<li>基本数据类型（int、long、char、boolean、double等）</li>
+<li>String和CharSequence</li>
+<li>List：只支持ArrayList，里面每个元素都必须是能够被AIDL支持</li>
+<li>Map：只支持HashMap，里面每个元素都必须被AIDL支持，包括key和value</li>
+<li>Parcelable：所有实现了Parcelable接口的对象</li>
+<li>AIDL：所有的AIDL接口本身也可以在AIDL文件中使用</li>
+</ul>
+<p><strong>其中自定义的Parcelable对象和AIDL对象必须要显式import进来，不管它们是否和当前的AIDL文件于同一个包内</strong><br><strong>另外一点，如果AIDL文件中使用了自定义的Parcelable对象，那么必须新建一个和它同名的AIDL文件，并在其中声明它为Parcelable类型。</strong><br>在上面的IBookManager.aidl中用到了Book这个类，所以必须创建Book.aidl，类中添加如西施内容：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">package</span> com.liuguilin.ipcsample;</div><div class="line"> </div><div class="line">parcelable Book;</div></pre></td></tr></table></figure></p>
+<p><strong>注意事项：</strong></p>
+<ul>
+<li>AIDL中除了基本数据类型，其他类型的数据必须标上方向：in、out或者inout，in表示输入型参数，out表示输出型参数，inout表示输入输出型参数。</li>
+<li>AIDL接口中只支持方法，不支持申明静态常量，这一点区别于传统的接口。</li>
+<li>为了方便AIDL的开发，建议把所有和AIDL相关的类和文件全部放入同一个包中。AIDL的包结构在服务端和客户端要保持一致，否则运行会出错，这是因为客户端需要反序列化服务端中和AIDL接口相关的所有类，如果类的完整路径不一样的话，就无法反序列化成功，程序也就无法正常运行。</li>
+</ul>
+<p>接下来用观察者模式实现，当服务端有新书到来时，就会通知每一个申请提醒功能的用户，首先需要提供一个AIDL接口，AIDL中无法使用不同接口：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// IOnNewBookArrivedListener.aidl</span></div><div class="line"><span class="keyword">package</span> com.liuguilin.ipcsample;</div><div class="line"> </div><div class="line"><span class="keyword">import</span> com.liuguilin.ipcsample.Book;</div><div class="line"> </div><div class="line"><span class="class"><span class="keyword">interface</span> <span class="title">IOnNewBookArrivedListener</span> </span>&#123;</div><div class="line"> </div><div class="line">   <span class="function"><span class="keyword">void</span> <span class="title">onNewBookArrived</span><span class="params">(in Book newBook)</span></span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p><strong>远程服务端Service的实现</strong><br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div><div class="line">89</div><div class="line">90</div><div class="line">91</div><div class="line">92</div><div class="line">93</div><div class="line">94</div><div class="line">95</div><div class="line">96</div><div class="line">97</div><div class="line">98</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">BookManagerService</span> <span class="keyword">extends</span> <span class="title">Service</span> </span>&#123;</div><div class="line"> </div><div class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> String TAG = <span class="string">"BookManagerService"</span>;</div><div class="line"> </div><div class="line">    <span class="keyword">private</span> CopyOnWriteArrayList&lt;Book&gt; mBookList = <span class="keyword">new</span> CopyOnWriteArrayList&lt;&gt;();</div><div class="line"> </div><div class="line">    <span class="keyword">private</span> AtomicBoolean mIsServiceDestoryed = <span class="keyword">new</span> AtomicBoolean(<span class="keyword">false</span>);</div><div class="line"> </div><div class="line">    <span class="keyword">private</span> CopyOnWriteArrayList&lt;IOnNewBookArrivedListener&gt;mListenerList = <span class="keyword">new</span> CopyOnWriteArrayList&lt;&gt;();</div><div class="line"> </div><div class="line">    <span class="keyword">private</span> Binder mBinder = <span class="keyword">new</span> IBookManager.Stub() &#123;</div><div class="line"> </div><div class="line">        <span class="meta">@Override</span></div><div class="line">        <span class="function"><span class="keyword">public</span> List&lt;Book&gt; <span class="title">getBookList</span><span class="params">()</span> <span class="keyword">throws</span> RemoteException </span>&#123;</div><div class="line">            <span class="keyword">return</span> mBookList;</div><div class="line">        &#125;</div><div class="line"> </div><div class="line">        <span class="meta">@Override</span></div><div class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">addBook</span><span class="params">(Book book)</span> <span class="keyword">throws</span> RemoteException </span>&#123;</div><div class="line">            mBookList.add(book);</div><div class="line">        &#125;</div><div class="line"> </div><div class="line">        <span class="meta">@Override</span></div><div class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">registerListener</span><span class="params">(IOnNewBookArrivedListener listener)</span> <span class="keyword">throws</span> RemoteException </span>&#123;</div><div class="line">            <span class="keyword">if</span>(!mListenerList.contains(listener))&#123;</div><div class="line">                mListenerList.add(listener);</div><div class="line">            &#125;<span class="keyword">else</span> &#123;</div><div class="line">                Log.i(TAG,<span class="string">"already exists"</span>);</div><div class="line">            &#125;</div><div class="line">            Log.i(TAG,<span class="string">"registerListener size:"</span> + mListenerList.size());</div><div class="line">        &#125;</div><div class="line"> </div><div class="line">        <span class="meta">@Override</span></div><div class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">unregisterListener</span><span class="params">(IOnNewBookArrivedListener listener)</span> <span class="keyword">throws</span> RemoteException </span>&#123;</div><div class="line">                <span class="keyword">if</span>(mListenerList.contains(listener))&#123;</div><div class="line">                    mListenerList.remove(listener);</div><div class="line">                    Log.i(TAG,<span class="string">"remove listener"</span>);</div><div class="line">                &#125;<span class="keyword">else</span> &#123;</div><div class="line">                    Log.i(TAG,<span class="string">"can not remove listener"</span>);</div><div class="line">                &#125;</div><div class="line">            Log.i(TAG,<span class="string">"unregisterListener size:"</span> + mListenerList.size());</div><div class="line">        &#125;</div><div class="line">    &#125;;</div><div class="line"> </div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onCreate</span><span class="params">()</span> </span>&#123;</div><div class="line">        <span class="keyword">super</span>.onCreate();</div><div class="line">        mBookList.add(<span class="keyword">new</span> Book(<span class="number">1</span>,<span class="string">"Android"</span>));</div><div class="line">        mBookList.add(<span class="keyword">new</span> Book(<span class="number">1</span>,<span class="string">"IOS"</span>));</div><div class="line">        <span class="keyword">new</span> Thread(<span class="keyword">new</span> ServiceWorker()).start();</div><div class="line">    &#125;</div><div class="line"> </div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> IBinder <span class="title">onBind</span><span class="params">(Intent intent)</span> </span>&#123;</div><div class="line"> </div><div class="line">        <span class="keyword">return</span> mBinder;</div><div class="line"> </div><div class="line">    &#125;</div><div class="line"> </div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onDestroy</span><span class="params">()</span> </span>&#123;</div><div class="line">        mIsServiceDestoryed.set(<span class="keyword">true</span>);</div><div class="line">        <span class="keyword">super</span>.onDestroy();</div><div class="line">    &#125;</div><div class="line"> </div><div class="line">    <span class="keyword">private</span> <span class="class"><span class="keyword">class</span> <span class="title">ServiceWorker</span> <span class="keyword">implements</span> <span class="title">Runnable</span></span>&#123;</div><div class="line"> </div><div class="line">        <span class="meta">@Override</span></div><div class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</div><div class="line"> </div><div class="line">            <span class="keyword">while</span> (!mIsServiceDestoryed.get())&#123;</div><div class="line">                <span class="keyword">try</span> &#123;</div><div class="line">                    Thread.sleep(<span class="number">5000</span>);</div><div class="line">                &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</div><div class="line">                    e.printStackTrace();</div><div class="line">                &#125;</div><div class="line">                <span class="keyword">int</span> bookId = mBookList.size()+<span class="number">1</span>;</div><div class="line">                Book newBook = <span class="keyword">new</span> Book(bookId,<span class="string">"new book#"</span> + bookId);</div><div class="line">                <span class="keyword">try</span> &#123;</div><div class="line">                    onNewBookArrived(newBook);</div><div class="line">                &#125; <span class="keyword">catch</span> (RemoteException e) &#123;</div><div class="line">                    e.printStackTrace();</div><div class="line">                &#125;</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line"> </div><div class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">onNewBookArrived</span><span class="params">(Book book)</span> <span class="keyword">throws</span> RemoteException</span>&#123;</div><div class="line">        mBookList.add(book);</div><div class="line">        Log.i(TAG,<span class="string">"onNewBookArrived size:"</span> + mListenerList.size());</div><div class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; mListenerList.size(); i++) &#123;</div><div class="line">            IOnNewBookArrivedListener listener = mListenerList.get(i);</div><div class="line">            Log.i(TAG,<span class="string">"listener: "</span>+ listener);</div><div class="line">            listener.onNewBookArrived(book);</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line"> </div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>实现过程也比较简单，注意这里使用了CopyOnWriteArrayLIst，这个支持并发读写。AIDL方法是在服务端的BInder线程池中执行的，因此当多个客户端同时连接的时候，会存在多个线程同时访问的情况，所以我们要在AIDL方法中处理线程同步，而这里直接使用了CopyOnWriteArrayList来进行自动的线程同步。（前面提到AIDL中能够使用的List只有ArrayList，但是这里确实使用了CopyOnWriteArrayList（注意它不是继承ArrayList，和ArrayList一样实现了List接口），能正常工作是因为，AIDL中所支持的是抽象的List，但是在Binder中会按照List的规范去访问数据并最终会形成一个新的ArrayList传递给客户端。所以这里采用CopyONWriteArrayList是完全可以的，和此类型的还有ConcurrentHashMap）</p>
+<p>同时需要注册一下Service，运行在独立的进程：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">&lt;service</div><div class="line">   android:name=<span class="string">".BookManagerService"</span></div><div class="line">   android:process=<span class="string">":remote"</span> /&gt;</div></pre></td></tr></table></figure></p>
+<p><strong>客户端的实现</strong><br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">BookManagerActivity</span> <span class="keyword">extends</span> <span class="title">AppCompatActivity</span> </span>&#123;</div><div class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> String TAG = <span class="string">"BookManagerActivity"</span>;</div><div class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> MESSAGE_NEW_BOOK_ARRIVED = <span class="number">1</span>;</div><div class="line">    <span class="keyword">private</span> IBookManager mRemoteBookManager;</div><div class="line">    <span class="keyword">private</span> Handler handler = <span class="keyword">new</span> Handler() &#123;</div><div class="line">        <span class="meta">@Override</span></div><div class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">handleMessage</span><span class="params">(Message msg)</span> </span>&#123;</div><div class="line">            <span class="keyword">switch</span> (msg.what) &#123;</div><div class="line">                <span class="keyword">case</span> MESSAGE_NEW_BOOK_ARRIVED:</div><div class="line">                    Log.i(TAG, <span class="string">"receive new book:"</span> + msg.obj);</div><div class="line">                    <span class="keyword">break</span>;</div><div class="line">                <span class="keyword">default</span>:</div><div class="line">                    <span class="keyword">super</span>.handleMessage(msg);</div><div class="line">                    <span class="keyword">break</span>;</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">    &#125;;</div><div class="line">    <span class="keyword">private</span> ServiceConnection mConnection = <span class="keyword">new</span> ServiceConnection() &#123;</div><div class="line">        <span class="meta">@Override</span></div><div class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onServiceConnected</span><span class="params">(ComponentName name, IBinder service)</span> </span>&#123;</div><div class="line">            IBookManager bookManager = IBookManager.Stub.asInterface(service);</div><div class="line">            <span class="keyword">try</span> &#123;</div><div class="line">                mRemoteBookManager = bookManager;</div><div class="line">                List&lt;Book&gt; list = bookManager.getBookList();</div><div class="line">                Log.i(TAG, <span class="string">"list Type :"</span> + list.getClass());</div><div class="line">                Book newBook = <span class="keyword">new</span> Book(<span class="number">3</span>, <span class="string">"降龙十八掌"</span>);</div><div class="line">                bookManager.addBook(newBook);</div><div class="line">                Log.i(TAG, <span class="string">"add Book: "</span> + newBook);</div><div class="line">                List&lt;Book&gt; newList = bookManager.getBookList();</div><div class="line">                Log.i(TAG, <span class="string">"query list : "</span> + newList.toString());</div><div class="line">                <span class="comment">//注册</span></div><div class="line">                bookManager.registerListener(mOnNewBookArrivedListener);</div><div class="line">            &#125; <span class="keyword">catch</span> (RemoteException e) &#123;</div><div class="line">                e.printStackTrace();</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">        <span class="meta">@Override</span></div><div class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onServiceDisconnected</span><span class="params">(ComponentName name)</span> </span>&#123;</div><div class="line">            mRemoteBookManager = <span class="keyword">null</span>;</div><div class="line">        &#125;</div><div class="line">    &#125;;</div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">onCreate</span><span class="params">(Bundle savedInstanceState)</span> </span>&#123;</div><div class="line">        <span class="keyword">super</span>.onCreate(savedInstanceState);</div><div class="line">        setContentView(R.layout.activity_book_manager);</div><div class="line">        Intent intent = <span class="keyword">new</span> Intent(<span class="keyword">this</span>, BookManagerService.class);</div><div class="line">        bindService(intent, mConnection, Context.BIND_AUTO_CREATE);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">onDestroy</span><span class="params">()</span> </span>&#123;</div><div class="line">        <span class="keyword">if</span>(mRemoteBookManager != <span class="keyword">null</span>&amp;&amp;mRemoteBookManager.asBinder().isBinderAlive())&#123;</div><div class="line">            <span class="keyword">try</span> &#123;</div><div class="line">            mRemoteBookManager.unregisterListener(mOnNewBookArrivedListener);</div><div class="line">            &#125; <span class="keyword">catch</span> (RemoteException e) &#123;</div><div class="line">                e.printStackTrace();</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">super</span>.onDestroy();</div><div class="line">        unbindService(mConnection);</div><div class="line">    &#125;</div><div class="line"> </div><div class="line">    <span class="keyword">private</span> IOnNewBookArrivedListener mOnNewBookArrivedListener = <span class="keyword">new</span> IOnNewBookArrivedListener.Stub()&#123;</div><div class="line">        <span class="meta">@Override</span></div><div class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onNewBookArrived</span><span class="params">(Book book)</span> <span class="keyword">throws</span> RemoteExeception</span>&#123;</div><div class="line">            mHandler.obtainMeesage(MESSAGE_NEW_BOOK_ARRIVED, Book).sendToTarget();</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line"> </div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>当有新书时，服务端会回调客户端的IOnNewBookArrivedListener对象中的onNewBookArrived方法，但是这个方法是在客户端的Binder线程池中执行的，因此，为了便于进行UI操作，需要有一个Handler可以将其切换到客户端的主线程中执行。<br><strong>然而上面的代码当解注册的时候，会无法找到之前注册的listener，因为Binder会把客户端传递过来的对象重新转化并生成一个新的对象，即注册的时候会在服务端生成一个listener，在解注册的时候，会在服务端生成一个新的listener，由于是跨进程传输，传输的本质是反序列化的过程，这就是为什么AIDL中自定义对象都必须实现Parcelable接口的原因。</strong></p>
+<p>RemoteCallbackList是系统专门提供的用于删除进程listener的接口，RemoteCallbackList是一个泛型，支持管理任意的AIDL接口，这点从下面他的声明就可以看出，因为所有的AIDL接口都继承自IInterface接口<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">RemoteCallbackList</span>&lt;<span class="title">E</span> <span class="keyword">extends</span> <span class="title">IInterface</span>&gt;</span></div></pre></td></tr></table></figure></p>
+<p>它的工作原理很简单，在它的内部有一个Map结构专门用来保存所有的AIDL回调，这个Map的key是IBinder类型，value是Callback类型。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">ArrayMap&lt;IBinder,Callback&gt; mCallbacks = <span class="keyword">new</span> ArrayMap&lt;IBinder,Callback&gt;();</div></pre></td></tr></table></figure></p>
+<p>其中Callback中封装了真正的远程listener，当客户端注册listener的时候，它会吧这个listener的信息存入mCallback中，其中key和value分别通过下面的方式获得：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">IBinder key = listener.asBinder();</div><div class="line">Callback value = <span class="keyword">new</span> Callback(listener,cookie);</div></pre></td></tr></table></figure></p>
+<p>虽说多进程传输客户端的同一个对象会在服务端生成不同的对象，大司农这些新生成的对象有一个共同点，那就是它们的底层的Binder对象时同一个。当客户端解注册的时候，只要遍历服务端的listener并把它删掉即可，这就是RemoteCallbackList为我们做的事。同时，当客户端进程终止的时候，它会自动移除所有的listener，而且内部也实现了线程同步功能，所以我们不必做额外的线程同步工作。<br>要对BookManagerService做一点修改，首先创建一个RemoteCallbackList对象来替代之前的CopyOnWriteArrayList，如下：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">private</span> RemoteCallbackList&lt;IOnNewBookArrivedListener&gt;mListenerList = <span class="keyword">new</span> RemoteCallbackList&lt;IOnNewBookArrivedListener&gt;();</div></pre></td></tr></table></figure></p>
+<p>然后修改registerListener和unregisterListener这两个接口的实现<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@Override</span></div><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">registerListener</span><span class="params">(IOnNewBookArrivedListener listener)</span> <span class="keyword">throws</span> RemoteException </span>&#123;</div><div class="line">    mListenerList.registener(listener);</div><div class="line">&#125;</div><div class="line"> </div><div class="line"><span class="meta">@Override</span></div><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">unregisterListener</span><span class="params">(IOnNewBookArrivedListener listener)</span> <span class="keyword">throws</span> RemoteException </span>&#123;</div><div class="line">    mListenerList.unregistener(listener);</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>最后需要修改一下onNewBookArrived方法<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">onNewBookArrived</span><span class="params">(Book book)</span> <span class="keyword">throws</span> RemoteException</span>&#123;</div><div class="line">        mBookList.add(book);</div><div class="line">        <span class="keyword">final</span> <span class="keyword">int</span> N = mListenerList.beginBroadcast();</div><div class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; N; i++) &#123;</div><div class="line">            IOnNewBookArrivedListener l = mListenerList.getBroadcast(i);</div><div class="line">            <span class="keyword">if</span>(i != <span class="keyword">null</span>)&#123;</div><div class="line">                l.onNewBookArrived(book);</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">        mListenerList.finishBroadcast();</div><div class="line">    &#125;</div></pre></td></tr></table></figure></p>
+<p>我们无法像操作List一样去操作RemoteCallbackList，它并不是一个List，遍历它的时候，必须要按照上面的方式去进行，其中beginBroadcast和finishBroadcast必须配对使用，哪怕我们仅仅是想取RemoteCallbackList中元素的个数。</p>
+<h3 id="UI线程和线程池注意问题"><a href="#UI线程和线程池注意问题" class="headerlink" title="UI线程和线程池注意问题"></a>UI线程和线程池注意问题</h3><ul>
+<li>客户端调用远程服务的方法，被调用的方法运行在服务端的Binder线程池中，同时客户端的线程会被挂起，这个时候如果服务端方法执行比较耗时，而客户端是UI线程的话，可以会ANR。由于客户端的onServiceConnected和onServiceDisconnected方法都运行在UI线程，所以也不可以在它们里面直接调用服务端的耗时操作（上述例子直接调用，有点错误，仅作演示使用）。</li>
+<li>由于服务端给客户端回调的方法本身运行在Binder线程池中，所以在服务端方法中切记不要开线程去进行异步任务。而当远程服务端调用客户端的listener中的方法时，被调用的方法也运行在Binder线程池中，只不过是客户端的线程池，所以，也不可以在服务端中调用客户端的耗时方法。</li>
+<li>由于客户端的IOnNewBookArrivedList中的onNewBookArrived方法运行在客户端的Binder线程池中，所以不能在里面去访问UI相关的内容，需切换到UI线程。</li>
+</ul>
+<h3 id="Binder意外死亡"><a href="#Binder意外死亡" class="headerlink" title="Binder意外死亡"></a>Binder意外死亡</h3><p><strong>往往是由于服务端进程意外停止，这时我们需要重新连接服务。两种方法：</strong><br><strong>一、</strong>给Binder设置DeathRecipient监听，当BInder死亡时，我们会收到binderDied方法的回调，在binderDied方法中我们可以重连远程服务。<br><strong>二、</strong>在onServiceDisconnected中重连远程服务。<br><strong>区别在于：</strong>onServiceDisconnected在客户端的UI线程中被回调，而binderDied在客户端的Binder线程池中被回调，也就是说，在binderDied方法中我们不能访问UI，这就是区别。<br><strong>给服务加入权限验证功能，验证失败则无法调用服务中的方法，在AIDL中进行权限验证，介绍两种方法：</strong><br><strong>一、</strong>在onBind中进行验证，验证不通过就直接返回null，验证失败的客户端就直接无法绑定服务，验证方法可用permisson验证<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">&lt;permission</div><div class="line">   android:name=<span class="string">"com.ryg.chapter_2.permission.ACCESS_BOOK_SERVICR"</span></div><div class="line">   android:protectionLevel=<span class="string">"normal"</span>/&gt;</div></pre></td></tr></table></figure></p>
+<p>在BookManagerService的onBind方法中做权限验证，如下：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> IBinder <span class="title">onBind</span><span class="params">(Intent intent)</span></span>&#123;</div><div class="line">   <span class="keyword">int</span> check = checkCallingOrSelfPermission(<span class="string">"com.ryg.chapter_2.permission.ACCESS_BOOK_SERVICE"</span>);</div><div class="line">   <span class="keyword">if</span>(check == PackageManager.PERMISSION_DENIED)&#123;</div><div class="line">      <span class="keyword">return</span> <span class="keyword">null</span>;</div><div class="line">   &#125; </div><div class="line">   <span class="keyword">return</span> mBinder;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>如果自己内部的应用想绑定服务，只需在AndroidMenifest文件中采用如下方式使用permission即可。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">&lt;uses-permission android:name=<span class="string">"com.ryg.chapter_2.permission.ACCESS_BOOK&gt;SERVICE"</span>/&gt;</div></pre></td></tr></table></figure></p>
+<p><strong>二、</strong>可以在服务端的onTransact方法中进行权限验证，如果验证失败就直接返回false，这样服务端就不会终止执行AIDL中的方法从而达到保护服务端的效果，实现可采用permission验证，具体实现和第一种一样。</p>
+<p>还可采用Uid和Pid来验证，通过getCallingUid和getCallingPid可以拿到客户端所属应用的Uid和Pid，通过这两个参数可以做些验证工作，比如验证包名。下面例子既验证permission又验证了包名。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">onTransact</span><span class="params">(<span class="keyword">int</span> code,Parcel data,Parcel reply,<span class="keyword">int</span> flags)</span><span class="keyword">throws</span> RemoteException</span>&#123;</div><div class="line">    <span class="keyword">int</span> check = checkCallingOrSelfPermission(<span class="string">"com.ryg.chapter_2.permission.ACCESS_BOOK_SERVICE"</span>);</div><div class="line">    <span class="keyword">if</span>(check == ParckageManager.PERMISSION_DENIED)&#123;</div><div class="line">       <span class="keyword">return</span> <span class="keyword">false</span>;</div><div class="line">    &#125;</div><div class="line">    String packageName = <span class="keyword">null</span>;</div><div class="line">    String[] packages = getPackageManager().getPackagesForUid(getCallingUid());</div><div class="line">    <span class="keyword">if</span>(packages != <span class="keyword">null</span> &amp;&amp; packages.length &gt; <span class="number">0</span> )&#123;</div><div class="line">       packageName = packages[<span class="number">0</span>];</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">if</span>(!packageName.startsWith(<span class="string">"com.ryg"</span>))&#123;</div><div class="line">       <span class="keyword">return</span> <span class="keyword">false</span>;</div><div class="line">    &#125;</div><div class="line">    </div><div class="line">    <span class="keyword">return</span> <span class="keyword">super</span>.onTransact(code,data,reply,flages);</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<h3 id="AIDL的使用流程总结"><a href="#AIDL的使用流程总结" class="headerlink" title="AIDL的使用流程总结"></a>AIDL的使用流程总结</h3><p><strong>首先创建一个Service和AIDL接口，接着创建一个类继承AIDL接口中的Stub类并实现Stub类的中的抽象方法，在Service的onBind方法中返回这个类的对象，然后客户端就可以绑定服务端的Service，建立连接后就可以访问远程服务端的方法了</strong></p>
+<h2 id="使用ContentProvider"><a href="#使用ContentProvider" class="headerlink" title="使用ContentProvider"></a>使用ContentProvider</h2><p><strong>ContentProvider是Android提供的专门用于不同应用间进行数据共享的方式，从这一点来看，它天生就适合进程间通信。和Messenger一样，ContentProvider的底层实现也是Binder。</strong><br>系统预置了许多ContentProvider，比如通信录信息、日程表信息等，要跨进程访问这些信息，只需要通过ContentResolver的query、update、insert和delete方法即可。创建一个自定义的ContentProvider很简单，只需要继承ContentProvider类并实现六个抽象方法即可：onCreate、query、update、insert、delete和getType。onCreate代表ContentProvider的创建，做些初始化的工作；getType用来返回一个Uri请求所对应的MIME类型（媒体类型），比如图片、视频等，这个媒体类型还是有点复杂的，如果我们的应用不关注这个选项，可以直接在这个方法中返回null或者“<em>/</em>”；剩下的四个方法对应于CRUD操作，即实现对数据表的增删改查功能。<strong>这六个方法均运行在ContentProvider的进程中，除了onCreate由系统回调并运行在主线程里，其他五个方法均由外界回调并运行在BInder线程池中。</strong></p>
+<h3 id="存储形式"><a href="#存储形式" class="headerlink" title="存储形式"></a>存储形式</h3><p>ContentProvider主要以表格的形式类组织数据，并且可以包含多个表，对于每个表格来说，它们都具有行和列的层次性，行往往对应一行记录，而列对应一条记录中的一个字段，类似于数据库。除了表格的形式外，ContentProvider还支持文件数据，比如图片和视频等。虽然ContentProvider的底层数据看起来像一个SQLite数据库，但是ContentProvider对底层的数据存储方式是没有任何要求的，既可以使用SQLite数据库，也可以是用户普通文件，甚至可以采用内存中的一个对象类进行数据的存储。</p>
+<h3 id="栗子-1"><a href="#栗子-1" class="headerlink" title="栗子"></a>栗子</h3><p>BookProvider类：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div><div class="line">89</div><div class="line">90</div><div class="line">91</div><div class="line">92</div><div class="line">93</div><div class="line">94</div><div class="line">95</div><div class="line">96</div><div class="line">97</div><div class="line">98</div><div class="line">99</div><div class="line">100</div><div class="line">101</div><div class="line">102</div><div class="line">103</div><div class="line">104</div><div class="line">105</div><div class="line">106</div><div class="line">107</div><div class="line">108</div><div class="line">109</div><div class="line">110</div><div class="line">111</div><div class="line">112</div><div class="line">113</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">BookProvider</span> <span class="keyword">extends</span> <span class="title">ContentProvider</span> </span>&#123;</div><div class="line"> </div><div class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> String TAG = <span class="string">"BookProvider"</span>;</div><div class="line"> </div><div class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> String AUTHORITY = <span class="string">"com.ryg.chapter_2.book.provider"</span>;</div><div class="line"> </div><div class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> Uri BOOK_CONTENT_URI = Uri.parse(<span class="string">"content://"</span> + AUTHORITY + <span class="string">"/book"</span>);</div><div class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> Uri USER_CONTENT_URI = Uri.parse(<span class="string">"content://"</span> + AUTHORITY + <span class="string">"/user"</span>);</div><div class="line"> </div><div class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> BOOK_URI_CODE = <span class="number">0</span>;</div><div class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> USER_URI_CODE = <span class="number">1</span>;</div><div class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> UriMatcher sUriMatcher = <span class="keyword">new</span> UriMatcher(UriMatcher.NO_MATCH);</div><div class="line"> </div><div class="line">    <span class="keyword">static</span> &#123;</div><div class="line">        sUriMatcher.addURI(AUTHORITY, <span class="string">"book"</span>, BOOK_URI_CODE);</div><div class="line">        sUriMatcher.addURI(AUTHORITY, <span class="string">"user"</span>, USER_URI_CODE);</div><div class="line">    &#125;</div><div class="line"> </div><div class="line">    <span class="keyword">private</span> Context mContext;</div><div class="line">    <span class="keyword">private</span> SQLiteDatabase mDb;</div><div class="line"> </div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">onCreate</span><span class="params">()</span> </span>&#123;</div><div class="line">        Log.d(TAG, <span class="string">"onCreate, current thread:"</span></div><div class="line">                + Thread.currentThread().getName());</div><div class="line">        mContext = getContext();</div><div class="line">        initProviderData();</div><div class="line">        <span class="keyword">return</span> <span class="keyword">true</span>;</div><div class="line">    &#125;</div><div class="line"> </div><div class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">initProviderData</span><span class="params">()</span> </span>&#123;</div><div class="line">        mDb = <span class="keyword">new</span> DbOpenHelper(mContext).getWritableDatabase();</div><div class="line">        mDb.execSQL(<span class="string">"delete from "</span> + DbOpenHelper.BOOK_TABLE_NAME);</div><div class="line">        mDb.execSQL(<span class="string">"delete from "</span> + DbOpenHelper.USER_TALBE_NAME);</div><div class="line">        mDb.execSQL(<span class="string">"insert into book values(3,'Android');"</span>);</div><div class="line">        mDb.execSQL(<span class="string">"insert into book values(4,'Ios');"</span>);</div><div class="line">        mDb.execSQL(<span class="string">"insert into book values(5,'Html5');"</span>);</div><div class="line">        mDb.execSQL(<span class="string">"insert into user values(1,'jake',1);"</span>);</div><div class="line">        mDb.execSQL(<span class="string">"insert into user values(2,'jasmine',0);"</span>);</div><div class="line">    &#125;</div><div class="line"> </div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> Cursor <span class="title">query</span><span class="params">(Uri uri, String[] projection, String selection,String[] selectionArgs, String sortOrder)</span> </span>&#123;</div><div class="line">        Log.d(TAG, <span class="string">"query, current thread:"</span> + Thread.currentThread().getName());</div><div class="line">        String table = getTableName(uri);</div><div class="line">        <span class="keyword">if</span> (table == <span class="keyword">null</span>) &#123;</div><div class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(<span class="string">"Unsupported URI: "</span> + uri);</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">return</span> mDb.query(table, projection, selection, selectionArgs, <span class="keyword">null</span>, <span class="keyword">null</span>, sortOrder, <span class="keyword">null</span>);</div><div class="line">    &#125;</div><div class="line"> </div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">getType</span><span class="params">(Uri uri)</span> </span>&#123;</div><div class="line">        Log.d(TAG, <span class="string">"getType"</span>);</div><div class="line">        <span class="keyword">return</span> <span class="keyword">null</span>;</div><div class="line">    &#125;</div><div class="line"> </div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> Uri <span class="title">insert</span><span class="params">(Uri uri, ContentValues values)</span> </span>&#123;</div><div class="line">        Log.d(TAG, <span class="string">"insert"</span>);</div><div class="line">        String table = getTableName(uri);</div><div class="line">        <span class="keyword">if</span> (table == <span class="keyword">null</span>) &#123;</div><div class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(<span class="string">"Unsupported URI: "</span> + uri);</div><div class="line">        &#125;</div><div class="line">        mDb.insert(table, <span class="keyword">null</span>, values);</div><div class="line">        mContext.getContentResolver().notifyChange(uri, <span class="keyword">null</span>);</div><div class="line">        <span class="keyword">return</span> uri;</div><div class="line">    &#125;</div><div class="line"> </div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">delete</span><span class="params">(Uri uri, String selection, String[] selectionArgs)</span> </span>&#123;</div><div class="line">        Log.d(TAG, <span class="string">"delete"</span>);</div><div class="line">        String table = getTableName(uri);</div><div class="line">        <span class="keyword">if</span> (table == <span class="keyword">null</span>) &#123;</div><div class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(<span class="string">"Unsupported URI: "</span> + uri);</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">int</span> count = mDb.delete(table, selection, selectionArgs);</div><div class="line">        <span class="keyword">if</span> (count &gt; <span class="number">0</span>) &#123;</div><div class="line">            getContext().getContentResolver().notifyChange(uri, <span class="keyword">null</span>);</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">return</span> count;</div><div class="line">    &#125;</div><div class="line"> </div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">update</span><span class="params">(Uri uri, ContentValues values, String selection,</span></span></div><div class="line">            String[] selectionArgs) &#123;</div><div class="line">        Log.d(TAG, <span class="string">"update"</span>);</div><div class="line">        String table = getTableName(uri);</div><div class="line">        <span class="keyword">if</span> (table == <span class="keyword">null</span>) &#123;</div><div class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(<span class="string">"Unsupported URI: "</span> + uri);</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">int</span> row = mDb.update(table, values, selection, selectionArgs);</div><div class="line">        <span class="keyword">if</span> (row &gt; <span class="number">0</span>) &#123;</div><div class="line">            getContext().getContentResolver().notifyChange(uri, <span class="keyword">null</span>);</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">return</span> row;</div><div class="line">    &#125;</div><div class="line"> </div><div class="line">    <span class="function"><span class="keyword">private</span> String <span class="title">getTableName</span><span class="params">(Uri uri)</span> </span>&#123;</div><div class="line">        String tableName = <span class="keyword">null</span>;</div><div class="line">        <span class="keyword">switch</span> (sUriMatcher.match(uri)) &#123;</div><div class="line">        <span class="keyword">case</span> BOOK_URI_CODE:</div><div class="line">            tableName = DbOpenHelper.BOOK_TABLE_NAME;</div><div class="line">            <span class="keyword">break</span>;</div><div class="line">        <span class="keyword">case</span> USER_URI_CODE:</div><div class="line">            tableName = DbOpenHelper.USER_TALBE_NAME;</div><div class="line">            <span class="keyword">break</span>;</div><div class="line">            <span class="keyword">default</span>:<span class="keyword">break</span>;</div><div class="line">        &#125;</div><div class="line"> </div><div class="line">        <span class="keyword">return</span> tableName;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<h3 id="注意"><a href="#注意" class="headerlink" title="注意"></a>注意</h3><ol>
+<li><p>ContentProvider通过Uri来区分外界要访问的数据集合，在本例中支持外界对BookProvider中的book表和user表进行访问，为了知道外界要访问的是哪个表，需要为它们定义单独的Uri和Uri_Code，并将Uri和对应的Uri_Code相关联，我们苦役使用UriMatcher的addURi方法将Uri和Uri_Code关联到一起。</p>
+</li>
+<li><p>update、insert和delete方法会引起数据源的变化，这个时候我们需要通过ContentResolver的的notifyChange方法来通知外界当前ContentProvider中的数据已经发生变化。要观察一个ContentProvider中的数据发生变化，可以通过ContentResolver的registerContentObserver方法来注册观察者，通过unregisterContentObserver方法来解除观察者。</p>
+</li>
+<li>query、update、insert、delete四大方法是存在多线程并发访问的，因此要做好线程同步。（由于本例采用的是SQLite并且只有一个SQLiteDatabase的连接，所以可以正确应对多线程的情况。原因是SQLiteDatabase内部对数据库的操作时有同步处理的，但是如果通过多个SQLiteDatabase对象来操作数据库就无法保证线程同步，因为SQLiteDatabase对象之间无法进行线程同步）</li>
+<li>如果ContentProvider的底层数据集是一块内存的话，比如是List，在这种情况下通List的遍历，插入、删除操作就需要进行线程同步，否则就会引发并发错误。</li>
+</ol>
+<p>同时要注册这个BookProvider，其中android:authorities是ContentProvider的唯一标识，通过这个属性外部应用就可以访问我们的BookProvider，因此，android:authorities必须是唯一的，建议加上包名前缀<br><figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">&lt;provider</div><div class="line">    android:name=".provider.BookProvider"</div><div class="line">    android:authorities="com.ryg.chapter_2.book.provider"</div><div class="line">    android:permission="com.ryg.PROVIDER"</div><div class="line">    android:process=":provider"&gt;</div><div class="line">&lt;/provider&gt;</div></pre></td></tr></table></figure></p>
+<p>ContentProvider的权限还可以细分为读权限和写权限，分别对应android：readPermission和android：writePermission属性，如果声明了读写权限，那么外界应用必须依次声明相应的权限才可以进行读写操作，否则外界应用会异常终止。</p>
+<p>DbOpenHelper类：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">DbOpenHelper</span> <span class="keyword">extends</span> <span class="title">SQLiteOpenHelper</span> </span>&#123;</div><div class="line"> </div><div class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> String DB_NAME = <span class="string">"book_provider.db"</span>;</div><div class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> String BOOK_TABLE_NAME = <span class="string">"book"</span>;</div><div class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> String USER_TALBE_NAME = <span class="string">"user"</span>;</div><div class="line"> </div><div class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> DB_VERSION = <span class="number">1</span>;</div><div class="line"> </div><div class="line">    <span class="keyword">private</span> String CREATE_BOOK_TABLE = <span class="string">"CREATE TABLE IF NOT EXISTS "</span></div><div class="line">            + BOOK_TABLE_NAME + <span class="string">"(_id INTEGER PRIMARY KEY,"</span> + <span class="string">"name TEXT)"</span>;</div><div class="line"> </div><div class="line">    <span class="keyword">private</span> String CREATE_USER_TABLE = <span class="string">"CREATE TABLE IF NOT EXISTS "</span></div><div class="line">            + USER_TALBE_NAME + <span class="string">"(_id INTEGER PRIMARY KEY,"</span> + <span class="string">"name TEXT,"</span></div><div class="line">            + <span class="string">"sex INT)"</span>;</div><div class="line"> </div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="title">DbOpenHelper</span><span class="params">(Context context)</span> </span>&#123;</div><div class="line">        <span class="keyword">super</span>(context, DB_NAME, <span class="keyword">null</span>, DB_VERSION);</div><div class="line">    &#125;</div><div class="line"> </div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onCreate</span><span class="params">(SQLiteDatabase db)</span> </span>&#123;</div><div class="line">        db.execSQL(CREATE_BOOK_TABLE);</div><div class="line">        db.execSQL(CREATE_USER_TABLE);</div><div class="line">    &#125;</div><div class="line"> </div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onUpgrade</span><span class="params">(SQLiteDatabase db, <span class="keyword">int</span> oldVersion, <span class="keyword">int</span> newVersion)</span> </span>&#123;</div><div class="line">        <span class="comment">// TODO ignored</span></div><div class="line">    &#125;</div><div class="line"> </div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>ProviderActivity类：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ProviderActivity</span> <span class="keyword">extends</span> <span class="title">Activity</span> </span>&#123;</div><div class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> String TAG = <span class="string">"ProviderActivity"</span>;</div><div class="line"> </div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">onCreate</span><span class="params">(Bundle savedInstanceState)</span> </span>&#123;</div><div class="line">        <span class="keyword">super</span>.onCreate(savedInstanceState);</div><div class="line">        setContentView(R.layout.activity_provider);</div><div class="line">        <span class="comment">// Uri uri = Uri.parse("content://com.ryg.chapter_2.book.provider");</span></div><div class="line">        <span class="comment">// getContentResolver().query(uri, null, null, null, null);</span></div><div class="line">        <span class="comment">// getContentResolver().query(uri, null, null, null, null);</span></div><div class="line">        <span class="comment">// getContentResolver().query(uri, null, null, null, null);</span></div><div class="line"> </div><div class="line">        Uri bookUri = Uri.parse(<span class="string">"content://com.ryg.chapter_2.book.provider/book"</span>);</div><div class="line">        ContentValues values = <span class="keyword">new</span> ContentValues();</div><div class="line">        values.put(<span class="string">"_id"</span>, <span class="number">6</span>);</div><div class="line">        values.put(<span class="string">"name"</span>, <span class="string">"程序设计的艺术"</span>);</div><div class="line">        getContentResolver().insert(bookUri, values);</div><div class="line">        Cursor bookCursor = getContentResolver().query(bookUri, <span class="keyword">new</span> String[]&#123;<span class="string">"_id"</span>, <span class="string">"name"</span>&#125;, <span class="keyword">null</span>, <span class="keyword">null</span>, <span class="keyword">null</span>);</div><div class="line">        <span class="keyword">while</span> (bookCursor.moveToNext()) &#123;</div><div class="line">            Book book = <span class="keyword">new</span> Book();</div><div class="line">            book.bookId = bookCursor.getInt(<span class="number">0</span>);</div><div class="line">            book.bookName = bookCursor.getString(<span class="number">1</span>);</div><div class="line">            Log.d(TAG, <span class="string">"query book:"</span> + book.toString());</div><div class="line">        &#125;</div><div class="line">        bookCursor.close();</div><div class="line"> </div><div class="line">        Uri userUri = Uri.parse(<span class="string">"content://com·.ryg.chapter_2.book.provider/user"</span>);</div><div class="line">        Cursor userCursor = getContentResolver().query(userUri, <span class="keyword">new</span> String[]&#123;<span class="string">"_id"</span>, <span class="string">"name"</span>, <span class="string">"sex"</span>&#125;, <span class="keyword">null</span>, <span class="keyword">null</span>, <span class="keyword">null</span>);</div><div class="line">        <span class="keyword">while</span> (userCursor.moveToNext()) &#123;</div><div class="line">            User user = <span class="keyword">new</span> User();</div><div class="line">            user.userId = userCursor.getInt(<span class="number">0</span>);</div><div class="line">            user.userName = userCursor.getString(<span class="number">1</span>);</div><div class="line">            user.isMale = userCursor.getInt(<span class="number">2</span>) == <span class="number">1</span>;</div><div class="line">            Log.d(TAG, <span class="string">"query user:"</span> + user.toString());</div><div class="line">        &#125;</div><div class="line">        userCursor.close();</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<h2 id="使用Socket"><a href="#使用Socket" class="headerlink" title="使用Socket"></a>使用Socket</h2><p><strong>Socket也称“套接字”，它分为流式套接字和用户数据包套接字，分别对应于网络的传输控制层中的TCP和UDP。TCP协议是面向连接的协议，提供稳定的双向通信功能，TCP连接的建立需要经过“三次握手”才能完成，为了提供稳定数据传输功能，其本身提供了超时重传机制，因此具有很高的稳定性；而UDP是无连接的，提供不稳定的单向通信功能，当然UDP也可以实现双向通信功能。在性能上，UDP具有更好的效率，其缺点是不保证数据一定能够正确传输，尤其是在网络拥塞的情况下。</strong></p>
+<p>使用Socket来进行通信，有两点需要注意：<br><strong>首先需要声明权限：</strong><br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">&lt;uses-permission android:name=<span class="string">"android.permission.INTERNET"</span>/&gt;</div><div class="line">&lt;uses-permission android:name=<span class="string">"android.permission.ACCESS_NETWORK_STATE"</span>/&gt;</div></pre></td></tr></table></figure></p>
+<p><strong>其次是注意不能再主线程中访问网络。</strong>4.0以上会抛异常，而且耗时操作也不能放在主线程。</p>
+<h3 id="栗子-2"><a href="#栗子-2" class="headerlink" title="栗子"></a>栗子</h3><p>简易聊天室，在远程Service建立一个TCP服务，然后在Activity中连接TCP服务，连接上以后，就可以给服务端发消息，，服务端会随机回应客户端一句话。<br><strong>服务端代码：</strong><br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div><div class="line">89</div><div class="line">90</div><div class="line">91</div><div class="line">92</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TCPServerService</span> <span class="keyword">extends</span> <span class="title">Service</span> </span>&#123;</div><div class="line"> </div><div class="line">    <span class="keyword">private</span> <span class="keyword">boolean</span> mIsServiceDestoryed = <span class="keyword">false</span>;</div><div class="line">    <span class="keyword">private</span> String[] mDefinedMessages = <span class="keyword">new</span> String[] &#123;</div><div class="line">            <span class="string">"你好啊，哈哈"</span>,</div><div class="line">            <span class="string">"请问你叫什么名字呀？"</span>,</div><div class="line">            <span class="string">"今天北京天气不错啊，shy"</span>,</div><div class="line">            <span class="string">"你知道吗？我可是可以和多个人同时聊天的哦"</span>,</div><div class="line">            <span class="string">"给你讲个笑话吧：据说爱笑的人运气不会太差，不知道真假。"</span></div><div class="line">    &#125;;</div><div class="line"> </div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onCreate</span><span class="params">()</span> </span>&#123;</div><div class="line">        <span class="keyword">new</span> Thread(<span class="keyword">new</span> TcpServer()).start();</div><div class="line">        <span class="keyword">super</span>.onCreate();</div><div class="line">    &#125;</div><div class="line"> </div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> IBinder <span class="title">onBind</span><span class="params">(Intent intent)</span> </span>&#123;</div><div class="line">        <span class="keyword">return</span> <span class="keyword">null</span>;</div><div class="line">    &#125;</div><div class="line"> </div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onDestroy</span><span class="params">()</span> </span>&#123;</div><div class="line">        mIsServiceDestoryed = <span class="keyword">true</span>;</div><div class="line">        <span class="keyword">super</span>.onDestroy();</div><div class="line">    &#125;</div><div class="line"> </div><div class="line">    <span class="keyword">private</span> <span class="class"><span class="keyword">class</span> <span class="title">TcpServer</span> <span class="keyword">implements</span> <span class="title">Runnable</span> </span>&#123;</div><div class="line"> </div><div class="line">        <span class="meta">@SuppressWarnings</span>(<span class="string">"resource"</span>)</div><div class="line">        <span class="meta">@Override</span></div><div class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</div><div class="line">            ServerSocket serverSocket = <span class="keyword">null</span>;</div><div class="line">            <span class="keyword">try</span> &#123;</div><div class="line">                serverSocket = <span class="keyword">new</span> ServerSocket(<span class="number">8688</span>);</div><div class="line">            &#125; <span class="keyword">catch</span> (IOException e) &#123;</div><div class="line">                System.err.println(<span class="string">"establish tcp server failed, port:8688"</span>);</div><div class="line">                e.printStackTrace();</div><div class="line">                <span class="keyword">return</span>;</div><div class="line">            &#125;</div><div class="line"> </div><div class="line">            <span class="keyword">while</span> (!mIsServiceDestoryed) &#123;</div><div class="line">                <span class="keyword">try</span> &#123;</div><div class="line">                    <span class="comment">// 接受客户端请求</span></div><div class="line">                    <span class="keyword">final</span> Socket client = serverSocket.accept();</div><div class="line">                    System.out.println(<span class="string">"accept"</span>);</div><div class="line">                    <span class="keyword">new</span> Thread() &#123;</div><div class="line">                        <span class="meta">@Override</span></div><div class="line">                        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</div><div class="line">                            <span class="keyword">try</span> &#123;</div><div class="line">                                responseClient(client);</div><div class="line">                            &#125; <span class="keyword">catch</span> (IOException e) &#123;</div><div class="line">                                e.printStackTrace();</div><div class="line">                            &#125;</div><div class="line">                        &#125;;</div><div class="line">                    &#125;.start();</div><div class="line"> </div><div class="line">                &#125; <span class="keyword">catch</span> (IOException e) &#123;</div><div class="line">                    e.printStackTrace();</div><div class="line">                &#125;</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line"> </div><div class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">responseClient</span><span class="params">(Socket client)</span> <span class="keyword">throws</span> IOException </span>&#123;</div><div class="line">        <span class="comment">// 用于接收客户端消息</span></div><div class="line">        BufferedReader in = <span class="keyword">new</span> BufferedReader(<span class="keyword">new</span> InputStreamReader(</div><div class="line">                client.getInputStream()));</div><div class="line">        <span class="comment">// 用于向客户端发送消息</span></div><div class="line">        PrintWriter out = <span class="keyword">new</span> PrintWriter(<span class="keyword">new</span> BufferedWriter(</div><div class="line">                <span class="keyword">new</span> OutputStreamWriter(client.getOutputStream())), <span class="keyword">true</span>);</div><div class="line">        out.println(<span class="string">"欢迎来到聊天室！"</span>);</div><div class="line">        <span class="keyword">while</span> (!mIsServiceDestoryed) &#123;</div><div class="line">            String str = in.readLine();</div><div class="line">            System.out.println(<span class="string">"msg from client:"</span> + str);</div><div class="line">            <span class="keyword">if</span> (str == <span class="keyword">null</span>) &#123;</div><div class="line">                <span class="keyword">break</span>;</div><div class="line">            &#125;</div><div class="line">            <span class="keyword">int</span> i = <span class="keyword">new</span> Random().nextInt(mDefinedMessages.length);</div><div class="line">            String msg = mDefinedMessages[i];</div><div class="line">            out.println(msg);</div><div class="line">            System.out.println(<span class="string">"send :"</span> + msg);</div><div class="line">        &#125;</div><div class="line">        System.out.println(<span class="string">"client quit."</span>);</div><div class="line">        <span class="comment">// 关闭流</span></div><div class="line">        MyUtils.close(out);</div><div class="line">        MyUtils.close(in);</div><div class="line">        client.close();</div><div class="line">    &#125;</div><div class="line"> </div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p><strong>客户端代码：</strong><br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div><div class="line">89</div><div class="line">90</div><div class="line">91</div><div class="line">92</div><div class="line">93</div><div class="line">94</div><div class="line">95</div><div class="line">96</div><div class="line">97</div><div class="line">98</div><div class="line">99</div><div class="line">100</div><div class="line">101</div><div class="line">102</div><div class="line">103</div><div class="line">104</div><div class="line">105</div><div class="line">106</div><div class="line">107</div><div class="line">108</div><div class="line">109</div><div class="line">110</div><div class="line">111</div><div class="line">112</div><div class="line">113</div><div class="line">114</div><div class="line">115</div><div class="line">116</div><div class="line">117</div><div class="line">118</div><div class="line">119</div><div class="line">120</div><div class="line">121</div><div class="line">122</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TCPClientActivity</span> <span class="keyword">extends</span> <span class="title">Activity</span> <span class="keyword">implements</span> <span class="title">OnClickListener</span> </span>&#123;</div><div class="line"> </div><div class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> MESSAGE_RECEIVE_NEW_MSG = <span class="number">1</span>;</div><div class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> MESSAGE_SOCKET_CONNECTED = <span class="number">2</span>;</div><div class="line"> </div><div class="line">    <span class="keyword">private</span> Button mSendButton;</div><div class="line">    <span class="keyword">private</span> TextView mMessageTextView;</div><div class="line">    <span class="keyword">private</span> EditText mMessageEditText;</div><div class="line"> </div><div class="line">    <span class="keyword">private</span> PrintWriter mPrintWriter;</div><div class="line">    <span class="keyword">private</span> Socket mClientSocket;</div><div class="line"> </div><div class="line">    <span class="meta">@SuppressLint</span>(<span class="string">"HandlerLeak"</span>)</div><div class="line">    <span class="keyword">private</span> Handler mHandler = <span class="keyword">new</span> Handler() &#123;</div><div class="line">        <span class="meta">@Override</span></div><div class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">handleMessage</span><span class="params">(Message msg)</span> </span>&#123;</div><div class="line">            <span class="keyword">switch</span> (msg.what) &#123;</div><div class="line">            <span class="keyword">case</span> MESSAGE_RECEIVE_NEW_MSG: &#123;</div><div class="line">                mMessageTextView.setText(mMessageTextView.getText()</div><div class="line">                        + (String) msg.obj);</div><div class="line">                <span class="keyword">break</span>;</div><div class="line">            &#125;</div><div class="line">            <span class="keyword">case</span> MESSAGE_SOCKET_CONNECTED: &#123;</div><div class="line">                mSendButton.setEnabled(<span class="keyword">true</span>);</div><div class="line">                <span class="keyword">break</span>;</div><div class="line">            &#125;</div><div class="line">            <span class="keyword">default</span>:</div><div class="line">                <span class="keyword">break</span>;</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">    &#125;;</div><div class="line"> </div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">onCreate</span><span class="params">(Bundle savedInstanceState)</span> </span>&#123;</div><div class="line">        <span class="keyword">super</span>.onCreate(savedInstanceState);</div><div class="line">        setContentView(R.layout.activity_tcpclient);</div><div class="line">        mMessageTextView = (TextView) findViewById(R.id.msg_container);</div><div class="line">        mSendButton = (Button) findViewById(R.id.send);</div><div class="line">        mSendButton.setOnClickListener(<span class="keyword">this</span>);</div><div class="line">        mMessageEditText = (EditText) findViewById(R.id.msg);</div><div class="line">        Intent service = <span class="keyword">new</span> Intent(<span class="keyword">this</span>, TCPServerService.class);</div><div class="line">        startService(service);</div><div class="line">        <span class="keyword">new</span> Thread() &#123;</div><div class="line">            <span class="meta">@Override</span></div><div class="line">            <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</div><div class="line">                connectTCPServer();</div><div class="line">            &#125;</div><div class="line">        &#125;.start();</div><div class="line">    &#125;</div><div class="line"> </div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">onDestroy</span><span class="params">()</span> </span>&#123;</div><div class="line">        <span class="keyword">if</span> (mClientSocket != <span class="keyword">null</span>) &#123;</div><div class="line">            <span class="keyword">try</span> &#123;</div><div class="line">                mClientSocket.shutdownInput();</div><div class="line">                mClientSocket.close();</div><div class="line">            &#125; <span class="keyword">catch</span> (IOException e) &#123;</div><div class="line">                e.printStackTrace();</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">super</span>.onDestroy();</div><div class="line">    &#125;</div><div class="line"> </div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onClick</span><span class="params">(View v)</span> </span>&#123;</div><div class="line">        <span class="keyword">if</span> (v == mSendButton) &#123;</div><div class="line">            <span class="keyword">final</span> String msg = mMessageEditText.getText().toString();</div><div class="line">            <span class="keyword">if</span> (!TextUtils.isEmpty(msg) &amp;&amp; mPrintWriter != <span class="keyword">null</span>) &#123;</div><div class="line">                mPrintWriter.println(msg);</div><div class="line">                mMessageEditText.setText(<span class="string">""</span>);</div><div class="line">                String time = formatDateTime(System.currentTimeMillis());</div><div class="line">                <span class="keyword">final</span> String showedMsg = <span class="string">"self "</span> + time + <span class="string">":"</span> + msg + <span class="string">"\n"</span>;</div><div class="line">                mMessageTextView.setText(mMessageTextView.getText() + showedMsg);</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line"> </div><div class="line">    <span class="meta">@SuppressLint</span>(<span class="string">"SimpleDateFormat"</span>)</div><div class="line">    <span class="function"><span class="keyword">private</span> String <span class="title">formatDateTime</span><span class="params">(<span class="keyword">long</span> time)</span> </span>&#123;</div><div class="line">        <span class="keyword">return</span> <span class="keyword">new</span> SimpleDateFormat(<span class="string">"(HH:mm:ss)"</span>).format(<span class="keyword">new</span> Date(time));</div><div class="line">    &#125;</div><div class="line"> </div><div class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">connectTCPServer</span><span class="params">()</span> </span>&#123;</div><div class="line">        Socket socket = <span class="keyword">null</span>;</div><div class="line">        <span class="keyword">while</span> (socket == <span class="keyword">null</span>) &#123;</div><div class="line">            <span class="keyword">try</span> &#123;</div><div class="line">                socket = <span class="keyword">new</span> Socket(<span class="string">"localhost"</span>, <span class="number">8688</span>);</div><div class="line">                mClientSocket = socket;</div><div class="line">                mPrintWriter = <span class="keyword">new</span> PrintWriter(<span class="keyword">new</span> BufferedWriter(</div><div class="line">                        <span class="keyword">new</span> OutputStreamWriter(socket.getOutputStream())), <span class="keyword">true</span>);</div><div class="line">                mHandler.sendEmptyMessage(MESSAGE_SOCKET_CONNECTED);</div><div class="line">                System.out.println(<span class="string">"connect server success"</span>);</div><div class="line">            &#125; <span class="keyword">catch</span> (IOException e) &#123;</div><div class="line">                SystemClock.sleep(<span class="number">1000</span>);</div><div class="line">                System.out.println(<span class="string">"connect tcp server failed, retry..."</span>);</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line"> </div><div class="line">        <span class="keyword">try</span> &#123;</div><div class="line">            <span class="comment">// 接收服务器端的消息</span></div><div class="line">            BufferedReader br = <span class="keyword">new</span> BufferedReader(<span class="keyword">new</span> InputStreamReader(</div><div class="line">                    socket.getInputStream()));</div><div class="line">            <span class="keyword">while</span> (!TCPClientActivity.<span class="keyword">this</span>.isFinishing()) &#123;</div><div class="line">                String msg = br.readLine();</div><div class="line">                System.out.println(<span class="string">"receive :"</span> + msg);</div><div class="line">                <span class="keyword">if</span> (msg != <span class="keyword">null</span>) &#123;</div><div class="line">                    String time = formatDateTime(System.currentTimeMillis());</div><div class="line">                    <span class="keyword">final</span> String showedMsg = <span class="string">"server "</span> + time + <span class="string">":"</span> + msg</div><div class="line">                            + <span class="string">"\n"</span>;</div><div class="line">                    mHandler.obtainMessage(MESSAGE_RECEIVE_NEW_MSG, showedMsg)</div><div class="line">                            .sendToTarget();</div><div class="line">                &#125;</div><div class="line">            &#125;</div><div class="line">            System.out.println(<span class="string">"quit..."</span>);</div><div class="line">            MyUtils.close(mPrintWriter);</div><div class="line">            MyUtils.close(br);</div><div class="line">            socket.close();</div><div class="line">        &#125; <span class="keyword">catch</span> (IOException e) &#123;</div><div class="line">            e.printStackTrace();</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>为了确定能够连接成功，这里采用超时重连策略，每次连接失败后都会尝试建立连接，。当然为了降低重试机制的开销，我们加入了休眠机制，即每次重试的时间间隔为1000毫秒。</p>
+<p><strong>实际上通过Socket不仅仅能实现进程间的通信，还可以实现设备间的通信，当然前提是这些设备之间的IP地址互相可见</strong></p>
+<h2 id="Binder连接池"><a href="#Binder连接池" class="headerlink" title="Binder连接池"></a>Binder连接池</h2><p><strong>假设情况：</strong>当有很多歌不同的业务模块都需要使用到AIDL来进行进程间的通信时，若按照AIDL的方式一个个来，则需要创建相同个数的Service，显然这是不太科学的，为应对这种情况，Binder连接池呼之欲出。<br><strong>Binder连接池的工作机制是这样的：**</strong>每个业务模块创建自己的AIDL接口并实现此接口，这个时候不同业务模块之间是不能有耦合的，所有实现细节我们要单独开来，然后向服务端提供自己的唯一标识和其对应的BInder对象。对于服务端来说，只需要实现一个Service就够了，服务端提供一个queryBinder接口，这个接口能够根据业务模块的特征来返回相应的Binder对象给它们，不同的业务模块拿到不同的Binder对象后就可以进行远程方法调用了。由此可见，Binder连接池的主要作用就是讲每个业务模块的Binder请求统一转发到远程Service中执行，从而避免重复创建Service的过程。**</p>
+<h3 id="栗子-3"><a href="#栗子-3" class="headerlink" title="栗子"></a>栗子</h3><p>模拟多个业务模块都要使用AIDL的情况，其中ISecurityCenter.aidl接口提供加密功能：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">interface</span> <span class="title">ISecurityCenter</span> </span>&#123;</div><div class="line">    <span class="function">String <span class="title">encrypt</span><span class="params">(String content)</span></span>;</div><div class="line">    <span class="function">String <span class="title">decrypt</span><span class="params">(String password)</span></span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>而ICompute.aidl接口提供计算加法的功能：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">interface</span> <span class="title">ICompute</span> </span>&#123;</div><div class="line">    <span class="function"><span class="keyword">int</span> <span class="title">add</span><span class="params">(<span class="keyword">int</span> a, <span class="keyword">int</span> b)</span></span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>下面是以上两个接口的实现：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SecurityCenterImpl</span> <span class="keyword">extends</span> <span class="title">ISecurityCenter</span>.<span class="title">Stub</span> </span>&#123;</div><div class="line"> </div><div class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">char</span> SECRET_CODE = <span class="string">'^'</span>;</div><div class="line"> </div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">encrypt</span><span class="params">(String content)</span> <span class="keyword">throws</span> RemoteException </span>&#123;</div><div class="line">        <span class="keyword">char</span>[] chars = content.toCharArray();</div><div class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; chars.length; i++) &#123;</div><div class="line">            chars[i] ^= SECRET_CODE;</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">return</span> <span class="keyword">new</span> String(chars);</div><div class="line">    &#125;</div><div class="line"> </div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">decrypt</span><span class="params">(String password)</span> <span class="keyword">throws</span> RemoteException </span>&#123;</div><div class="line">        <span class="keyword">return</span> encrypt(password);</div><div class="line">    &#125;</div><div class="line"> </div><div class="line">&#125;</div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ComputeImpl</span> <span class="keyword">extends</span> <span class="title">ICompute</span>.<span class="title">Stub</span> </span>&#123;</div><div class="line"> </div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">add</span><span class="params">(<span class="keyword">int</span> a, <span class="keyword">int</span> b)</span> <span class="keyword">throws</span> RemoteException </span>&#123;</div><div class="line">        <span class="keyword">return</span> a + b;</div><div class="line">    &#125;</div><div class="line"> </div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>接着为Binder连接池创建AIDL接口IBinderPool.aidl：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">interface</span> <span class="title">IBinderPool</span> </span>&#123;</div><div class="line"> </div><div class="line">    <span class="comment">/**</span></div><div class="line">     * <span class="doctag">@param</span> binderCode, the unique token of specific Binder&lt;br/&gt;</div><div class="line">     * <span class="doctag">@return</span> specific Binder who's token is binderCode.</div><div class="line">     */</div><div class="line">    <span class="function">IBinder <span class="title">queryBinder</span><span class="params">(<span class="keyword">int</span> binderCode)</span></span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>接着是Service的代码，比较简单<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">BinderPoolService</span> <span class="keyword">extends</span> <span class="title">Service</span> </span>&#123;</div><div class="line"> </div><div class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> String TAG = <span class="string">"BinderPoolService"</span>;</div><div class="line"> </div><div class="line">    <span class="keyword">private</span> Binder mBinderPool = <span class="keyword">new</span> BinderPool.BinderPoolImpl();</div><div class="line"> </div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onCreate</span><span class="params">()</span> </span>&#123;</div><div class="line">        <span class="keyword">super</span>.onCreate();</div><div class="line">    &#125;</div><div class="line"> </div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> IBinder <span class="title">onBind</span><span class="params">(Intent intent)</span> </span>&#123;</div><div class="line">        Log.d(TAG, <span class="string">"onBind"</span>);</div><div class="line">        <span class="keyword">return</span> mBinderPool;</div><div class="line">    &#125;</div><div class="line"> </div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onDestroy</span><span class="params">()</span> </span>&#123;</div><div class="line">        <span class="keyword">super</span>.onDestroy();</div><div class="line">    &#125;</div><div class="line"> </div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>onBind方法中直接返回了BinderPool的内部类BinderPoolImpl，接下来看看BinderPool类的实现：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div><div class="line">89</div><div class="line">90</div><div class="line">91</div><div class="line">92</div><div class="line">93</div><div class="line">94</div><div class="line">95</div><div class="line">96</div><div class="line">97</div><div class="line">98</div><div class="line">99</div><div class="line">100</div><div class="line">101</div><div class="line">102</div><div class="line">103</div><div class="line">104</div><div class="line">105</div><div class="line">106</div><div class="line">107</div><div class="line">108</div><div class="line">109</div><div class="line">110</div><div class="line">111</div><div class="line">112</div><div class="line">113</div><div class="line">114</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">BinderPool</span> </span>&#123;</div><div class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> String TAG = <span class="string">"BinderPool"</span>;</div><div class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> BINDER_NONE = -<span class="number">1</span>;</div><div class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> BINDER_COMPUTE = <span class="number">0</span>;</div><div class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> BINDER_SECURITY_CENTER = <span class="number">1</span>;</div><div class="line"> </div><div class="line">    <span class="keyword">private</span> Context mContext;</div><div class="line">    <span class="keyword">private</span> IBinderPool mBinderPool;</div><div class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">volatile</span> BinderPool sInstance;</div><div class="line">    <span class="keyword">private</span> CountDownLatch mConnectBinderPoolCountDownLatch;</div><div class="line"> </div><div class="line">    <span class="function"><span class="keyword">private</span> <span class="title">BinderPool</span><span class="params">(Context context)</span> </span>&#123;</div><div class="line">        mContext = context.getApplicationContext();</div><div class="line">        connectBinderPoolService();</div><div class="line">    &#125;</div><div class="line"> </div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> BinderPool <span class="title">getInsance</span><span class="params">(Context context)</span> </span>&#123;</div><div class="line">        <span class="keyword">if</span> (sInstance == <span class="keyword">null</span>) &#123;</div><div class="line">            <span class="keyword">synchronized</span> (BinderPool.class) &#123;</div><div class="line">                <span class="keyword">if</span> (sInstance == <span class="keyword">null</span>) &#123;</div><div class="line">                    sInstance = <span class="keyword">new</span> BinderPool(context);</div><div class="line">                &#125;</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">return</span> sInstance;</div><div class="line">    &#125;</div><div class="line"> </div><div class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title">connectBinderPoolService</span><span class="params">()</span> </span>&#123;</div><div class="line">        mConnectBinderPoolCountDownLatch = <span class="keyword">new</span> CountDownLatch(<span class="number">1</span>);</div><div class="line">        Intent service = <span class="keyword">new</span> Intent(mContext, BinderPoolService.class);</div><div class="line">        mContext.bindService(service, mBinderPoolConnection,Context.BIND_AUTO_CREATE);</div><div class="line">        <span class="keyword">try</span> &#123;</div><div class="line">            mConnectBinderPoolCountDownLatch.await();</div><div class="line">        &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</div><div class="line">            e.printStackTrace();</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line"> </div><div class="line">    <span class="comment">/**</span></div><div class="line">     * query binder by binderCode from binder pool</div><div class="line">     * </div><div class="line">     * <span class="doctag">@param</span> binderCode</div><div class="line">     *            the unique token of binder</div><div class="line">     * <span class="doctag">@return</span> binder who's token is binderCode&lt;br&gt;</div><div class="line">     *         return null when not found or BinderPoolService died.</div><div class="line">     */</div><div class="line">    <span class="function"><span class="keyword">public</span> IBinder <span class="title">queryBinder</span><span class="params">(<span class="keyword">int</span> binderCode)</span> </span>&#123;</div><div class="line">        IBinder binder = <span class="keyword">null</span>;</div><div class="line">        <span class="keyword">try</span> &#123;</div><div class="line">            <span class="keyword">if</span> (mBinderPool != <span class="keyword">null</span>) &#123;</div><div class="line">                binder = mBinderPool.queryBinder(binderCode);</div><div class="line">            &#125;</div><div class="line">        &#125; <span class="keyword">catch</span> (RemoteException e) &#123;</div><div class="line">            e.printStackTrace();</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">return</span> binder;</div><div class="line">    &#125;</div><div class="line"> </div><div class="line">    <span class="keyword">private</span> ServiceConnection mBinderPoolConnection = <span class="keyword">new</span> ServiceConnection() &#123;</div><div class="line"> </div><div class="line">        <span class="meta">@Override</span></div><div class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onServiceDisconnected</span><span class="params">(ComponentName name)</span> </span>&#123;</div><div class="line">            <span class="comment">// ignored.</span></div><div class="line">        &#125;</div><div class="line"> </div><div class="line">        <span class="meta">@Override</span></div><div class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onServiceConnected</span><span class="params">(ComponentName name, IBinder service)</span> </span>&#123;</div><div class="line">            mBinderPool = IBinderPool.Stub.asInterface(service);</div><div class="line">            <span class="keyword">try</span> &#123;</div><div class="line">                mBinderPool.asBinder().linkToDeath(mBinderPoolDeathRecipient, <span class="number">0</span>);</div><div class="line">            &#125; <span class="keyword">catch</span> (RemoteException e) &#123;</div><div class="line">                e.printStackTrace();</div><div class="line">            &#125;</div><div class="line">            mConnectBinderPoolCountDownLatch.countDown();</div><div class="line">        &#125;</div><div class="line">    &#125;;</div><div class="line"> </div><div class="line">    <span class="keyword">private</span> IBinder.DeathRecipient mBinderPoolDeathRecipient = <span class="keyword">new</span> IBinder.DeathRecipient() &#123;</div><div class="line">        <span class="meta">@Override</span></div><div class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">binderDied</span><span class="params">()</span> </span>&#123;</div><div class="line">            Log.w(TAG, <span class="string">"binder died."</span>);</div><div class="line">            mBinderPool.asBinder().unlinkToDeath(mBinderPoolDeathRecipient, <span class="number">0</span>);</div><div class="line">            mBinderPool = <span class="keyword">null</span>;</div><div class="line">            connectBinderPoolService();</div><div class="line">        &#125;</div><div class="line">    &#125;;</div><div class="line"> </div><div class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">BinderPoolImpl</span> <span class="keyword">extends</span> <span class="title">IBinderPool</span>.<span class="title">Stub</span> </span>&#123;</div><div class="line"> </div><div class="line">        <span class="function"><span class="keyword">public</span> <span class="title">BinderPoolImpl</span><span class="params">()</span> </span>&#123;</div><div class="line">            <span class="keyword">super</span>();</div><div class="line">        &#125;</div><div class="line"> </div><div class="line">        <span class="meta">@Override</span></div><div class="line">        <span class="function"><span class="keyword">public</span> IBinder <span class="title">queryBinder</span><span class="params">(<span class="keyword">int</span> binderCode)</span> <span class="keyword">throws</span> RemoteException </span>&#123;</div><div class="line">            IBinder binder = <span class="keyword">null</span>;</div><div class="line">            <span class="keyword">switch</span> (binderCode) &#123;</div><div class="line">            <span class="keyword">case</span> BINDER_SECURITY_CENTER: &#123;</div><div class="line">                binder = <span class="keyword">new</span> SecurityCenterImpl();</div><div class="line">                <span class="keyword">break</span>;</div><div class="line">            &#125;</div><div class="line">            <span class="keyword">case</span> BINDER_COMPUTE: &#123;</div><div class="line">                binder = <span class="keyword">new</span> ComputeImpl();</div><div class="line">                <span class="keyword">break</span>;</div><div class="line">            &#125;</div><div class="line">            <span class="keyword">default</span>:</div><div class="line">                <span class="keyword">break</span>;</div><div class="line">            &#125;</div><div class="line"> </div><div class="line">            <span class="keyword">return</span> binder;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line"> </div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>最后是Activity的使用了：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">BinderPoolActivity</span> <span class="keyword">extends</span> <span class="title">Activity</span> </span>&#123;</div><div class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> String TAG = <span class="string">"BinderPoolActivity"</span>;</div><div class="line"> </div><div class="line">    <span class="keyword">private</span> ISecurityCenter mSecurityCenter;</div><div class="line">    <span class="keyword">private</span> ICompute mCompute;</div><div class="line"> </div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">onCreate</span><span class="params">(Bundle savedInstanceState)</span> </span>&#123;</div><div class="line">        <span class="keyword">super</span>.onCreate(savedInstanceState);</div><div class="line">        setContentView(R.layout.activity_binder_pool);</div><div class="line">        <span class="keyword">new</span> Thread(<span class="keyword">new</span> Runnable() &#123;</div><div class="line"> </div><div class="line">            <span class="meta">@Override</span></div><div class="line">            <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</div><div class="line">                doWork();</div><div class="line">            &#125;</div><div class="line">        &#125;).start();</div><div class="line">    &#125;</div><div class="line"> </div><div class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">doWork</span><span class="params">()</span> </span>&#123;</div><div class="line">        BinderPool binderPool = BinderPool.getInsance(BinderPoolActivity.<span class="keyword">this</span>);</div><div class="line">        IBinder securityBinder = binderPool.queryBinder(BinderPool.BINDER_SECURITY_CENTER);</div><div class="line">       </div><div class="line">        mSecurityCenter = (ISecurityCenter) SecurityCenterImpl.asInterface(securityBinder);</div><div class="line">        String msg = <span class="string">"helloworld-安卓"</span>;</div><div class="line">        System.out.println(<span class="string">"content:"</span> + msg);</div><div class="line">        <span class="keyword">try</span> &#123;</div><div class="line">            String password = mSecurityCenter.encrypt(msg);</div><div class="line">            System.out.println(<span class="string">"encrypt:"</span> + password);</div><div class="line">            System.out.println(<span class="string">"decrypt:"</span> + mSecurityCenter.decrypt(password));</div><div class="line">        &#125; <span class="keyword">catch</span> (RemoteException e) &#123;</div><div class="line">            e.printStackTrace();</div><div class="line">        &#125;</div><div class="line"> </div><div class="line">        Log.d(TAG, <span class="string">"visit ICompute"</span>);</div><div class="line">        IBinder computeBinder = binderPool.queryBinder(BinderPool.BINDER_COMPUTE);</div><div class="line"> </div><div class="line">        mCompute = ComputeImpl.asInterface(computeBinder);</div><div class="line">        <span class="keyword">try</span> &#123;</div><div class="line">            System.out.println(<span class="string">"3+5="</span> + mCompute.add(<span class="number">3</span>, <span class="number">5</span>));</div><div class="line">        &#125; <span class="keyword">catch</span> (RemoteException e) &#123;</div><div class="line">            e.printStackTrace();</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line"> </div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p><strong>这里需要额外说明一点：为什么要在线程中执行？</strong></p>
+<p>这是因为在Binder连接池的实现中，我们通过CountDownLatch将bindService这一异步操作转换成了同步操作，这就意味着它可能是耗时的，然后就是Binder方法的调用也可能是耗时的，因此不建议放在主线程中执行。<br><strong>有了BinderPool可以大大方便日常的开发工作，如果有一个新的业务模块需要添加新的AIDL，那么在它实现了自己的AIDL接口后，只需要修改BinderPoolImpl中的恶queryBinder方法，给自己添加一个新的binerCode并返回相应的Binder对象即可。</strong></p>
+<h2 id="选用合适的IPC方式"><a href="#选用合适的IPC方式" class="headerlink" title="选用合适的IPC方式"></a>选用合适的IPC方式</h2><p><img src="http://img.blog.csdn.net/20170522180731080?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvWHVKaWFvSmll/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center" alt=""></p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/07/25/设计模式之Builder和AlertDialog的源码分析/" rel="next" title="设计模式之Builder和AlertDialog的源码分析">
+                <i class="fa fa-chevron-left"></i> 设计模式之Builder和AlertDialog的源码分析
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/07/25/View的工作原理/" rel="prev" title="View的工作原理">
+                View的工作原理 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/userpic.jpg"
+               alt="XuJiaoJie" />
+          <p class="site-author-name" itemprop="name">XuJiaoJie</p>
+           
+              <p class="site-description motion-element" itemprop="description">Never stop, search for better yourself</p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives/">
+                <span class="site-state-item-count">6</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#概述"><span class="nav-number">1.</span> <span class="nav-text">概述</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#使用Bundle（最简单的进程间通信方式）"><span class="nav-number">2.</span> <span class="nav-text">使用Bundle（最简单的进程间通信方式）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#使用文件共享"><span class="nav-number">3.</span> <span class="nav-text">使用文件共享</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#栗子"><span class="nav-number">3.1.</span> <span class="nav-text">栗子:</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#使用Messenger"><span class="nav-number">4.</span> <span class="nav-text">使用Messenger</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#例子："><span class="nav-number">4.1.</span> <span class="nav-text">例子：</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#服务端实现"><span class="nav-number">4.1.1.</span> <span class="nav-text">服务端实现</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#客户端实现"><span class="nav-number">4.1.2.</span> <span class="nav-text">客户端实现</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#使用AIDL"><span class="nav-number">5.</span> <span class="nav-text">使用AIDL</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#服务端"><span class="nav-number">5.1.</span> <span class="nav-text">服务端</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#客户端"><span class="nav-number">5.2.</span> <span class="nav-text">客户端</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#UI线程和线程池注意问题"><span class="nav-number">5.3.</span> <span class="nav-text">UI线程和线程池注意问题</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Binder意外死亡"><span class="nav-number">5.4.</span> <span class="nav-text">Binder意外死亡</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#AIDL的使用流程总结"><span class="nav-number">5.5.</span> <span class="nav-text">AIDL的使用流程总结</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#使用ContentProvider"><span class="nav-number">6.</span> <span class="nav-text">使用ContentProvider</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#存储形式"><span class="nav-number">6.1.</span> <span class="nav-text">存储形式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#栗子-1"><span class="nav-number">6.2.</span> <span class="nav-text">栗子</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#注意"><span class="nav-number">6.3.</span> <span class="nav-text">注意</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#使用Socket"><span class="nav-number">7.</span> <span class="nav-text">使用Socket</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#栗子-2"><span class="nav-number">7.1.</span> <span class="nav-text">栗子</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Binder连接池"><span class="nav-number">8.</span> <span class="nav-text">Binder连接池</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#栗子-3"><span class="nav-number">8.1.</span> <span class="nav-text">栗子</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#选用合适的IPC方式"><span class="nav-number">9.</span> <span class="nav-text">选用合适的IPC方式</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">XuJiaoJie</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+  
+  <script type="text/javascript" src="/lib/canvas-nest/canvas-nest.min.js"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.1"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.1"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.1"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.1"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.4.js"></script>
+  <script>AV.initialize("ijvKIHTx641VhncUAOKxTgyS-gzGzoHsz", "v3lnrYnhWmGzphYCPQ3GhyA0");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

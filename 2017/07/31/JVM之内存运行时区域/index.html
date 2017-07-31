@@ -93,21 +93,21 @@
 
 
 
-<meta name="description" content="JVM数据区域java虚拟机所管理的内存将会包括以下几个运行时数据区域: 程序计数器程序计数器是一块较小的空间，它可以看做是当前线程所执行的字节码的行号指令器。字节码解释器工作时就是通过改变这个计数器的值来选取下一条需要执行的字节码指令，分支、循环、跳转、异常处理、线程恢复等基础功能都需要依赖这个计数器来完成。 每条线程都有一个独立的程序计数器，各条线程之间计数器互不影响，独立存储，我们称这类内存">
+<meta name="description" content="JVM数据区域java虚拟机所管理的内存将会包括以下几个运行时数据区域:">
 <meta name="keywords" content="java,JVM">
 <meta property="og:type" content="article">
 <meta property="og:title" content="JVM之内存运行时区域">
 <meta property="og:url" content="http://yoursite.com/2017/07/31/JVM之内存运行时区域/index.html">
 <meta property="og:site_name" content="XBlog">
-<meta property="og:description" content="JVM数据区域java虚拟机所管理的内存将会包括以下几个运行时数据区域: 程序计数器程序计数器是一块较小的空间，它可以看做是当前线程所执行的字节码的行号指令器。字节码解释器工作时就是通过改变这个计数器的值来选取下一条需要执行的字节码指令，分支、循环、跳转、异常处理、线程恢复等基础功能都需要依赖这个计数器来完成。 每条线程都有一个独立的程序计数器，各条线程之间计数器互不影响，独立存储，我们称这类内存">
+<meta property="og:description" content="JVM数据区域java虚拟机所管理的内存将会包括以下几个运行时数据区域:">
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="http://otpesi023.bkt.clouddn.com/JVM%E4%B9%8B%E8%BF%90%E8%A1%8C%E6%95%B0%E6%8D%AE%E5%8C%BA.jpg">
 <meta property="og:image" content="http://otpesi023.bkt.clouddn.com/java%E5%86%85%E5%AD%98%E5%8C%BA%E5%9F%9F%E5%92%8C%E5%86%85%E5%AD%98%E6%BA%A2%E5%87%BA%E5%BC%82%E5%B8%B82">
 <meta property="og:image" content="http://otpesi023.bkt.clouddn.com/java%E5%86%85%E5%AD%98%E5%8C%BA%E5%9F%9F%E5%92%8C%E5%86%85%E5%AD%98%E6%BA%A2%E5%87%BA%E5%BC%82%E5%B8%B83">
-<meta property="og:updated_time" content="2017-07-31T14:58:58.082Z">
+<meta property="og:updated_time" content="2017-07-31T15:01:24.801Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="JVM之内存运行时区域">
-<meta name="twitter:description" content="JVM数据区域java虚拟机所管理的内存将会包括以下几个运行时数据区域: 程序计数器程序计数器是一块较小的空间，它可以看做是当前线程所执行的字节码的行号指令器。字节码解释器工作时就是通过改变这个计数器的值来选取下一条需要执行的字节码指令，分支、循环、跳转、异常处理、线程恢复等基础功能都需要依赖这个计数器来完成。 每条线程都有一个独立的程序计数器，各条线程之间计数器互不影响，独立存储，我们称这类内存">
+<meta name="twitter:description" content="JVM数据区域java虚拟机所管理的内存将会包括以下几个运行时数据区域:">
 <meta name="twitter:image" content="http://otpesi023.bkt.clouddn.com/JVM%E4%B9%8B%E8%BF%90%E8%A1%8C%E6%95%B0%E6%8D%AE%E5%8C%BA.jpg">
 
 
@@ -379,6 +379,7 @@
 
       
         <h2 id="JVM数据区域"><a href="#JVM数据区域" class="headerlink" title="JVM数据区域"></a>JVM数据区域</h2><p><strong>java虚拟机所管理的内存将会包括以下几个运行时数据区域:</strong><br><img src="http://otpesi023.bkt.clouddn.com/JVM%E4%B9%8B%E8%BF%90%E8%A1%8C%E6%95%B0%E6%8D%AE%E5%8C%BA.jpg" alt=""></p>
+<a id="more"></a>
 <h3 id="程序计数器"><a href="#程序计数器" class="headerlink" title="程序计数器"></a>程序计数器</h3><p><strong>程序计数器是一块较小的空间，它可以看做是当前线程所执行的字节码的行号指令器。字节码解释器工作时就是通过改变这个计数器的值来选取下一条需要执行的字节码指令，分支、循环、跳转、异常处理、线程恢复等基础功能都需要依赖这个计数器来完成。</strong></p>
 <p>每条线程都有一个独立的程序计数器，各条线程之间计数器互不影响，独立存储，我们称这类内存区域为“线程私有”的内存。</p>
 <p>如果线程正在执行的是一个java方法，这个计数器记录的是正在执行的虚拟机字节码指令的地址，如果正在执行的是Native方法，这个计数器则为空（Undefined）。</p>

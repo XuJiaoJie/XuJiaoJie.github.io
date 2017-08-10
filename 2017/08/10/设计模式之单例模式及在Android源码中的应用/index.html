@@ -1,0 +1,905 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Android,设计模式," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.1" />
+
+
+
+
+
+
+<meta name="description" content="概述主要总结单例模式的特点和几种使用方式，以及在Android源码中单例模式的使用，由于单例模式在android中的广泛使用，所以主要在剖析Android中getSystemService流程（即获取系统服务的流程）中讲述单例模式的使用。单例模式：  单例模式在内存中只有一个实例，减少了内存开销 单例模式可以避免对资源的多重占用，例如一个写文件时，由于只有一个实例存在内存中，避免对同一个资源文件的">
+<meta name="keywords" content="Android,设计模式">
+<meta property="og:type" content="article">
+<meta property="og:title" content="设计模式之单例模式及在Android源码中的应用">
+<meta property="og:url" content="http://yoursite.com/2017/08/10/设计模式之单例模式及在Android源码中的应用/index.html">
+<meta property="og:site_name" content="XBlog">
+<meta property="og:description" content="概述主要总结单例模式的特点和几种使用方式，以及在Android源码中单例模式的使用，由于单例模式在android中的广泛使用，所以主要在剖析Android中getSystemService流程（即获取系统服务的流程）中讲述单例模式的使用。单例模式：  单例模式在内存中只有一个实例，减少了内存开销 单例模式可以避免对资源的多重占用，例如一个写文件时，由于只有一个实例存在内存中，避免对同一个资源文件的">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2017-08-10T07:57:14.819Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="设计模式之单例模式及在Android源码中的应用">
+<meta name="twitter:description" content="概述主要总结单例模式的特点和几种使用方式，以及在Android源码中单例模式的使用，由于单例模式在android中的广泛使用，所以主要在剖析Android中getSystemService流程（即获取系统服务的流程）中讲述单例模式的使用。单例模式：  单例模式在内存中只有一个实例，减少了内存开销 单例模式可以避免对资源的多重占用，例如一个写文件时，由于只有一个实例存在内存中，避免对同一个资源文件的">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"right","display":"always","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2017/08/10/设计模式之单例模式及在Android源码中的应用/"/>
+
+
+
+
+
+  <title>设计模式之单例模式及在Android源码中的应用 | XBlog</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-right page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">XBlog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/08/10/设计模式之单例模式及在Android源码中的应用/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="XuJiaoJie">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/userpic.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="XBlog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">设计模式之单例模式及在Android源码中的应用</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-08-10T15:57:14+08:00">
+                2017-08-10
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/设计模式/" itemprop="url" rel="index">
+                    <span itemprop="name">设计模式</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/2017/08/10/设计模式之单例模式及在Android源码中的应用/" class="leancloud_visitors" data-flag-title="设计模式之单例模式及在Android源码中的应用">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">阅读次数 </span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p>主要总结单例模式的特点和几种使用方式，以及在Android源码中单例模式的使用，由于单例模式在android中的广泛使用，所以主要在剖析Android中getSystemService流程（即获取系统服务的流程）中讲述单例模式的使用。<br><strong>单例模式：</strong></p>
+<ul>
+<li>单例模式在内存中只有一个实例，减少了内存开销</li>
+<li>单例模式可以避免对资源的多重占用，例如一个写文件时，由于只有一个实例存在内存中，避免对同一个资源文件的同时写操作</li>
+<li>单例模式可以在系统设置全局的访问点，优化和共享资源访问</li>
+<li>使用单例模式时，考虑较多的就是多线程的情况下如何防止被多线程同时创建等问题</li>
+</ul>
+<a id="more"></a>
+<p><strong>关键点：</strong></p>
+<ol>
+<li>构造函数不对外开放，一般为private</li>
+<li>通过静态方法或者枚举返回单例对象</li>
+<li>确保单例类的对象有且只有一个，尤其在多线程的环境下</li>
+<li>确保单例类对象在反序列化时不会重新构建对象</li>
+</ol>
+<h2 id="单例模式的使用方式"><a href="#单例模式的使用方式" class="headerlink" title="单例模式的使用方式"></a>单例模式的使用方式</h2><h3 id="饿汉模式"><a href="#饿汉模式" class="headerlink" title="饿汉模式"></a>饿汉模式</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Singleton</span> </span>&#123;  </div><div class="line">     <span class="keyword">private</span> <span class="keyword">static</span> Singleton instance = <span class="keyword">new</span> Singleton();  </div><div class="line">     <span class="function"><span class="keyword">private</span> <span class="title">Singleton</span> <span class="params">()</span></span>&#123;</div><div class="line">     &#125;</div><div class="line">     <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Singleton <span class="title">getInstance</span><span class="params">()</span> </span>&#123;  </div><div class="line">     <span class="keyword">return</span> instance;  </div><div class="line">     &#125;  </div><div class="line"> &#125;</div></pre></td></tr></table></figure>
+<p>这种方式在类加载时就完成了初始化，所以类加载较慢，但获取对象的速度快。这种方式基于类加载机制避免了多线程的同步问题</p>
+<h3 id="懒汉模式"><a href="#懒汉模式" class="headerlink" title="懒汉模式"></a>懒汉模式</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Singleton</span> </span>&#123;  </div><div class="line">    <span class="keyword">private</span> <span class="keyword">static</span> Singleton instance = <span class="keyword">null</span>;  </div><div class="line">  </div><div class="line">    <span class="function"><span class="keyword">private</span> <span class="title">Singleton</span><span class="params">()</span> </span>&#123;  </div><div class="line">    &#125;  </div><div class="line">  </div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Singleton <span class="title">getInstance</span><span class="params">()</span> </span>&#123;  </div><div class="line">       <span class="keyword">synchronized</span> (Singleton.class) &#123;  </div><div class="line">           <span class="keyword">if</span> (instance == <span class="keyword">null</span>) &#123;  </div><div class="line">              instance = <span class="keyword">new</span> Singleton();  </div><div class="line">           &#125;  </div><div class="line">       &#125;  </div><div class="line">       <span class="keyword">return</span> instance;  </div><div class="line">    &#125; </div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>缺点：效率有点低，每次调用实例都要判断同步锁</p>
+<h3 id="双重检验锁（Double-CheckLock）"><a href="#双重检验锁（Double-CheckLock）" class="headerlink" title="双重检验锁（Double CheckLock）"></a>双重检验锁（Double CheckLock）</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="comment">/*双重锁定:只在第一次初始化的时候加上同步锁*/</span> </div><div class="line"> <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Singleton <span class="title">getInstance</span><span class="params">()</span> </span>&#123;  </div><div class="line">     <span class="keyword">if</span> (instance == <span class="keyword">null</span>) &#123;  </div><div class="line">         <span class="keyword">synchronized</span> (Singleton.class) &#123;  </div><div class="line">             <span class="keyword">if</span> (instance == <span class="keyword">null</span>) &#123;  </div><div class="line">                 instance = <span class="keyword">new</span> Singleton();  </div><div class="line">             &#125;  </div><div class="line">         &#125;  </div><div class="line">     &#125;  </div><div class="line">     <span class="keyword">return</span> instance;  </div><div class="line"> &#125;</div></pre></td></tr></table></figure>
+<p><strong>优点：</strong>既能够在需要时初始化单例，又能够保证线程安全，且在初始化后调用getInstance不进行同步锁。<br><strong>缺点：</strong>不同平台编译过程中可能会存在严重安全隐患。<br>在执行到instance = newSingleton()语句时，最终会编译成多条汇编指令，大致做了3件事：</p>
+<ol>
+<li>给Singleton实例分配内存</li>
+<li>调用Singleton()的构造函数，初始化成员字段</li>
+<li>将instance对象指向分配的内存空间（此时instance就不是null）</li>
+</ol>
+<p>在JVM编译的过程中会出现指令重排的优化过程既可能执行顺序为1-3-2，这就会导致当 instance实际上还没初始化，就可能被分配了内存空间，也就是说会出现 instance !=null 但是又没初始化的情况，这样就会导致当切换到其他线程时返回的instance不完整</p>
+<p><strong>解决方案：</strong>只需将instance定义为 <strong>private volatile static Singleton instance = null；</strong> 这样就保证instance对象每次都是从主存中读取，就可以使用DCL的写法来完成单例模式。当然，volatile或多或少也会影响到性能。</p>
+<h3 id="静态内部类"><a href="#静态内部类" class="headerlink" title="静态内部类"></a>静态内部类</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SingletonInner</span> </span>&#123;  </div><div class="line">    </div><div class="line">    <span class="function"><span class="keyword">private</span> <span class="title">SingletonInner</span><span class="params">()</span> </span>&#123;  </div><div class="line">  </div><div class="line">    &#125;  </div><div class="line">  </div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> SingletonInner <span class="title">getInstance</span><span class="params">()</span> </span>&#123;  </div><div class="line">        <span class="keyword">return</span> SingletonHolder.instance;  </div><div class="line">    &#125;  </div><div class="line">  </div><div class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">method</span><span class="params">()</span> </span>&#123;  </div><div class="line">        System.out.println(<span class="string">"SingletonInner"</span>);  </div><div class="line">    &#125;  </div><div class="line">    </div><div class="line">    <span class="comment">/** </span></div><div class="line">     * 内部类实现单例模式 </div><div class="line">     * 延迟加载，减少内存开销 </div><div class="line">     */  </div><div class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">SingletonHolder</span> </span>&#123;  </div><div class="line">        <span class="keyword">private</span> <span class="keyword">static</span> SingletonInner instance = <span class="keyword">new</span> SingletonInner();  </div><div class="line">    &#125;  </div><div class="line"></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>调用：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">SingletonInner.getInstance().method();</div></pre></td></tr></table></figure></p>
+<p>优点：延迟加载，线程安全（java中class加载时互斥的），也减少了内存消耗</p>
+<h3 id="枚举单例"><a href="#枚举单例" class="headerlink" title="枚举单例"></a>枚举单例</h3><p>上面的几种情况，在反序列化时会出现重新创建对象的情况。通过序列化将一个单例的实例写入到磁盘，然后再读回来，但反序列化时会通过一个特别的钩子函数readResolve()去创建类的一个新的实例，但开发人员可以通过重写该方法杜绝反序列化时重新生成对象，如下所示：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">private</span> Object <span class="title">readResolve</span><span class="params">()</span> <span class="keyword">throws</span> ObjectStreamException</span>&#123;</div><div class="line">    <span class="keyword">return</span> instance;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>在readResolve方法中instance对象返回，而不是重新创建一个新的对象。但对于枚举，即使反序列化时也不会出现生成新的实例。<br><strong>枚举单例的使用如下：</strong><br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="keyword">enum</span> SingletonEnum &#123;  </div><div class="line">    <span class="comment">/** </span></div><div class="line">     * 1.从Java1.5开始支持; </div><div class="line">     * 2.无偿提供序列化机制; </div><div class="line">     * 3.绝对防止多次实例化，即使在面对复杂的序列化或者反射攻击的时候; </div><div class="line">     */  </div><div class="line">    instance;  </div><div class="line">  </div><div class="line">    SingletonEnum() &#123;  </div><div class="line">  </div><div class="line">    &#125;  </div><div class="line">  </div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">method</span><span class="params">()</span> </span>&#123;  </div><div class="line">        System.out.println(<span class="string">"SingletonEnum"</span>);  </div><div class="line">    &#125;  </div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>调用：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">SingletonEnum.instance.method();</div></pre></td></tr></table></figure></p>
+<h3 id="使用容器实现单例"><a href="#使用容器实现单例" class="headerlink" title="使用容器实现单例"></a>使用容器实现单例</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SingletonManager</span> </span>&#123; </div><div class="line">　　<span class="keyword">private</span> <span class="keyword">static</span> Map&lt;String, Object&gt; objMap = <span class="keyword">new</span> HashMap&lt;String,Object&gt;();</div><div class="line">　　<span class="function"><span class="keyword">private</span> <span class="title">Singleton</span><span class="params">()</span> </span>&#123; </div><div class="line">　　&#125;</div><div class="line">　　<span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">registerService</span><span class="params">(String key, Objectinstance)</span> </span>&#123;</div><div class="line">　　　　<span class="keyword">if</span> (!objMap.containsKey(key) ) &#123;</div><div class="line">　　　　　　objMap.put(key, instance) ;</div><div class="line">　　　　&#125;</div><div class="line">　　&#125;</div><div class="line">　　<span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="title">ObjectgetService</span><span class="params">(String key)</span> </span>&#123;</div><div class="line">　　　　<span class="keyword">return</span> objMap.get(key) ;</div><div class="line">　　&#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>用SingletonManager 将多种的单例类统一管理，在使用时根据key获取对象对应类型的对象。这种方式使得我们可以管理多种类型的单例，并且在使用时可以通过统一的接口进行获取操作，降低了用户的使用成本，也对用户隐藏了具体实现，降低了耦合度。</p>
+<h2 id="Android中getSystemService流程"><a href="#Android中getSystemService流程" class="headerlink" title="Android中getSystemService流程"></a>Android中getSystemService流程</h2><p>在平时的Android开发中，我们经常会通过Context来获取系统服务，比如ActivityManagerService,AccountManagerService等系统服务，今天我们就来看下getSystemService(String name)的整个调用流程。</p>
+<h3 id="Context和ContextImpl"><a href="#Context和ContextImpl" class="headerlink" title="Context和ContextImpl"></a>Context和ContextImpl</h3><p>打开Context类,可以看到Context是一个抽象类，那么getSystemService一定是在其实现类来调用的，具体我们都猜得到ContextImpl<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="class"><span class="keyword">class</span> <span class="title">Context</span> </span>&#123;</div><div class="line">  ......</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>当我们启动一个Activity的时候，其实是在ActivityThread#performLaunchActivity方法中启动的，一个Activity的入口是ActivityThread的main方法，看下main方法<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</div><div class="line">        .......</div><div class="line">        <span class="comment">// 主线程消息循环</span></div><div class="line">        Looper.prepareMainLooper();</div><div class="line"></div><div class="line">        ActivityThread thread = <span class="keyword">new</span> ActivityThread();</div><div class="line">        thread.attach(<span class="keyword">false</span>);</div><div class="line"></div><div class="line">        <span class="keyword">if</span> (sMainThreadHandler == <span class="keyword">null</span>) &#123;</div><div class="line">            sMainThreadHandler = thread.getHandler();</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        Looper.loop();</div><div class="line"></div><div class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> RuntimeException(<span class="string">"Main thread loop unexpectedly exited"</span>);</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>可以看到上面在main方法中，调用了自身的attach方法<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">attach</span><span class="params">(<span class="keyword">boolean</span> system)</span> </span>&#123;</div><div class="line"></div><div class="line">        ........</div><div class="line">        <span class="keyword">if</span> (!system) &#123;</div><div class="line">           <span class="keyword">final</span> IActivityManager mgr = ActivityManagerNative.getDefault();</div><div class="line">            <span class="keyword">try</span> &#123;</div><div class="line">                <span class="comment">// 通过binder获取到的ActivityManagerService关联当前mAppThread</span></div><div class="line">                mgr.attachApplication(mAppThread);</div><div class="line">            &#125; <span class="keyword">catch</span> (RemoteException ex) &#123;</div><div class="line">                <span class="comment">// Ignore</span></div><div class="line">            &#125;</div><div class="line"></div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>在main方法中，通过调用activityThread的attach方法，并且参数为false，表示非系统应用，会通过binder与ActivityManagerService通信，并且最后会调用performLaunchActivity方法<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">private</span> Activity <span class="title">performLaunchActivity</span><span class="params">(ActivityClientRecord r, Intent customIntent)</span> </span>&#123;</div><div class="line"></div><div class="line">        Activity activity = <span class="keyword">null</span>;</div><div class="line">        <span class="keyword">try</span> &#123;</div><div class="line">            java.lang.ClassLoader cl = r.packageInfo.getClassLoader();</div><div class="line">            activity = mInstrumentation.newActivity(</div><div class="line">                    cl, component.getClassName(), r.intent);</div><div class="line">            r.intent.setExtrasClassLoader(cl);</div><div class="line">            r.intent.prepareToEnterProcess();</div><div class="line">            <span class="keyword">if</span> (r.state != <span class="keyword">null</span>) &#123;</div><div class="line">                r.state.setClassLoader(cl);</div><div class="line">            &#125;</div><div class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</div><div class="line">            ....</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        <span class="keyword">try</span> &#123;</div><div class="line">            Application app = r.packageInfo.makeApplication(<span class="keyword">false</span>, mInstrumentation);</div><div class="line"></div><div class="line">            <span class="keyword">if</span> (activity != <span class="keyword">null</span>) &#123;</div><div class="line">                <span class="comment">// 创建Context的实例</span></div><div class="line">                Context appContext = createBaseContextForActivity(r, activity);</div><div class="line">                activity.attach(appContext, <span class="keyword">this</span>, getInstrumentation(), r.token,</div><div class="line">                        r.ident, app, r.intent, r.activityInfo, title, r.parent,</div><div class="line">                        r.embeddedID, r.lastNonConfigurationInstances, config,</div><div class="line">                        r.referrer, r.voiceInteractor);</div><div class="line"></div><div class="line">                .......</div><div class="line">            &#125;</div><div class="line">            r.paused = <span class="keyword">true</span>;</div><div class="line"></div><div class="line">            mActivities.put(r.token, r);</div><div class="line"></div><div class="line">        &#125; <span class="keyword">catch</span> (SuperNotCalledException e) &#123;</div><div class="line">            .....</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        <span class="keyword">return</span> activity;</div><div class="line">    &#125;</div></pre></td></tr></table></figure></p>
+<p>可以看到创建Context的具体实现是在ActivityThread#createBaseContextForActivity方法中完成的<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">private</span> Context <span class="title">createBaseContextForActivity</span><span class="params">(ActivityClientRecord r, <span class="keyword">final</span> Activity activity)</span> </span>&#123;</div><div class="line">        <span class="comment">// 可以看到这里创建的具体实例是ContextImpl</span></div><div class="line">        ContextImpl appContext = ContextImpl.createActivityContext(</div><div class="line">                <span class="keyword">this</span>, r.packageInfo, displayId, r.overrideConfig);</div><div class="line">        appContext.setOuterContext(activity);</div><div class="line">        Context baseContext = appContext;</div><div class="line">        ......</div><div class="line">        <span class="keyword">return</span> baseContext;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>可以看到Context的实现类就是ContextImpl，那么关于getSystemService的具体实现也应该在ContextImpl里面了。</p>
+<h3 id="getSystemService的具体实现"><a href="#getSystemService的具体实现" class="headerlink" title="getSystemService的具体实现"></a>getSystemService的具体实现</h3><p>ContextImpl#getSystemService的实现如下<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@Override</span></div><div class="line"><span class="function"><span class="keyword">public</span> Object <span class="title">getSystemService</span><span class="params">(String name)</span> </span>&#123;</div><div class="line">    <span class="keyword">return</span> SystemServiceRegistry.getSystemService(<span class="keyword">this</span>, name);</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>可以看到实际上ContextImpl也是通过SystemServiceRegistry.getSystemService来获取具体的服务，SystemServiceRegistry是个final类型的类。那么下面看看SystemServiceRegistry类：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">final</span> <span class="class"><span class="keyword">class</span> <span class="title">SystemServiceRegistry</span> </span>&#123;</div><div class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> HashMap&lt;Class&lt;?&gt;, String&gt; SYSTEM_SERVICE_NAMES = <span class="keyword">new</span> HashMap&lt;Class&lt;?&gt;, String&gt;();</div><div class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> HashMap&lt;String, ServiceFetcher&lt;?&gt;&gt; SYSTEM_SERVICE_FETCHERS = <span class="keyword">new</span> HashMap&lt;String, ServiceFetcher&lt;?&gt;&gt;();</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">private</span> <span class="title">SystemServiceRegistry</span><span class="params">()</span> </span>&#123; &#125;</div><div class="line">    </div><div class="line">    <span class="keyword">static</span> &#123;</div><div class="line">        registerService(Context.LAYOUT_INFLATER_SERVICE, LayoutInflater.class,</div><div class="line">                <span class="keyword">new</span> CachedServiceFetcher&lt;LayoutInflater&gt;() &#123;</div><div class="line">            <span class="meta">@Override</span></div><div class="line">            <span class="function"><span class="keyword">public</span> LayoutInflater <span class="title">createService</span><span class="params">(ContextImpl ctx)</span> </span>&#123;</div><div class="line">                <span class="keyword">return</span> <span class="keyword">new</span> PhoneLayoutInflater(ctx.getOuterContext());</div><div class="line">            &#125;&#125;);</div><div class="line"></div><div class="line">        registerService(Context.ACTIVITY_SERVICE, ActivityManager.class,</div><div class="line">                <span class="keyword">new</span> CachedServiceFetcher&lt;ActivityManager&gt;() &#123;</div><div class="line">            <span class="meta">@Override</span></div><div class="line">            <span class="function"><span class="keyword">public</span> ActivityManager <span class="title">createService</span><span class="params">(ContextImpl ctx)</span> </span>&#123;</div><div class="line">                <span class="keyword">return</span> <span class="keyword">new</span> ActivityManager(ctx.getOuterContext(), ctx.mMainThread.getHandler());</div><div class="line">            &#125;&#125;);</div><div class="line">        .......</div><div class="line">    &#125;</div><div class="line">    </div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Object <span class="title">getSystemService</span><span class="params">(ContextImpl ctx, String name)</span> </span>&#123;</div><div class="line">        ServiceFetcher&lt;?&gt; fetcher = SYSTEM_SERVICE_FETCHERS.get(name);</div><div class="line">        <span class="keyword">return</span> fetcher != <span class="keyword">null</span> ? fetcher.getService(ctx) : <span class="keyword">null</span>;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="keyword">private</span> <span class="keyword">static</span> &lt;T&gt; <span class="function"><span class="keyword">void</span> <span class="title">registerService</span><span class="params">(String serviceName, Class&lt;T&gt; serviceClass, ServiceFetcher&lt;T&gt; serviceFetcher)</span> </span>&#123;</div><div class="line">        SYSTEM_SERVICE_NAMES.put(serviceClass, serviceName);</div><div class="line">        SYSTEM_SERVICE_FETCHERS.put(serviceName, serviceFetcher);</div><div class="line">    &#125;</div><div class="line">    ......</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>可看到实际上获取系统服务是通过ServiceFetcher的getService来获取的，并且SYSTEM_SERVICE_FETCHERS实际上就是一个HashMap实例，通过put方法为它赋值的。registerService方法是用来注册系统服务的，当注册系统服务的时候，就会调用到SYSTEM_SERVICE_FETCHERS.put(serviceName, serviceFetcher);将当前的服务put到SYSTEM_SERVICE_NAMES集合中<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">static</span> <span class="keyword">abstract</span> <span class="class"><span class="keyword">interface</span> <span class="title">ServiceFetcher</span>&lt;<span class="title">T</span>&gt; </span>&#123;</div><div class="line">        <span class="function">T <span class="title">getService</span><span class="params">(ContextImpl ctx)</span></span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>ServiceFetcher是一个接口，又三个实现类：CachedServiceFetcher,StaticServiceFetcher,StaticApplicationContextServiceFetcher,具体不同的服务可能对应不同的实现类。看一下CachedServiceFetcher的实现：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">static</span> <span class="keyword">abstract</span> <span class="class"><span class="keyword">class</span> <span class="title">CachedServiceFetcher</span>&lt;<span class="title">T</span>&gt; <span class="keyword">implements</span> <span class="title">ServiceFetcher</span>&lt;<span class="title">T</span>&gt; </span>&#123;</div><div class="line">    <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">int</span> mCacheIndex;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="title">CachedServiceFetcher</span><span class="params">()</span> </span>&#123;</div><div class="line">        mCacheIndex = sServiceCacheSize++;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="meta">@SuppressWarnings</span>(<span class="string">"unchecked"</span>)</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">final</span> T <span class="title">getService</span><span class="params">(ContextImpl ctx)</span> </span>&#123;</div><div class="line">        <span class="keyword">final</span> Object[] cache = ctx.mServiceCache;</div><div class="line">        <span class="keyword">synchronized</span> (cache) &#123;</div><div class="line">            <span class="comment">// Fetch or create the service.</span></div><div class="line">            Object service = cache[mCacheIndex];</div><div class="line">            <span class="keyword">if</span> (service == <span class="keyword">null</span>) &#123;</div><div class="line">                service = createService(ctx);</div><div class="line">                cache[mCacheIndex] = service;</div><div class="line">            &#125;</div><div class="line">            <span class="keyword">return</span> (T)service;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">abstract</span> T <span class="title">createService</span><span class="params">(ContextImpl ctx)</span></span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>这些系统服务都是在SystemServiceRegistry的static静态代码块中进行注册的，即上面代码中的static代码块。</p>
+<p>这里，我们以ActivityManagerService为例来进行学习。在注册该服务的时候，将Context.ACTIVITY_SERVICE作为键，将CachedServiceFetcher作为值，并且重写了createService方法，createService是在当前ServiceFetcher的getService里执行的，这里会返回一个ActivityManager的实例，ctx.mMainThread.getHandler()就是ActivityThread中的H，启动activity最终就会通过ActivityThread$H的handleMessage进行处理，实际上，包括service的启动以及Broadcast的处理都是在H里处理的。</p>
+<p><strong>单例模式的应用：</strong><br>这些服务以键值对的形式存储在一个HashMap(即SYSTEM_SERVICE_FETCHERS)中，用户使用时只需要根据key值获取对应的ServiceFetcher，然后通过ServiceFetcher对象的getService函数来获取具体的服务对象。当第一次获取时，会调用ServiceFetcher的createService函数创建服务对象，然后缓存在一个列表HashMap中，下次再取时直接从缓存中获取，避免重复创建对象，从而达到单例的效果，这里使用单例的方式是使用容器的单例形式。</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Android/" rel="tag"># Android</a>
+          
+            <a href="/tags/设计模式/" rel="tag"># 设计模式</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/08/09/JVM之线程安全与锁优化/" rel="next" title="JVM之线程安全与锁优化">
+                <i class="fa fa-chevron-left"></i> JVM之线程安全与锁优化
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/userpic.jpg"
+               alt="XuJiaoJie" />
+          <p class="site-author-name" itemprop="name">XuJiaoJie</p>
+           
+              <p class="site-description motion-element" itemprop="description">Never stop, search for better yourself</p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives/">
+                <span class="site-state-item-count">18</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">3</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">4</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#概述"><span class="nav-number">1.</span> <span class="nav-text">概述</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#单例模式的使用方式"><span class="nav-number">2.</span> <span class="nav-text">单例模式的使用方式</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#饿汉模式"><span class="nav-number">2.1.</span> <span class="nav-text">饿汉模式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#懒汉模式"><span class="nav-number">2.2.</span> <span class="nav-text">懒汉模式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#双重检验锁（Double-CheckLock）"><span class="nav-number">2.3.</span> <span class="nav-text">双重检验锁（Double CheckLock）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#静态内部类"><span class="nav-number">2.4.</span> <span class="nav-text">静态内部类</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#枚举单例"><span class="nav-number">2.5.</span> <span class="nav-text">枚举单例</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#使用容器实现单例"><span class="nav-number">2.6.</span> <span class="nav-text">使用容器实现单例</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Android中getSystemService流程"><span class="nav-number">3.</span> <span class="nav-text">Android中getSystemService流程</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Context和ContextImpl"><span class="nav-number">3.1.</span> <span class="nav-text">Context和ContextImpl</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#getSystemService的具体实现"><span class="nav-number">3.2.</span> <span class="nav-text">getSystemService的具体实现</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">XuJiaoJie</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+  
+  <script type="text/javascript" src="/lib/canvas-nest/canvas-nest.min.js"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.1"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.1"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.1"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.1"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.4.js"></script>
+  <script>AV.initialize("ijvKIHTx641VhncUAOKxTgyS-gzGzoHsz", "v3lnrYnhWmGzphYCPQ3GhyA0");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

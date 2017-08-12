@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Android,设计模式," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.1" />
+
+
+
+
+
+
+<meta name="description" content="抽象工厂为创建一组相关或者是相互依赖的对象提供一个接口，而不需要指定他们的具体实现类。 一个对象族（或是一组没有任何关系的对象）都有相同的约束，则可以使用抽象工厂模式。例如一个文本编辑器和一个图片处理器，都是软件实体，但是Linix下的文本编辑器和WINDOWS下的文本编辑器虽然功能和界面都相同，但是代码实现是不同的，图片处理器也是类似情况，也就是具有了共同的约束条件：操作系统类型，于是我们可以使">
+<meta name="keywords" content="Android,设计模式">
+<meta property="og:type" content="article">
+<meta property="og:title" content="设计模式之抽象工厂模式及在源码中的应用">
+<meta property="og:url" content="http://yoursite.com/2017/08/12/设计模式之抽象工厂模式及在源码中的应用/index.html">
+<meta property="og:site_name" content="XBlog">
+<meta property="og:description" content="抽象工厂为创建一组相关或者是相互依赖的对象提供一个接口，而不需要指定他们的具体实现类。 一个对象族（或是一组没有任何关系的对象）都有相同的约束，则可以使用抽象工厂模式。例如一个文本编辑器和一个图片处理器，都是软件实体，但是Linix下的文本编辑器和WINDOWS下的文本编辑器虽然功能和界面都相同，但是代码实现是不同的，图片处理器也是类似情况，也就是具有了共同的约束条件：操作系统类型，于是我们可以使">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2017-08-12T12:01:05.249Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="设计模式之抽象工厂模式及在源码中的应用">
+<meta name="twitter:description" content="抽象工厂为创建一组相关或者是相互依赖的对象提供一个接口，而不需要指定他们的具体实现类。 一个对象族（或是一组没有任何关系的对象）都有相同的约束，则可以使用抽象工厂模式。例如一个文本编辑器和一个图片处理器，都是软件实体，但是Linix下的文本编辑器和WINDOWS下的文本编辑器虽然功能和界面都相同，但是代码实现是不同的，图片处理器也是类似情况，也就是具有了共同的约束条件：操作系统类型，于是我们可以使">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"right","display":"always","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2017/08/12/设计模式之抽象工厂模式及在源码中的应用/"/>
+
+
+
+
+
+  <title>设计模式之抽象工厂模式及在源码中的应用 | XBlog</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-right page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">XBlog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/08/12/设计模式之抽象工厂模式及在源码中的应用/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="XuJiaoJie">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/userpic.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="XBlog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">设计模式之抽象工厂模式及在源码中的应用</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-08-12T20:01:05+08:00">
+                2017-08-12
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/设计模式/" itemprop="url" rel="index">
+                    <span itemprop="name">设计模式</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/2017/08/12/设计模式之抽象工厂模式及在源码中的应用/" class="leancloud_visitors" data-flag-title="设计模式之抽象工厂模式及在源码中的应用">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">阅读次数 </span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="抽象工厂"><a href="#抽象工厂" class="headerlink" title="抽象工厂"></a>抽象工厂</h2><p>为创建一组相关或者是相互依赖的对象提供一个接口，而不需要指定他们的具体实现类。</p>
+<p>一个对象族（或是一组没有任何关系的对象）都有相同的约束，则可以使用抽象工厂模式。例如一个文本编辑器和一个图片处理器，都是软件实体，但是Linix下的文本编辑器和WINDOWS下的文本编辑器虽然功能和界面都相同，但是代码实现是不同的，图片处理器也是类似情况，也就是具有了共同的约束条件：操作系统类型，于是我们可以使用抽象工厂模式，产生不同操作系统下的编辑器和图片处理器。</p>
+<a id="more"></a>
+<p><strong>栗子：</strong><br>以车厂生产汽车零部件为例,A、B两家车厂分别生产不同的轮胎、发动机、制动系统。虽然生产的零件不同，型号不同。但是根本上都有共同的约束，就是轮胎、发动机、制动系统。</p>
+<p>轮胎相关类：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">ITire</span> </span>&#123;</div><div class="line">    <span class="comment">/**</span></div><div class="line">     * 轮胎 </div><div class="line">     */</div><div class="line">    <span class="function"><span class="keyword">void</span> <span class="title">tire</span><span class="params">()</span></span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">NormalTire</span> <span class="keyword">implements</span> <span class="title">ITire</span></span>&#123;</div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">tire</span><span class="params">()</span> </span>&#123;</div><div class="line">        System.out.println(<span class="string">"普通轮胎"</span>);</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SUVTire</span> <span class="keyword">implements</span> <span class="title">ITire</span></span>&#123;</div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">tire</span><span class="params">()</span> </span>&#123;</div><div class="line">        System.out.println(<span class="string">"越野轮胎"</span>);</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>发动机相关类：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">IEngine</span> </span>&#123;</div><div class="line">    <span class="comment">/**</span></div><div class="line">     *发动机 </div><div class="line">     */</div><div class="line">    <span class="function"><span class="keyword">void</span> <span class="title">engine</span><span class="params">()</span></span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">DomesticEngine</span> <span class="keyword">implements</span> <span class="title">IEngine</span></span>&#123;</div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">engine</span><span class="params">()</span> </span>&#123;</div><div class="line">        System.out.println(<span class="string">"国产发动机"</span>);</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ImportEngine</span> <span class="keyword">implements</span> <span class="title">IEngine</span></span>&#123;</div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">engine</span><span class="params">()</span> </span>&#123;</div><div class="line">        System.out.println(<span class="string">"进口发动机"</span>);</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>制动系统相关类：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">IBrake</span> </span>&#123;</div><div class="line">    <span class="comment">/**</span></div><div class="line">     *制动系统 </div><div class="line">     */</div><div class="line">    <span class="function"><span class="keyword">void</span> <span class="title">brake</span><span class="params">()</span></span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">NormalBrake</span> <span class="keyword">implements</span> <span class="title">IBrake</span></span>&#123;</div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">brake</span><span class="params">()</span> </span>&#123;</div><div class="line">        System.out.println(<span class="string">"普通制动"</span>);</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SeniorBrake</span> <span class="keyword">implements</span> <span class="title">IBrake</span></span>&#123;</div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">brake</span><span class="params">()</span> </span>&#123;</div><div class="line">        System.out.println(<span class="string">"高级制动"</span>);</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>抽象车厂类：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="class"><span class="keyword">class</span> <span class="title">CarFactory</span> </span>&#123;</div><div class="line">    <span class="comment">/**</span></div><div class="line">     * 生产轮胎</div><div class="line">     * </div><div class="line">     * <span class="doctag">@return</span> 轮胎</div><div class="line">     * */</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">abstract</span> ITire <span class="title">createTire</span><span class="params">()</span></span>;</div><div class="line"></div><div class="line">    <span class="comment">/**</span></div><div class="line">     * 生产发动机</div><div class="line">     * </div><div class="line">     * <span class="doctag">@return</span> 发动机</div><div class="line">     * */</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">abstract</span> IEngine <span class="title">createEngine</span><span class="params">()</span></span>;</div><div class="line"></div><div class="line">    <span class="comment">/**</span></div><div class="line">     * 生产制动系统</div><div class="line">     * </div><div class="line">     * <span class="doctag">@return</span> 制动系统</div><div class="line">     * */</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">abstract</span> IBrake <span class="title">createBrake</span><span class="params">()</span></span>;</div><div class="line"></div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>A车厂：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">AFactory</span> <span class="keyword">extends</span> <span class="title">CarFactory</span></span>&#123;</div><div class="line"></div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> ITire <span class="title">createTire</span><span class="params">()</span> </span>&#123;</div><div class="line">        <span class="keyword">return</span> <span class="keyword">new</span> NormalTire();</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> IEngine <span class="title">createEngine</span><span class="params">()</span> </span>&#123;</div><div class="line">        <span class="keyword">return</span> <span class="keyword">new</span> DomesticEngine();</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> IBrake <span class="title">createBrake</span><span class="params">()</span> </span>&#123;</div><div class="line">        <span class="keyword">return</span> <span class="keyword">new</span> NormalBrake();</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>B车厂：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">BFactory</span> <span class="keyword">extends</span> <span class="title">CarFactory</span></span>&#123;</div><div class="line"></div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> ITire <span class="title">createTire</span><span class="params">()</span> </span>&#123;</div><div class="line">        <span class="keyword">return</span> <span class="keyword">new</span> SUVTire();</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> IEngine <span class="title">createEngine</span><span class="params">()</span> </span>&#123;</div><div class="line">        <span class="keyword">return</span> <span class="keyword">new</span> ImportEngine();</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> IBrake <span class="title">createBrake</span><span class="params">()</span> </span>&#123;</div><div class="line">        <span class="keyword">return</span> <span class="keyword">new</span> SeniorBrake();</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>客户类：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Client</span> </span>&#123;</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</div><div class="line">        <span class="comment">//A车厂</span></div><div class="line">        CarFactory factoryA = <span class="keyword">new</span> AFactory();</div><div class="line">        factoryA.createTire().tire();</div><div class="line">        factoryA.createEngine().engine();</div><div class="line">        factoryA.createBrake().brake();</div><div class="line">        System.out.println(<span class="string">"---------------"</span>);</div><div class="line">        <span class="comment">//B车厂</span></div><div class="line">        CarFactory factoryB = <span class="keyword">new</span> BFactory();</div><div class="line">        factoryB.createTire().tire();</div><div class="line">        factoryB.createEngine().engine();</div><div class="line">        factoryB.createBrake().brake();</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>结果：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">普通轮胎</div><div class="line">国产发动机</div><div class="line">普通制动</div><div class="line">------------------</div><div class="line">越野轮胎</div><div class="line">进口发动机</div><div class="line">高级制动</div></pre></td></tr></table></figure></p>
+<p>可以看出上面模拟了两个车厂，如果有了C厂、D厂，各自厂家生产的零部件型号种类又不相同，那么我们创建的类文件就会翻倍。这也是抽象工厂模式的一个弊端，所以实际开发中要权衡使用。</p>
+<p><strong>抽象工厂模式是工厂方法模式的升级版本。对比如下：</strong></p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">工厂方法模式</th>
+<th style="text-align:left">抽象工厂模式</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">只有一个抽象产品类</td>
+<td style="text-align:left">有多个抽象产品类</td>
+</tr>
+<tr>
+<td style="text-align:left">具体工厂类只能创建一个具体产品类的实例</td>
+<td style="text-align:left">具体工厂类能创建多个具体产品类的实例</td>
+</tr>
+</tbody>
+</table>
+<h2 id="源码中的实现"><a href="#源码中的实现" class="headerlink" title="源码中的实现"></a>源码中的实现</h2><p>在源码中, 比较典型的抽象工厂模式的例子是Java.sql包中的Connection类，在刚学习Java时我们都会学习使用JDBC链接数据库，代码大致是这样的：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">try</span> &#123;  </div><div class="line">    Connection con = <span class="keyword">null</span>; <span class="comment">// 定义一个MYSQL链接对象  </span></div><div class="line">    Class.forName(<span class="string">"com.mysql.jdbc.Driver"</span>).newInstance(); <span class="comment">// MYSQL驱动  </span></div><div class="line">    con = DriverManager.getConnection(  </div><div class="line">            <span class="string">"jdbc:mysql://127.0.0.1:3306/test"</span>, <span class="string">"root"</span>, <span class="string">"root"</span>); <span class="comment">// 链接本地MYSQL  </span></div><div class="line">  </div><div class="line">    Statement stmt; <span class="comment">// 创建声明  </span></div><div class="line">    stmt = con.createStatement();  </div><div class="line">  </div><div class="line">    <span class="comment">// 新增一条数据  </span></div><div class="line">    stmt.executeUpdate(<span class="string">"INSERT INTO user (username, password) VALUES ('init', '123456')"</span>);  </div><div class="line">    ResultSet res = stmt.executeQuery(<span class="string">"select LAST_INSERT_ID()"</span>);  </div><div class="line">    <span class="comment">// 代码省略  </span></div><div class="line">&#125; <span class="keyword">catch</span> (Exception e) &#123;  </div><div class="line">    e.printStackTrace();  </div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>上面我们是以MYSQL驱动为例，设置JDBC驱动以后，使用DriverManager.getConnection来获取具体的链接实现，然后通过这个Connection来创建一个Statement来提交SQL语句，Connection还可以创建clob, blob, sqlxml等对象，即Connection就是抽象工厂，而具体的工厂实现则在不同的数据库驱动包种。</p>
+<p>首先我们看DriverManager中的getConnection方法 :<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div></pre></td><td class="code"><pre><div class="line">    <span class="meta">@CallerSensitive</span>  </div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Connection <span class="title">getConnection</span><span class="params">(String url,  </span></span></div><div class="line">        String user, String password) <span class="keyword">throws</span> SQLException &#123;  </div><div class="line">        java.util.Properties info = <span class="keyword">new</span> java.util.Properties();  </div><div class="line">  </div><div class="line">        <span class="keyword">if</span> (user != <span class="keyword">null</span>) &#123;  </div><div class="line">            info.put(<span class="string">"user"</span>, user);  </div><div class="line">        &#125;  </div><div class="line">        <span class="keyword">if</span> (password != <span class="keyword">null</span>) &#123;  </div><div class="line">            info.put(<span class="string">"password"</span>, password);  </div><div class="line">        &#125;  </div><div class="line">  </div><div class="line">        <span class="keyword">return</span> (getConnection(url, info, Reflection.getCallerClass()));  </div><div class="line">    &#125;  </div><div class="line">  </div><div class="line"><span class="comment">//  Worker method called by the public getConnection() methods.  </span></div><div class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">static</span> Connection <span class="title">getConnection</span><span class="params">(  </span></span></div><div class="line">        String url, java.util.Properties info, Class&lt;?&gt; caller) <span class="keyword">throws</span> SQLException &#123;  </div><div class="line">        <span class="comment">/* </span></div><div class="line">         * When callerCl is null, we should check the application's </div><div class="line">         * (which is invoking this class indirectly) </div><div class="line">         * classloader, so that the JDBC driver class outside rt.jar </div><div class="line">         * can be loaded from here. </div><div class="line">         */  </div><div class="line">        ClassLoader callerCL = caller != <span class="keyword">null</span> ? caller.getClassLoader() : <span class="keyword">null</span>;  </div><div class="line">        <span class="keyword">synchronized</span> (DriverManager.class) &#123;  </div><div class="line">            <span class="comment">// synchronize loading of the correct classloader.  </span></div><div class="line">            <span class="keyword">if</span> (callerCL == <span class="keyword">null</span>) &#123;  </div><div class="line">                callerCL = Thread.currentThread().getContextClassLoader();  </div><div class="line">            &#125;  </div><div class="line">        &#125;  </div><div class="line">  </div><div class="line">        <span class="keyword">if</span>(url == <span class="keyword">null</span>) &#123;  </div><div class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> SQLException(<span class="string">"The url cannot be null"</span>, <span class="string">"08001"</span>);  </div><div class="line">        &#125;  </div><div class="line">  </div><div class="line">        println(<span class="string">"DriverManager.getConnection(\""</span> + url + <span class="string">"\")"</span>);  </div><div class="line">  </div><div class="line">        <span class="comment">// Walk through the loaded registeredDrivers attempting to make a connection.  </span></div><div class="line">        <span class="comment">// Remember the first exception that gets raised so we can reraise it.  </span></div><div class="line">        SQLException reason = <span class="keyword">null</span>;  </div><div class="line">  </div><div class="line">        <span class="keyword">for</span>(DriverInfo aDriver : registeredDrivers) &#123;  </div><div class="line">            <span class="comment">// If the caller does not have permission to load the driver then  </span></div><div class="line">            <span class="comment">// skip it.  </span></div><div class="line">            <span class="keyword">if</span>(isDriverAllowed(aDriver.driver, callerCL)) &#123;  </div><div class="line">                <span class="keyword">try</span> &#123;  </div><div class="line">                    println(<span class="string">"    trying "</span> + aDriver.driver.getClass().getName());  </div><div class="line">                    Connection con = aDriver.driver.connect(url, info);  </div><div class="line">                    <span class="keyword">if</span> (con != <span class="keyword">null</span>) &#123;  </div><div class="line">                        <span class="comment">// Success!  </span></div><div class="line">                        println(<span class="string">"getConnection returning "</span> + aDriver.driver.getClass().getName());  </div><div class="line">                        <span class="keyword">return</span> (con);  </div><div class="line">                    &#125;  </div><div class="line">                &#125; <span class="keyword">catch</span> (SQLException ex) &#123;  </div><div class="line">                    <span class="keyword">if</span> (reason == <span class="keyword">null</span>) &#123;  </div><div class="line">                        reason = ex;  </div><div class="line">                    &#125;  </div><div class="line">                &#125;  </div><div class="line">  </div><div class="line">            &#125; <span class="keyword">else</span> &#123;  </div><div class="line">                println(<span class="string">"    skipping: "</span> + aDriver.getClass().getName());  </div><div class="line">            &#125;  </div><div class="line">  </div><div class="line">        &#125;  </div><div class="line">  </div><div class="line">        <span class="comment">// if we got here nobody could connect.  </span></div><div class="line">        <span class="keyword">if</span> (reason != <span class="keyword">null</span>)    &#123;  </div><div class="line">            println(<span class="string">"getConnection failed: "</span> + reason);  </div><div class="line">            <span class="keyword">throw</span> reason;  </div><div class="line">        &#125;  </div><div class="line">  </div><div class="line">        println(<span class="string">"getConnection: no suitable driver found for "</span>+ url);  </div><div class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> SQLException(<span class="string">"No suitable driver found for "</span>+ url, <span class="string">"08001"</span>);  </div><div class="line">    &#125;</div></pre></td></tr></table></figure></p>
+<p>我们看到getConnection(String, String, String)函数调用了getConnection(Stringurl, java.util.Propertiesinfo,Class&lt;?&gt;caller)函数，在该函数中遍历以注册到DriverManager中的驱动，即registeredDrivers， 获取相应的驱动之后，链接到数据库，最后将该链接返回, 这样就获取到了具体的Connection, 代码为 :<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">Connection con = aDriver.driver.connect(url, info);  </div><div class="line"><span class="keyword">if</span> (con != <span class="keyword">null</span>) &#123;  </div><div class="line">    <span class="comment">// Success!  </span></div><div class="line">    println(<span class="string">"getConnection returning "</span> + aDriver.driver.getClass().getName());  </div><div class="line">    <span class="keyword">return</span> (con);  </div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>那么MYSQL JDBC驱动是什么时候注册到DriverManager的呢 ？<br>我们看到在使用DriverManager之前，调用了以下这句代码 :<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">Class.forName(<span class="string">"com.mysql.jdbc.Driver"</span>).newInstance(); <span class="comment">// MYSQL驱动</span></div></pre></td></tr></table></figure></p>
+<p>这句代码的作用就是通过反射来创建com.mysql.jdbc.Driver对象， 我们看看mysql jdbc驱动中该类的实现.<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">package</span> com.mysql.jdbc;  </div><div class="line">  </div><div class="line"><span class="keyword">import</span> java.sql.DriverManager;  </div><div class="line"><span class="keyword">import</span> java.sql.SQLException;  </div><div class="line">  </div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Driver</span> <span class="keyword">extends</span> <span class="title">NonRegisteringDriver</span> <span class="keyword">implements</span> <span class="title">java</span>.<span class="title">sql</span>.<span class="title">Driver</span> </span>&#123;  </div><div class="line">  <span class="function"><span class="keyword">public</span> <span class="title">Driver</span><span class="params">()</span><span class="keyword">throws</span> SQLException</span>&#123;  </div><div class="line">  &#125;  </div><div class="line">  </div><div class="line">  <span class="keyword">static</span>&#123;  </div><div class="line">    <span class="keyword">try</span>&#123;  </div><div class="line">      DriverManager.registerDriver(<span class="keyword">new</span> Driver());  </div><div class="line">    &#125; <span class="keyword">catch</span> (SQLException E) &#123;  </div><div class="line">      <span class="keyword">throw</span> <span class="keyword">new</span> RuntimeException(<span class="string">"Can't register driver!"</span>);  </div><div class="line">    &#125;  </div><div class="line">  &#125;  </div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>可以看到，上文中有一个静态语句块， 该语句块会在虚拟机第一次加载该类时首先执行， 该语句块的作用就是将Driver类的对象注册到DriverManager中，驱动的具体实现类为 NonRegisteringDriver。获取数据库驱动对象以后，我们需要调用驱动对象的connect(String, Properties)函数才能获取到Connection对象，我们看看 NonRegisteringDriver的connect(String, Properties)。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> java.sql.<span class="function">Connection <span class="title">connect</span><span class="params">(String url, Properties info)</span><span class="keyword">throws</span> SQLException</span>&#123;  </div><div class="line">  <span class="keyword">if</span> (url != <span class="keyword">null</span>) &#123;  </div><div class="line">    <span class="keyword">if</span> (StringUtils.startsWithIgnoreCase(url, <span class="string">"jdbc:mysql:loadbalance://"</span>))  </div><div class="line">      <span class="keyword">return</span> connectLoadBalanced(url, info);  </div><div class="line">    <span class="keyword">if</span> (StringUtils.startsWithIgnoreCase(url, <span class="string">"jdbc:mysql:replication://"</span>))&#123;  </div><div class="line">      <span class="keyword">return</span> connectReplicationConnection(url, info);  </div><div class="line">    &#125;  </div><div class="line">  &#125;  </div><div class="line">  </div><div class="line">  Properties props = <span class="keyword">null</span>;  </div><div class="line">  </div><div class="line">  <span class="keyword">if</span> ((props = parseURL(url, info)) == <span class="keyword">null</span>) &#123;  </div><div class="line">    <span class="keyword">return</span> <span class="keyword">null</span>;  </div><div class="line">  &#125;  </div><div class="line">  <span class="keyword">try</span>&#123;  </div><div class="line">    <span class="keyword">return</span> <span class="keyword">new</span> Connection(host(props), port(props), props, database(props), url);  </div><div class="line">  &#125;  </div><div class="line">  <span class="keyword">catch</span> (SQLException sqlEx)&#123;  </div><div class="line">    <span class="keyword">throw</span> sqlEx;  </div><div class="line">  &#125; <span class="keyword">catch</span> (Exception ex) &#123;  </div><div class="line">    <span class="keyword">throw</span> SQLError.createSQLException(Messages.getString(<span class="string">"NonRegisteringDriver.17"</span>) + ex.toString() + Messages.getString(<span class="string">"NonRegisteringDriver.18"</span>), <span class="string">"08001"</span>);  </div><div class="line">  &#125;  </div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>通过分析代码，返回的是com.mysql.jdbc.Connection类的对象， 即 return new Connection(host(props), port(props), props, database(props), url)这句， 该Connection实现了java.sql.Connection声明的接口，这就是mysql数据库连接的具体实现。</p>
+<p>现在我们来理一下思路， java.sql包中的Statement, Clob, Blob, SQLXML都是扮演了抽象产品类族中的一员， 而java.sql.Connection则代表了抽象工厂类，里面有创建各个产品类的函数，具体的产品实现类、具体Connection工厂都封装在各个数据库驱动包中，通过Connection我们就可以创建Statement, Clob等同一类族中的对象。抽象与实现想分离，工厂可以创建一组相关的对象，客户代码使用较为简单。</p>
+<p><strong>优点 : </strong></p>
+<ol>
+<li>抽象工厂模式隔离了具体类的生产，使得客户并不需要知道什么被创建；</li>
+<li>容易改变产品的系列；</li>
+<li>增加新的具体工厂和产品族很方便，无须修改已有系统，符合“开闭原则”。</li>
+<li>将一个系列的产品族统一到一起创建，客户代码易于使用。</li>
+</ol>
+<p><strong>缺点 :</strong><br>抽象工厂模式的最大缺点就是产品族扩展非常困难，为什么这么说呢？我们以通用代码为例，如果要增加一个产品 C， 也就是说产品家族由原来的 2 个增加到 3 个，看看我们的程序有多大改动吧！抽象类 AbstractCreator 要增加一个方法 createProductC()，然后两个实现类都要修改，想想看，这严重违反了开闭原则，而且我们一直说明抽象类和接口是一个契约。</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Android/" rel="tag"># Android</a>
+          
+            <a href="/tags/设计模式/" rel="tag"># 设计模式</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/08/12/设计模式之工厂方法模式及在源码中的应用/" rel="next" title="设计模式之工厂方法模式及在源码中的应用">
+                <i class="fa fa-chevron-left"></i> 设计模式之工厂方法模式及在源码中的应用
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/userpic.jpg"
+               alt="XuJiaoJie" />
+          <p class="site-author-name" itemprop="name">XuJiaoJie</p>
+           
+              <p class="site-description motion-element" itemprop="description">Never stop, search for better yourself</p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives/">
+                <span class="site-state-item-count">21</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">3</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">4</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#抽象工厂"><span class="nav-number">1.</span> <span class="nav-text">抽象工厂</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#源码中的实现"><span class="nav-number">2.</span> <span class="nav-text">源码中的实现</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">XuJiaoJie</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+  
+  <script type="text/javascript" src="/lib/canvas-nest/canvas-nest.min.js"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.1"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.1"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.1"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.1"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.4.js"></script>
+  <script>AV.initialize("ijvKIHTx641VhncUAOKxTgyS-gzGzoHsz", "v3lnrYnhWmGzphYCPQ3GhyA0");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

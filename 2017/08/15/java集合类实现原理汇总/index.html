@@ -1,0 +1,990 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="java," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.1" />
+
+
+
+
+
+
+<meta name="description" content="集合框架图">
+<meta name="keywords" content="java">
+<meta property="og:type" content="article">
+<meta property="og:title" content="java集合类实现原理汇总">
+<meta property="og:url" content="http://yoursite.com/2017/08/15/java集合类实现原理汇总/index.html">
+<meta property="og:site_name" content="XBlog">
+<meta property="og:description" content="集合框架图">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://otpesi023.bkt.clouddn.com/java%E9%9B%86%E5%90%886.jpg">
+<meta property="og:image" content="http://otpesi023.bkt.clouddn.com/java%E9%9B%86%E5%90%882.jpg">
+<meta property="og:image" content="http://otpesi023.bkt.clouddn.com/java%E9%9B%86%E5%90%883.jpg">
+<meta property="og:image" content="http://otpesi023.bkt.clouddn.com/java%E9%9B%86%E5%90%884.jpg">
+<meta property="og:image" content="http://otpesi023.bkt.clouddn.com/java%E9%9B%86%E5%90%885.jpg">
+<meta property="og:updated_time" content="2017-08-15T08:50:02.529Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="java集合类实现原理汇总">
+<meta name="twitter:description" content="集合框架图">
+<meta name="twitter:image" content="http://otpesi023.bkt.clouddn.com/java%E9%9B%86%E5%90%886.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"right","display":"always","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2017/08/15/java集合类实现原理汇总/"/>
+
+
+
+
+
+  <title>java集合类实现原理汇总 | XBlog</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-right page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">XBlog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/08/15/java集合类实现原理汇总/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="XuJiaoJie">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/userpic.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="XBlog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">java集合类实现原理汇总</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-08-15T16:50:02+08:00">
+                2017-08-15
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/java/" itemprop="url" rel="index">
+                    <span itemprop="name">java</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/2017/08/15/java集合类实现原理汇总/" class="leancloud_visitors" data-flag-title="java集合类实现原理汇总">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">阅读次数 </span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="集合框架图"><a href="#集合框架图" class="headerlink" title="集合框架图"></a>集合框架图</h2><p><img src="http://otpesi023.bkt.clouddn.com/java%E9%9B%86%E5%90%886.jpg" alt=""></p>
+<a id="more"></a>
+<h2 id="ArrayList实现原理"><a href="#ArrayList实现原理" class="headerlink" title="ArrayList实现原理"></a>ArrayList实现原理</h2><p>对于ArrayList而言，它实现List接口、底层使用数组保存所有元素。其操作基本上是对数组的操作。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">private</span> <span class="keyword">transient</span> Object[] elementData;</div></pre></td></tr></table></figure></p>
+<p>ArrayList提供了三种方式的构造器，可以构造一个默认初始容量为10的空列表、构造一个指定初始容量的空列表以及构造一个包含指定collection的元素的列表，这些元素按照该collection的迭代器返回它们的顺序排列的。</p>
+<h3 id="调整数组容量"><a href="#调整数组容量" class="headerlink" title="调整数组容量"></a>调整数组容量</h3><p>ArrayList中存储元素的代码中，我们看到，每当向数组中添加元素时，都要去检查添加后元素的个数是否会超出当前数组的长度，如果超出，数组将会进行扩容，以满足添加数据的需求。数组扩容通过一个公开的方法ensureCapacity(int minCapacity)来实现:<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">ensureCapacity</span><span class="params">(<span class="keyword">int</span> minCapacity)</span> </span>&#123;</div><div class="line">    <span class="keyword">int</span> minExpand = (elementData != EMPTY_ELEMENTDATA)</div><div class="line">        <span class="comment">// any size if real element table</span></div><div class="line">        ? <span class="number">0</span></div><div class="line">        <span class="comment">// larger than default for empty table. It's already supposed to be</span></div><div class="line">        <span class="comment">// at default size.</span></div><div class="line">        : DEFAULT_CAPACITY;</div><div class="line"></div><div class="line">    <span class="keyword">if</span> (minCapacity &gt; minExpand) &#123;</div><div class="line">        ensureExplicitCapacity(minCapacity);</div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">ensureExplicitCapacity</span><span class="params">(<span class="keyword">int</span> minCapacity)</span> </span>&#123;</div><div class="line">    modCount++;</div><div class="line"></div><div class="line">    <span class="comment">// overflow-conscious code</span></div><div class="line">    <span class="keyword">if</span> (minCapacity - elementData.length &gt; <span class="number">0</span>)</div><div class="line">        grow(minCapacity);</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">grow</span><span class="params">(<span class="keyword">int</span> minCapacity)</span> </span>&#123;</div><div class="line">    <span class="comment">// overflow-conscious code</span></div><div class="line">    <span class="keyword">int</span> oldCapacity = elementData.length;</div><div class="line">    <span class="keyword">int</span> newCapacity = oldCapacity + (oldCapacity &gt;&gt; <span class="number">1</span>);  <span class="comment">//此处进行1.5倍扩容</span></div><div class="line">    <span class="keyword">if</span> (newCapacity - minCapacity &lt; <span class="number">0</span>)</div><div class="line">        newCapacity = minCapacity;</div><div class="line">    <span class="keyword">if</span> (newCapacity - MAX_ARRAY_SIZE &gt; <span class="number">0</span>)</div><div class="line">        newCapacity = hugeCapacity(minCapacity);</div><div class="line">    <span class="comment">// minCapacity is usually close to size, so this is a win:</span></div><div class="line">    elementData = Arrays.copyOf(elementData, newCapacity);</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>数组进行扩容时，会将老数组中的元素重新拷贝一份到新的数组中，每次数组容量的增长大约是其原容量的1.5倍。这种操作的代价是很高的，因此在实际使用时，我们应该尽量避免数组容量的扩张。当我们可预知要保存的元素的多少时，要在构造ArrayList实例时，就指定其容量，以避免数组扩容的发生。或者根据实际需求，通过调用ensureCapacity方法来手动增加ArrayList实例的容量。</p>
+<h3 id="Fail-Fast机制"><a href="#Fail-Fast机制" class="headerlink" title="Fail-Fast机制"></a>Fail-Fast机制</h3><p>ArrayList也采用了快速失败的机制，通过记录modCount参数来实现。在面对并发的修改时，迭代器很快就会完全失败，而不是冒着在将来某个不确定时间发生任意不确定行为的风险。具体请参看下面HashMap的实现原理，也实现了Fail-Fast机制。</p>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><ol>
+<li>ArrayList是List接口的可变数组非同步实现，并允许包括null在内的所有元素。</li>
+<li>底层使用数组实现，顺序存储。</li>
+<li>该集合是可变长度数组，数组扩容时，会将老数组中的元素重新拷贝一份到新的数组中，每次数组容量增长是其容量的1.5倍，这种操作的代价很高。</li>
+<li>采用了Fail-Fast机制，面对并发的修改时，迭代器很快就会完全失败，而不是冒着在将来某个不确定时间发生任意不确定行为的风险</li>
+</ol>
+<p>详细实现原理博客链接：<a href="http://zhangshixi.iteye.com/blog/674856" target="_blank" rel="external">http://zhangshixi.iteye.com/blog/674856</a></p>
+<h2 id="LinkedList实现原理要点概括"><a href="#LinkedList实现原理要点概括" class="headerlink" title="LinkedList实现原理要点概括"></a>LinkedList实现原理要点概括</h2><h3 id="LinkedList数据结构"><a href="#LinkedList数据结构" class="headerlink" title="LinkedList数据结构"></a>LinkedList数据结构</h3><p>LinkedList是List和Deque接口的<strong>双向链表</strong>的实现。实现了所有可选列表操作，并<strong>允许包括null值</strong>。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">Node</span>&lt;<span class="title">E</span>&gt; </span>&#123;</div><div class="line">    E item;    <span class="comment">// 当前节点所包含的值</span></div><div class="line">    Node&lt;E&gt; next;   <span class="comment">//下一个节点</span></div><div class="line">    Node&lt;E&gt; prev;    <span class="comment">//上一个节点</span></div><div class="line"></div><div class="line">    Node(Node&lt;E&gt; prev, E element, Node&lt;E&gt; next) &#123;</div><div class="line">        <span class="keyword">this</span>.item = element;</div><div class="line">        <span class="keyword">this</span>.next = next;</div><div class="line">        <span class="keyword">this</span>.prev = prev;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<h3 id="实现随机访问"><a href="#实现随机访问" class="headerlink" title="实现随机访问"></a>实现随机访问</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> E <span class="title">get</span><span class="params">(<span class="keyword">int</span> index)</span> </span>&#123;</div><div class="line">    checkElementIndex(index);</div><div class="line">    <span class="keyword">return</span> node(index).item;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="comment">//返回指定索引位置的节点</span></div><div class="line"><span class="function">Node&lt;E&gt; <span class="title">node</span><span class="params">(<span class="keyword">int</span> index)</span> </span>&#123;</div><div class="line">    <span class="comment">// assert isElementIndex(index);</span></div><div class="line">    <span class="comment">//折半思想，当index &lt; size/2时，从列表首节点向后查找</span></div><div class="line">    <span class="keyword">if</span> (index &lt; (size &gt;&gt; <span class="number">1</span>)) &#123;</div><div class="line">        Node&lt;E&gt; x = first;</div><div class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; index; i++)</div><div class="line">            x = x.next;</div><div class="line">        <span class="keyword">return</span> x;</div><div class="line">    &#125; <span class="keyword">else</span> &#123;  <span class="comment">//当index &gt;= size/2时，从列表尾节点向前查找</span></div><div class="line">        Node&lt;E&gt; x = last;</div><div class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = size - <span class="number">1</span>; i &gt; index; i--)</div><div class="line">            x = x.prev;</div><div class="line">        <span class="keyword">return</span> x;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>该方法返回双向链表中指定位置处的节点，而链表中是没有下标索引的，要指定位置出的元素，就要遍历该链表，从源码的实现中，我们看到这里有一个加速动作。 源码中先将index与长度size的一半比较，如果index<size 2，就只从位置0往后遍历到位置index处，而如果="" index="">size/2，就只从位置size往前遍历到位置index处。这样可以减少一部分不必要的遍历。</size></p>
+<h3 id="Fail-Fast机制-1"><a href="#Fail-Fast机制-1" class="headerlink" title="Fail-Fast机制"></a>Fail-Fast机制</h3><p>LinkedList也采用了快速失败的机制，通过记录modCount参数来实现。在面对并发的修改时，迭代器很快就会完全失败，而不是冒着在将来某个不确定时间发生任意不确定行为的风险。</p>
+<h3 id="总结-1"><a href="#总结-1" class="headerlink" title="总结"></a>总结</h3><ol>
+<li>LinkedList是List接口的双向链表非同步实现，并允许包括null在内的所有元素。</li>
+<li>底层的数据结构是基于双向链表的，该数据结构我们称为节点，顺序存储。</li>
+<li>双向链表节点对应的类Node的实例，Node中包含成员变量：previous，next，item。其中，previous是该节点的上一个节点，next是该节点的下一个节点，item是该节点所包含的值。<br>4.索引查找时通过与中间值比较遍历前半段或后半段从而节省时间。</li>
+</ol>
+<p>详细实现原理博客链接：<a href="http://www.cnblogs.com/CherishFX/p/4734490.html" target="_blank" rel="external">http://www.cnblogs.com/CherishFX/p/4734490.html</a></p>
+<h2 id="Vector实现原理"><a href="#Vector实现原理" class="headerlink" title="Vector实现原理"></a>Vector实现原理</h2><p>和ArrayList不同，<strong>Vector中的操作是线程安全的，但速度慢</strong>，在每个方法前都加上了锁（即synchronized关键字）。</p>
+<ul>
+<li>Vector实际上是通过一个<strong>数组</strong>去保存数据的。当我们构造Vecotr时；若使用默认构造函数，则Vector的<strong>默认容量大小是10</strong>。</li>
+<li>当Vector容量不足以容纳全部元素时，Vector的容量会增加。<strong>若容量增加系数 &gt;0，则将容量的值增加“容量增加系数”；否则，将容量大小增加一倍。</strong></li>
+<li>Vector的克隆函数，即是将全部元素克隆到一个数组中。</li>
+</ul>
+<p>详细实现原理博客链接：<a href="http://www.cnblogs.com/skywang12345/p/3308833.html" target="_blank" rel="external">http://www.cnblogs.com/skywang12345/p/3308833.html</a></p>
+<h2 id="CopyOnWriteArrayList实现原理"><a href="#CopyOnWriteArrayList实现原理" class="headerlink" title="CopyOnWriteArrayList实现原理"></a>CopyOnWriteArrayList实现原理</h2><p>与 Vector一样，CopyOnWriteArrayList也可以认为是ArrayList的线程安全版，不同之处在于当我们往一个容器添加元素的时候，不直接往当前容器添加，而是先将当前容器进行Copy，复制出一个新的容器，然后新的容器里添加元素，添加完元素之后，再将原容器的引用指向新的容器。这样做的好处是我们可以对CopyOnWriteArrayList进行并发的读，而不需要加锁，因为当前容器不会添加任何元素。所以CopyOnWriteArrayList是一种读写分离的思想，读和写不同的容器。</p>
+<p><strong>这种机制让CopyOnWriteArrayList可以对读操作不加锁，只对写的有关操作加锁（即方法前加synchronized关键字）这就使CopyOnWriteArrayList的读效率远高于Vector。</strong></p>
+<p>CopyOnWriteArrayList的理念比较类似读写分离，适合读多写少的多线程场景。但要注意，CopyOnWriteArrayList只能保证数据的最终一致性，并不能保证数据的实时一致性，执行读操作时是有可能会读到失效的数据的。所以如果你希望写入的的数据，马上能读到，请不要使用CopyOnWrite容器。</p>
+<p><strong>与Vector区别：</strong></p>
+<ul>
+<li>二者均是线程安全的。</li>
+<li>CopyOnWriteArrayList不能保证读的实时线程安全，CopyOnWriteArrayList读性能远高于Vector。CopyOnWriteArrayList占用更多的内存空间</li>
+</ul>
+<p>详细实现原理博客链接：<a href="http://www.cnblogs.com/dolphin0520/p/3938914.html" target="_blank" rel="external">http://www.cnblogs.com/dolphin0520/p/3938914.html</a></p>
+<h2 id="HashMap实现原理"><a href="#HashMap实现原理" class="headerlink" title="HashMap实现原理"></a>HashMap实现原理</h2><h3 id="HashMap的数据结构"><a href="#HashMap的数据结构" class="headerlink" title="HashMap的数据结构"></a>HashMap的数据结构</h3><p>HashMap实际上是一个“链表散列”的数据结构，即数组和链表的结构，但是在jdk1.8里加入了红黑树的实现，当链表的长度大于8时，转换为红黑树的结构。如图所示：<br><img src="http://otpesi023.bkt.clouddn.com/java%E9%9B%86%E5%90%882.jpg" alt=""><br>在每个数组元素上都一个链表结构，当数据被Hash后，得到数组下标，把数据放在对应下标元素的链表上。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">Node</span>&lt;<span class="title">K</span>,<span class="title">V</span>&gt; <span class="keyword">implements</span> <span class="title">Map</span>.<span class="title">Entry</span>&lt;<span class="title">K</span>,<span class="title">V</span>&gt; </span>&#123;</div><div class="line">    <span class="keyword">final</span> <span class="keyword">int</span> hash;<span class="comment">//用于定位数组索引的位置</span></div><div class="line">    <span class="keyword">final</span> K key;</div><div class="line">    V value;</div><div class="line">    Node&lt;K,V&gt; next;<span class="comment">//链表的下一个Node</span></div><div class="line"></div><div class="line">    Node(<span class="keyword">int</span> hash, K key, V value, Node&lt;K,V&gt; next) &#123;</div><div class="line">        <span class="keyword">this</span>.hash = hash;</div><div class="line">        <span class="keyword">this</span>.key = key;</div><div class="line">        <span class="keyword">this</span>.value = value;</div><div class="line">        <span class="keyword">this</span>.next = next;</div><div class="line">    &#125;</div></pre></td></tr></table></figure></p>
+<p>有时两个key会定位到相同的位置，表示发生了Hash碰撞。当然Hash算法计算结果越分散均匀，Hash碰撞的概率就越小，map的存取效率就会越高。<br>HashMap类中有一个非常重要的字段，就是 Node[] table，即哈希桶数组，明显它是一个Node的数组。Node[] table的初始化长度length(默认值是16)，Load factor为负载因子(默认值是0.75)，threshold是HashMap所能容纳的最大数据量的Node(键值对)个数。threshold = length * Load factor。也就是说，在数组定义好长度之后，负载因子越大，所能容纳的键值对个数越多。</p>
+<p>结合负载因子的定义公式可知，threshold就是在此Load factor和length(数组长度)对应下允许的最大元素数目，超过这个数目就重新resize(扩容)，扩容后的HashMap容量是之前容量的两倍。<strong>在HashMap中，哈希桶数组table的长度length大小必须为2的n次方</strong></p>
+<h3 id="确定哈希桶数组索引位置"><a href="#确定哈希桶数组索引位置" class="headerlink" title="确定哈希桶数组索引位置"></a>确定哈希桶数组索引位置</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="comment">//方法一：</span></div><div class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> <span class="title">hash</span><span class="params">(Object key)</span> </span>&#123;   <span class="comment">//jdk1.8 &amp; jdk1.7</span></div><div class="line">     <span class="keyword">int</span> h;</div><div class="line">     <span class="comment">// h = key.hashCode() 为第一步 取hashCode值</span></div><div class="line">     <span class="comment">// h ^ (h &gt;&gt;&gt; 16)  为第二步 高位参与运算</span></div><div class="line">     <span class="keyword">return</span> (key == <span class="keyword">null</span>) ? <span class="number">0</span> : (h = key.hashCode()) ^ (h &gt;&gt;&gt; <span class="number">16</span>);</div><div class="line">&#125;</div><div class="line"><span class="comment">//方法二：</span></div><div class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">int</span> <span class="title">indexFor</span><span class="params">(<span class="keyword">int</span> h, <span class="keyword">int</span> length)</span> </span>&#123;  <span class="comment">//jdk1.7的源码，jdk1.8没有这个方法，但是实现原理一样的</span></div><div class="line">     <span class="keyword">return</span> h &amp; (length-<span class="number">1</span>);  <span class="comment">//第三步 取模运算</span></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>这里的Hash算法本质上就是三步：取key的hashCode值、高位运算、取模运算。</p>
+<h3 id="HashMap的put方法实现"><a href="#HashMap的put方法实现" class="headerlink" title="HashMap的put方法实现"></a>HashMap的put方法实现</h3><p>put函数大致的思路为：</p>
+<ol>
+<li>对key的hashCode()做hash，然后再计算index;</li>
+<li>如果没碰撞直接放到bucket里；</li>
+<li>如果碰撞了，以链表的形式存在buckets后；</li>
+<li>如果碰撞导致链表过长(大于等于TREEIFY_THRESHOLD)，就把链表转换成红黑树；</li>
+<li>如果节点已经存在就替换old value(保证key的唯一性)</li>
+<li>如果bucket满了(超过load factor*current capacity)，就要resize。</li>
+</ol>
+<h3 id="HashMap的get方法实现"><a href="#HashMap的get方法实现" class="headerlink" title="HashMap的get方法实现"></a>HashMap的get方法实现</h3><p>思路如下：</p>
+<ol>
+<li>bucket里的第一个节点，直接命中；</li>
+<li>如果有冲突，则通过key.equals(k)去查找对应的entry<br>若为树，则在树中通过key.equals(k)查找，O(logn)；<br>若为链表，则在链表中通过key.equals(k)查找，O(n)。</li>
+</ol>
+<h3 id="Fail-Fast机制-2"><a href="#Fail-Fast机制-2" class="headerlink" title="Fail-Fast机制"></a>Fail-Fast机制</h3><p>java.util.HashMap不是线程安全的，因此如果在使用迭代器的过程中有其他线程修改了map，那么将抛出ConcurrentModificationException，这就是所谓fail-fast策略。</p>
+<p>这一策略在源码中的实现是通过modCount域，modCount顾名思义就是修改次数，对HashMap内容的修改都将增加这个值，那么在迭代器初始化过程中会将这个值赋给迭代器的expectedModCount。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">HashIterator() &#123;  </div><div class="line">    expectedModCount = modCount;  </div><div class="line">    <span class="keyword">if</span> (size &gt; <span class="number">0</span>) &#123; <span class="comment">// advance to first entry  </span></div><div class="line">    Entry[] t = table;  </div><div class="line">    <span class="keyword">while</span> (index &lt; t.length &amp;&amp; (next = t[index++]) == <span class="keyword">null</span>)  </div><div class="line">        ;  </div><div class="line">    &#125;  </div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>在迭代过程中，判断modCount跟expectedModCount是否相等，如果不相等就表示已经有其他线程修改了Map：<br>注意到modCount声明为volatile，保证线程之间修改的可见性。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">final</span> Entry&lt;K,V&gt; <span class="title">nextEntry</span><span class="params">()</span> </span>&#123;     </div><div class="line">    <span class="keyword">if</span> (modCount != expectedModCount)     </div><div class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> ConcurrentModificationException();</div></pre></td></tr></table></figure></p>
+<p>迭代器的快速失败行为不能得到保证，一般来说，存在非同步的并发修改时，不可能作出任何坚决的保证。快速失败迭代器尽最大努力抛出 ConcurrentModificationException。因此，编写依赖于此异常的程序的做法是错误的，正确做法是：迭代器的快速失败行为应该仅用于检测程序错误。</p>
+<h3 id="总结-2"><a href="#总结-2" class="headerlink" title="总结"></a>总结</h3><ol>
+<li>HashMap是基于哈希表的Map接口的非同步实现，允许使用null值和null键，但不保证映射的顺序。</li>
+<li>底层使用数组实现，数组中每一项是个链表，即数组和链表的结合体。</li>
+<li>HashMap在底层将key-value当成一个整体进行处理。HashMap底层采用一个Entry[]数组来保存所有的key-value对，当需要存储一个Entry对象时，会根据key的hash算法来决定其在数组中的存储位置，在根据equals方法决定其在该数组位置上的链表中的存储位置，当链表的长度大于8时，转换为红黑树的结构；当需要取出一个Entry时，也会根据key的hash算法找到其在数组中的存储位置，再根据equals方法从该位置上的链表中取出该Entry。</li>
+<li>HashMap进行数组扩容，两倍扩容。需要重新计算扩容后每个元素在数组中的位置，很耗性能。在调整大小的过程中，存储在链表中的元素的次序会反过来，因为移动到新的bucket位置的时候，HashMap并不会将元素放在链表的尾部，而是放在头部，这是为了避免尾部遍历</li>
+<li>采用了Fail-Fast机制，通过一个modCount值记录修改次数，对HashMap内容的修改都将增加这个值。迭代器初始化过程中会将这个值赋给迭代器的expectedModCount，在迭代过程中，判断modCount跟expectedModCount是否相等，如果不相等就表示已经有其他线程修改了Map，马上抛出异常</li>
+</ol>
+<p>详细实现原理博客链接：<a href="http://blog.csdn.net/richard_jason/article/details/53887222" target="_blank" rel="external">http://blog.csdn.net/richard_jason/article/details/53887222</a></p>
+<h2 id="Hashtable实现原理"><a href="#Hashtable实现原理" class="headerlink" title="Hashtable实现原理"></a>Hashtable实现原理</h2><p><strong>总结：</strong></p>
+<ol>
+<li>Hashtable是基于哈希表的Map接口的同步实现，不允许使用null值和null键</li>
+<li>底层使用数组实现，数组中每一项是个单链表，即数组和链表的结合体</li>
+<li>Hashtable在底层将key-value当成一个整体进行处理，这个整体就是一个Entry对象。Hashtable底层采用一个Entry[]数组来保存所有的key-value对，当需要存储一个Entry对象时，会根据key的hash算法来决定其在数组中的存储位置，在根据equals方法决定其在该数组位置上的链表中的存储位置；当需要取出一个Entry时，也会根据key的hash算法找到其在数组中的存储位置，再根据equals方法从该位置上的链表中取出该Entry。</li>
+<li>synchronized是针对整张Hash表的，即每次锁住整张表让线程独占，即对每个方法操作都加上了synchronized关键字</li>
+</ol>
+<p>详细实现原理博客链接：<a href="http://blog.csdn.net/zheng0518/article/details/42199477" target="_blank" rel="external">http://blog.csdn.net/zheng0518/article/details/42199477</a></p>
+<h2 id="ConcurrentHashMap实现原理"><a href="#ConcurrentHashMap实现原理" class="headerlink" title="ConcurrentHashMap实现原理"></a>ConcurrentHashMap实现原理</h2><h3 id="ConcurrentHashMap数据结构"><a href="#ConcurrentHashMap数据结构" class="headerlink" title="ConcurrentHashMap数据结构"></a>ConcurrentHashMap数据结构</h3><p>ConcurrentHashMap相比HashMap而言，是多线程安全的，其底层数据与HashMap的数据结构相同，数据结构如下:<br><img src="http://otpesi023.bkt.clouddn.com/java%E9%9B%86%E5%90%883.jpg" alt=""><br>ConcurrentHashMap的数据结构（数组+链表+红黑树），桶中的结构可能是链表，也可能是红黑树，红黑树是为了提高查找效率。</p>
+<h3 id="ConcurrentHashMap的put方法实现"><a href="#ConcurrentHashMap的put方法实现" class="headerlink" title="ConcurrentHashMap的put方法实现"></a>ConcurrentHashMap的put方法实现</h3><p>put函数底层调用了putVal进行数据的插入，对于putVal函数的流程大体如下。</p>
+<ol>
+<li>判断存储的key、value是否为空，若为空，则抛出异常，否则，进入步骤2</li>
+<li>计算key的hash值，随后进入无限循环，该无限循环可以确保成功插入数据，若table表为空或者长度为0，则初始化table表，否则，进入步骤3</li>
+<li>根据key的hash值取出table表中的结点元素，若取出的结点为空（该桶为空），则使用CAS将key、value、hash值生成的结点放入桶中。否则，进入步骤4</li>
+<li>若该结点的的hash值为MOVED(-1)，则对该桶中的结点进行转移，否则，进入步骤⑤</li>
+<li>对桶中的第一个结点（即table表中的结点）进行加锁，对该桶进行遍历，桶中的结点的hash值与key值与给定的hash值和key值相等，则根据标识选择是否进行更新操作（用给定的value值替换该结点的value值），若遍历完桶仍没有找到hash值与key值和指定的hash值与key值相等的结点，则直接新生一个结点并赋值为之前最后一个结点的下一个结点。进入步骤6</li>
+<li>若binCount值达到红黑树转化的阈值(默认为8)，则将桶中的结构转化为红黑树存储，最后，增加binCount的值。</li>
+</ol>
+<h3 id="同步性能"><a href="#同步性能" class="headerlink" title="同步性能"></a>同步性能</h3><p>ConcurrentHashMap的性能相比HashMap的线程安全同步集合和Hashtable而言，性能都要高出不少。原因是经过Collections封装的线程安全的HashMap和Hashtable都是对整个结构加锁，而ConcurrentHashMap是对每一个桶单独进行锁操作，不同的桶之间的操作不会相互影响，可以并发执行。因此，其速度会快很多。</p>
+<p>详细实现原理博客链接：<a href="http://www.cnblogs.com/leesf456/p/5453341.html" target="_blank" rel="external">http://www.cnblogs.com/leesf456/p/5453341.html</a></p>
+<h2 id="HashSet实现原理"><a href="#HashSet实现原理" class="headerlink" title="HashSet实现原理"></a>HashSet实现原理</h2><p>HashSet实现Set接口，由哈希表（实际上是一个HashMap实例）支持。它不保证set 的迭代顺序；特别是它不保证该顺序恒久不变。此类允许使用null元素。无序存储且不能重复（因为内部主要是由HashMap的key值来存储，key不能重复）</p>
+<p>对于HashSet而言，它是基于HashMap实现的，HashSet底层使用HashMap来保存所有元素，因此HashSet的实现比较简单，相关HashSet的操作，基本上都是直接调用底层HashMap的相关方法来完成， HashSet的源代码如下：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">HashSet</span>&lt;<span class="title">E</span>&gt;  <span class="keyword">extends</span> <span class="title">AbstractSet</span>&lt;<span class="title">E</span>&gt;  </span></div><div class="line">    <span class="keyword">implements</span> <span class="title">Set</span>&lt;<span class="title">E</span>&gt;, <span class="title">Cloneable</span>, <span class="title">java</span>.<span class="title">io</span>.<span class="title">Serializable</span>  </div><div class="line">&#123;  </div><div class="line">    <span class="comment">// 底层使用HashMap来保存HashSet中所有元素。  </span></div><div class="line">    <span class="keyword">private</span> <span class="keyword">transient</span> HashMap&lt;E,Object&gt; map;  </div><div class="line">      </div><div class="line">    <span class="comment">// 定义一个虚拟的Object对象作为HashMap的value，将此对象定义为static final。  </span></div><div class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> Object PRESENT = <span class="keyword">new</span> Object();  </div><div class="line">  </div><div class="line">    <span class="comment">/** </span></div><div class="line">     * 默认的无参构造器，构造一个空的HashSet。 </div><div class="line">     * 实际底层会初始化一个空的HashMap，并使用默认初始容量为16和加载因子0.75。 </div><div class="line">     */  </div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="title">HashSet</span><span class="params">()</span> </span>&#123;  </div><div class="line">    map = <span class="keyword">new</span> HashMap&lt;E,Object&gt;();  </div><div class="line">    &#125;  </div><div class="line">    .........</div><div class="line"> </div><div class="line">    <span class="comment">/** </span></div><div class="line">     * 返回此set中的元素的数量（set的容量）。 </div><div class="line">     * 底层实际调用HashMap的size()方法返回Entry的数量，就得到该Set中元素的个数。 </div><div class="line">     * <span class="doctag">@return</span> 此set中的元素的数量（set的容量）。 </div><div class="line">     */  </div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">size</span><span class="params">()</span> </span>&#123;  </div><div class="line">        <span class="keyword">return</span> map.size();  </div><div class="line">    &#125;  </div><div class="line">  </div><div class="line">    <span class="comment">/** </span></div><div class="line">     * 如果此set包含指定元素，则返回true。 </div><div class="line">     * 更确切地讲，当且仅当此set包含一个满足(o==null ? e==null : o.equals(e)) </div><div class="line">     * 的e元素时，返回true。 </div><div class="line">     * 底层实际调用HashMap的containsKey判断是否包含指定key。 </div><div class="line">     * <span class="doctag">@param</span> o 在此set中的存在已得到测试的元素。 </div><div class="line">     * <span class="doctag">@return</span> 如果此set包含指定元素，则返回true。 </div><div class="line">     */  </div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">contains</span><span class="params">(Object o)</span> </span>&#123;  </div><div class="line">    <span class="keyword">return</span> map.containsKey(o);  </div><div class="line">    &#125;  </div><div class="line">  </div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">add</span><span class="params">(E e)</span> </span>&#123;  </div><div class="line">    <span class="keyword">return</span> map.put(e, PRESENT)==<span class="keyword">null</span>;  </div><div class="line">    &#125;  </div><div class="line">  </div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">remove</span><span class="params">(Object o)</span> </span>&#123;  </div><div class="line">    <span class="keyword">return</span> map.remove(o)==PRESENT;  </div><div class="line">    &#125;  </div><div class="line">    </div><div class="line">    ........</div></pre></td></tr></table></figure></p>
+<p>详细实现原理博客链接：<a href="http://zhangshixi.iteye.com/blog/673143" target="_blank" rel="external">http://zhangshixi.iteye.com/blog/673143</a></p>
+<h2 id="LinkedHashMap实现原理"><a href="#LinkedHashMap实现原理" class="headerlink" title="LinkedHashMap实现原理"></a>LinkedHashMap实现原理</h2><p><strong>LinkedHashMap数据结构：</strong><br><img src="http://otpesi023.bkt.clouddn.com/java%E9%9B%86%E5%90%884.jpg" alt=""><br>LinkedHashMap会将元素串起来，形成一个双链表结构。可以看到，其结构在HashMap结构上增加了链表结构。数据结构为（数组 + 单链表 + 红黑树 + 双链表），图中的标号是结点插入的顺序。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">LinkedHashMap</span>&lt;<span class="title">K</span>,<span class="title">V</span>&gt;  <span class="keyword">extends</span> <span class="title">HashMap</span>&lt;<span class="title">K</span>,<span class="title">V</span>&gt; <span class="keyword">implements</span> <span class="title">Map</span>&lt;<span class="title">K</span>,<span class="title">V</span>&gt;</span></div></pre></td></tr></table></figure></p>
+<p>LinkedHashMap继承了HashMap，所以HashMap的一些方法或者属性也会被继承；同时也实现了Map结构<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">LinkedHashMap</span>&lt;<span class="title">K</span>,<span class="title">V</span>&gt;  <span class="keyword">extends</span> <span class="title">HashMap</span>&lt;<span class="title">K</span>,<span class="title">V</span>&gt; <span class="keyword">implements</span> <span class="title">Map</span>&lt;<span class="title">K</span>,<span class="title">V</span>&gt; </span>&#123;</div><div class="line">    <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">Entry</span>&lt;<span class="title">K</span>,<span class="title">V</span>&gt; <span class="keyword">extends</span> <span class="title">HashMap</span>.<span class="title">Node</span>&lt;<span class="title">K</span>,<span class="title">V</span>&gt; </span>&#123;</div><div class="line">        Entry&lt;K,V&gt; before, after;</div><div class="line">        Entry(<span class="keyword">int</span> hash, K key, V value, Node&lt;K,V&gt; next) &#123;</div><div class="line">            <span class="keyword">super</span>(hash, key, value, next);</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">    <span class="comment">// 版本序列号</span></div><div class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">long</span> serialVersionUID = <span class="number">3801124242820219131L</span>;</div><div class="line"></div><div class="line">    <span class="comment">// 链表头结点</span></div><div class="line">    <span class="keyword">transient</span> LinkedHashMap.Entry&lt;K,V&gt; head;</div><div class="line"></div><div class="line">    <span class="comment">// 链表尾结点</span></div><div class="line">    <span class="keyword">transient</span> LinkedHashMap.Entry&lt;K,V&gt; tail;</div><div class="line"></div><div class="line">    <span class="comment">// 访问顺序</span></div><div class="line">    <span class="keyword">final</span> <span class="keyword">boolean</span> accessOrder;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>在HashMap.Node基础上增加了前后两个指针域，注意，HashMap.Node中的next域也存在。<br>LinkedHashMap(int)型构造函数:<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="title">LinkedHashMap</span><span class="params">(<span class="keyword">int</span> initialCapacity)</span> </span>&#123;</div><div class="line">        <span class="keyword">super</span>(initialCapacity);</div><div class="line">        accessOrder = <span class="keyword">false</span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>LinkedHashMap的核心就是存在<strong>存储顺序（accessOrder = false）</strong>和<strong>访问顺序（accessOrder = true）</strong>，主要是由双向链表来维护顺序，由上面的结果图可看出。</p>
+<p>若访问顺序为true，且访问的对象不是尾结点，则下面的图展示了访问前和访问后的状态，假设访问的结点为结点3，从图中可以看到，结点3链接到了尾结点后面，从而实现访问顺序（最近最少使用）：<br><img src="http://otpesi023.bkt.clouddn.com/java%E9%9B%86%E5%90%885.jpg" alt=""></p>
+<p>详细实现原理博客链接：<a href="http://www.cnblogs.com/leesf456/p/5248868.html" target="_blank" rel="external">http://www.cnblogs.com/leesf456/p/5248868.html</a></p>
+<h2 id="LinkedHashSet实现原理"><a href="#LinkedHashSet实现原理" class="headerlink" title="LinkedHashSet实现原理"></a>LinkedHashSet实现原理</h2><p>HashSet的不同之处在于，后者维护着一个运行于所有条目的双重链接列表。此链接列表定义了迭代顺序，该迭代顺序可为插入顺序或是访问顺序（由于LinkedHashSet底层使用LinkedHashMap来保存所有元素）。</p>
+<p>对于LinkedHashSet而言，它继承与HashSet、又基于LinkedHashMap来实现的。LinkedHashSet底层使用LinkedHashMap来保存所有元素，它继承与HashSet，其所有的方法操作上又与HashSet相同</p>
+<p>详细实现原理博客链接：<a href="http://zhangshixi.iteye.com/blog/673319" target="_blank" rel="external">http://zhangshixi.iteye.com/blog/673319</a></p>
+<h2 id="TreeMap实现原理"><a href="#TreeMap实现原理" class="headerlink" title="TreeMap实现原理"></a>TreeMap实现原理</h2><p>TreeMap 是基于红黑树的实现，是有序的，它根据 key 的自然顺序排序（如果是基本类型，那就是自然顺序，由小到大。如果是对象，那就是比较哈希值,由小到大），或者根据指定的比较器（comparetor）进行排序，具体取决于构造方法。<br>TreeMap 不是同步的，因为排序调用比较方法，所以不支持 null 键，但是可以 null 值。</p>
+<p><strong>与LinkedHashMap区别：</strong></p>
+<ol>
+<li>TreeMap取出来的是排序后的键值对。但如果您要按自然顺序或自定义顺序遍历键，那么TreeMap会更好。</li>
+<li>LinkedHashMap 是HashMap的一个子类，如果需要输出的顺序和输入的相同,那么用LinkedHashMap可以实现.</li>
+<li>TreeMap 的性能略微低于 HashMap。</li>
+</ol>
+<p>详细实现原理博客链接：<a href="http://blog.csdn.net/chenssy/article/details/26668941" target="_blank" rel="external">http://blog.csdn.net/chenssy/article/details/26668941</a></p>
+<h2 id="TreeSet实现原理"><a href="#TreeSet实现原理" class="headerlink" title="TreeSet实现原理"></a>TreeSet实现原理</h2><p>与HashSet完全类似，TreeSet里面绝大部分方法都市直接调用TreeMap方法来实现的。</p>
+<p><strong>与TreeMap的区别：</strong><br><strong>相同点：</strong></p>
+<ol>
+<li>TreeMap和TreeSet都是有序的集合，也就是说他们存储的值都是排好序的。</li>
+<li>TreeMap和TreeSet都是非同步集合，因此他们不能在多线程之间共享，不过可以使用方法Collections.synchroinzedMap()和Collections.synchronizedList()来实现同步</li>
+<li>运行速度都要比Hash集合慢，他们内部对元素的操作时间复杂度为O(logN)，而HashMap/HashSet则为O(1)。</li>
+</ol>
+<p><strong>不同点：</strong></p>
+<ol>
+<li>最主要的区别就是TreeSet和TreeMap非别实现Set和Map接口</li>
+<li>TreeSet只存储一个对象，而TreeMap存储两个对象Key和Value（仅仅key对象有序）</li>
+<li>TreeSet中不能有重复对象，而TreeMap中可以存在</li>
+</ol>
+<p>详细实现原理博客链接：<a href="http://blog.csdn.net/speedme/article/details/22661671" target="_blank" rel="external">http://blog.csdn.net/speedme/article/details/22661671</a></p>
+<h2 id="Collection和Collections区别"><a href="#Collection和Collections区别" class="headerlink" title="Collection和Collections区别"></a>Collection和Collections区别</h2><ul>
+<li><p>java.util.Collection 是一个集合接口。它提供了对集合对象进行基本操作的通用接口方法。Collection接口在Java 类库中有很多具体的实现。Collection接口的意义是为各种具体的集合提供了最大化的统一操作方式。</p>
+</li>
+<li><p>java.util.Collections 是一个包装类。它包含有各种有关集合操作的静态多态方法。此类不能实例化，就像一个工具类，服务于Java的Collection框架。</p>
+</li>
+</ul>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/java/" rel="tag"># java</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/08/12/设计模式之策略模式及源码中的应用/" rel="next" title="设计模式之策略模式及源码中的应用">
+                <i class="fa fa-chevron-left"></i> 设计模式之策略模式及源码中的应用
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/userpic.jpg"
+               alt="XuJiaoJie" />
+          <p class="site-author-name" itemprop="name">XuJiaoJie</p>
+           
+              <p class="site-description motion-element" itemprop="description">Never stop, search for better yourself</p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives/">
+                <span class="site-state-item-count">23</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">4</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">4</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#集合框架图"><span class="nav-number">1.</span> <span class="nav-text">集合框架图</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ArrayList实现原理"><span class="nav-number">2.</span> <span class="nav-text">ArrayList实现原理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#调整数组容量"><span class="nav-number">2.1.</span> <span class="nav-text">调整数组容量</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Fail-Fast机制"><span class="nav-number">2.2.</span> <span class="nav-text">Fail-Fast机制</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#总结"><span class="nav-number">2.3.</span> <span class="nav-text">总结</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#LinkedList实现原理要点概括"><span class="nav-number">3.</span> <span class="nav-text">LinkedList实现原理要点概括</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#LinkedList数据结构"><span class="nav-number">3.1.</span> <span class="nav-text">LinkedList数据结构</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#实现随机访问"><span class="nav-number">3.2.</span> <span class="nav-text">实现随机访问</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Fail-Fast机制-1"><span class="nav-number">3.3.</span> <span class="nav-text">Fail-Fast机制</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#总结-1"><span class="nav-number">3.4.</span> <span class="nav-text">总结</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Vector实现原理"><span class="nav-number">4.</span> <span class="nav-text">Vector实现原理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#CopyOnWriteArrayList实现原理"><span class="nav-number">5.</span> <span class="nav-text">CopyOnWriteArrayList实现原理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#HashMap实现原理"><span class="nav-number">6.</span> <span class="nav-text">HashMap实现原理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#HashMap的数据结构"><span class="nav-number">6.1.</span> <span class="nav-text">HashMap的数据结构</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#确定哈希桶数组索引位置"><span class="nav-number">6.2.</span> <span class="nav-text">确定哈希桶数组索引位置</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#HashMap的put方法实现"><span class="nav-number">6.3.</span> <span class="nav-text">HashMap的put方法实现</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#HashMap的get方法实现"><span class="nav-number">6.4.</span> <span class="nav-text">HashMap的get方法实现</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Fail-Fast机制-2"><span class="nav-number">6.5.</span> <span class="nav-text">Fail-Fast机制</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#总结-2"><span class="nav-number">6.6.</span> <span class="nav-text">总结</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Hashtable实现原理"><span class="nav-number">7.</span> <span class="nav-text">Hashtable实现原理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ConcurrentHashMap实现原理"><span class="nav-number">8.</span> <span class="nav-text">ConcurrentHashMap实现原理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#ConcurrentHashMap数据结构"><span class="nav-number">8.1.</span> <span class="nav-text">ConcurrentHashMap数据结构</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ConcurrentHashMap的put方法实现"><span class="nav-number">8.2.</span> <span class="nav-text">ConcurrentHashMap的put方法实现</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#同步性能"><span class="nav-number">8.3.</span> <span class="nav-text">同步性能</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#HashSet实现原理"><span class="nav-number">9.</span> <span class="nav-text">HashSet实现原理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#LinkedHashMap实现原理"><span class="nav-number">10.</span> <span class="nav-text">LinkedHashMap实现原理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#LinkedHashSet实现原理"><span class="nav-number">11.</span> <span class="nav-text">LinkedHashSet实现原理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#TreeMap实现原理"><span class="nav-number">12.</span> <span class="nav-text">TreeMap实现原理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#TreeSet实现原理"><span class="nav-number">13.</span> <span class="nav-text">TreeSet实现原理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Collection和Collections区别"><span class="nav-number">14.</span> <span class="nav-text">Collection和Collections区别</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">XuJiaoJie</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+  
+  <script type="text/javascript" src="/lib/canvas-nest/canvas-nest.min.js"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.1"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.1"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.1"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.1"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.4.js"></script>
+  <script>AV.initialize("ijvKIHTx641VhncUAOKxTgyS-gzGzoHsz", "v3lnrYnhWmGzphYCPQ3GhyA0");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

@@ -1,0 +1,905 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Android," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.1" />
+
+
+
+
+
+
+<meta name="description" content="Context简介从谷歌对Context的介绍可知：  Context是一个应用程序环境信息的接口，表示上下文的意思 Context是一个抽象类，Android系统提供了该抽象类的具体实现类，即ContextImpl类，这里用到了一种代理模式 通过Context类获取应用程序的资源和类，也可以进行应用程序的操作，如启动Activity、发送广播、接受Intent信息等">
+<meta name="keywords" content="Android">
+<meta property="og:type" content="article">
+<meta property="og:title" content="完全剖析Android上下文环境Context">
+<meta property="og:url" content="http://yoursite.com/2017/09/18/完全剖析Android上下文环境Context/index.html">
+<meta property="og:site_name" content="XBlog">
+<meta property="og:description" content="Context简介从谷歌对Context的介绍可知：  Context是一个应用程序环境信息的接口，表示上下文的意思 Context是一个抽象类，Android系统提供了该抽象类的具体实现类，即ContextImpl类，这里用到了一种代理模式 通过Context类获取应用程序的资源和类，也可以进行应用程序的操作，如启动Activity、发送广播、接受Intent信息等">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://otpesi023.bkt.clouddn.com/Context1.jpg">
+<meta property="og:updated_time" content="2017-09-18T08:38:21.983Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="完全剖析Android上下文环境Context">
+<meta name="twitter:description" content="Context简介从谷歌对Context的介绍可知：  Context是一个应用程序环境信息的接口，表示上下文的意思 Context是一个抽象类，Android系统提供了该抽象类的具体实现类，即ContextImpl类，这里用到了一种代理模式 通过Context类获取应用程序的资源和类，也可以进行应用程序的操作，如启动Activity、发送广播、接受Intent信息等">
+<meta name="twitter:image" content="http://otpesi023.bkt.clouddn.com/Context1.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"right","display":"always","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2017/09/18/完全剖析Android上下文环境Context/"/>
+
+
+
+
+
+  <title>完全剖析Android上下文环境Context | XBlog</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-right page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">XBlog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/09/18/完全剖析Android上下文环境Context/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="XuJiaoJie">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/userpic.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="XBlog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">完全剖析Android上下文环境Context</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-09-18T16:38:21+08:00">
+                2017-09-18
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Android/" itemprop="url" rel="index">
+                    <span itemprop="name">Android</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/2017/09/18/完全剖析Android上下文环境Context/" class="leancloud_visitors" data-flag-title="完全剖析Android上下文环境Context">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">阅读次数 </span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="Context简介"><a href="#Context简介" class="headerlink" title="Context简介"></a>Context简介</h2><p>从谷歌对Context的介绍可知：</p>
+<ol>
+<li>Context是一个应用程序环境信息的接口，表示上下文的意思</li>
+<li>Context是一个抽象类，Android系统提供了该抽象类的具体实现类，即ContextImpl类，这里用到了一种代理模式</li>
+<li>通过Context类获取应用程序的资源和类，也可以进行应用程序的操作，如启动Activity、发送广播、接受Intent信息等</li>
+</ol>
+<a id="more"></a>
+<p><strong>应用程序中Context的总数目为：</strong><br>总Context个数 = Activity个数 + Service个数 + 1（Application Context）</p>
+<p>由于Service类和Activity类都是继承Context的，应用程序被启动后，还会为应用程序创建一个全局的Application对应的Context对象。Context是基类，Activity、Service、Application都是间接继承它。ContextImpl类继承了COntext，它才是Context的真正实现。ContextWrapper类中的变量mBase是一个ContextImpl对象，指向真正的实现类ContextImpl，而ContextImpl类中的mOuterContext是一个Context对象，指向相对应的Activity或Service或Application。<br><strong>Context关系图如下所示：</strong><br><img src="http://otpesi023.bkt.clouddn.com/Context1.jpg" alt=""></p>
+<h2 id="Application-Context创建过程"><a href="#Application-Context创建过程" class="headerlink" title="Application Context创建过程"></a>Application Context创建过程</h2><h3 id="创建Application-Context"><a href="#创建Application-Context" class="headerlink" title="创建Application Context"></a>创建Application Context</h3><p>当一个应用程序被启动之后，应用程序里就有一个Application Context对象，这个Context对象通过LoadedApk.java的makeApplication()方法创建。</p>
+<p>当应用程序进程启动之后，Android系统Framework框架里的ActivityManagerService核心服务会调入应用程序客户端ActivityThread类的scheduleLaunchActivity()方法里。从该方法开始分析Context的创建过程，先看看ActivityThread类的scheduleLaunchActivity()方法。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">void</span> <span class="title">scheduleLaunchActivity</span><span class="params">(Intent intent, IBinder token, <span class="keyword">int</span> ident,ActivityInfo info, Configuration curConfig, CompatibilityInfo compatInfo,<span class="keyword">int</span> procState, Bundle state, List&lt;ResultInfo&gt; pendingResults,List&lt;Intent&gt; pendingNewIntents, <span class="keyword">boolean</span> notResumed, <span class="keyword">boolean</span> isForward,String profileName, ParcelFileDescriptor profileFd, <span class="keyword">boolean</span> autoStopProfiler)</span> </span>&#123;</div><div class="line"></div><div class="line">    .....</div><div class="line">    ActivityClientRecord r = <span class="keyword">new</span> ActivityClientRecord();</div><div class="line"></div><div class="line">    r.token = token;</div><div class="line">    r.ident = ident;</div><div class="line">    ....</div><div class="line"></div><div class="line">    sendMessage(H.LAUNCH_ACTIVITY, r);</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>schduleLaunchActivity()方法通过ActivityManagerService服务调用。首先，这个对象会生成一个内部类ActivityClientRecord对象r，并且把它里面的变量token赋值。这个token变量是AMS中ActivityRecord类里面的一个binder对象，这个token对象会同时传到应用程序ActivityThread和WindowManagerService（WMS），关于token此处不继续展开。scheduleLaunchActivity（)方法会通过H类发送一个LAUNCH_ACTIVITY消息，H类继承于Handler，是ActivityThread的内部类，主要用于在ActivityThread内部分发消息。看看H类的定义：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">private</span> <span class="class"><span class="keyword">class</span> <span class="title">H</span> <span class="keyword">extends</span> <span class="title">Handler</span> </span>&#123;</div><div class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> LAUNCH_ACTIVITY         = <span class="number">100</span>;</div><div class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> PAUSE_ACTIVITY          = <span class="number">101</span>;</div><div class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> PAUSE_ACTIVITY_FINISHING= <span class="number">102</span>;</div><div class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> STOP_ACTIVITY_SHOW      = <span class="number">103</span>;</div><div class="line">    .....</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">handleMessage</span><span class="params">(Message msg)</span> </span>&#123;</div><div class="line">        <span class="keyword">if</span> (DEBUG_MESSAGES) Slog.v(TAG, <span class="string">"&gt;&gt;&gt; handling: "</span> + codeToString(msg.what));</div><div class="line">        <span class="keyword">switch</span> (msg.what) &#123;</div><div class="line">            <span class="keyword">case</span> LAUNCH_ACTIVITY: &#123;</div><div class="line">                Trace.traceBegin(Trace.TRACE_TAG_ACTIVITY_MANAGER, <span class="string">"activityStart"</span>);</div><div class="line">                ActivityClientRecord r = (ActivityClientRecord)msg.obj;</div><div class="line"></div><div class="line">                r.packageInfo = getPackageInfoNoCheck(</div><div class="line">                        r.activityInfo.applicationInfo, r.compatInfo);</div><div class="line">                handleLaunchActivity(r, <span class="keyword">null</span>);</div><div class="line">                Trace.traceEnd(Trace.TRACE_TAG_ACTIVITY_MANAGER);</div><div class="line">            &#125; <span class="keyword">break</span>;</div><div class="line">            ......</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>在H类的handleMessage()收到消息后主要调用了handleLaunchActivity()方法继续处理：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">handleLaunchActivity</span><span class="params">(ActivityClientRecord r, Intent customIntent)</span> </span>&#123;</div><div class="line">    .......</div><div class="line">    Activity a = performLaunchActivity(r, customIntent);</div><div class="line">    <span class="keyword">if</span> (a != <span class="keyword">null</span>) &#123;</div><div class="line">        r.createdConfig = <span class="keyword">new</span> Configuration(mConfiguration);</div><div class="line">        Bundle oldState = r.state;</div><div class="line">        handleResumeActivity(r.token, <span class="keyword">false</span>, r.isForward,</div><div class="line">                !r.activity.mFinished &amp;&amp; !r.startsNotResumed);</div><div class="line">        ......</div><div class="line">    &#125;</div><div class="line">    ......</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>handleLaunchActivity()方法首先调用了performLaunchActivity()方法，这个方法主要用于创建Application Context和Activity Context。之后调用handleResumeActivity()方法主要是来进入Activity的生命周期onResume()方法。下面看看performLaunchActivity()方法创建Application Context的过程:<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">private</span> Activity <span class="title">performLaunchActivity</span><span class="params">(ActivityClientRecord r, Intent customIntent)</span> </span>&#123;</div><div class="line">    ......</div><div class="line">    Activity activity = <span class="keyword">null</span>;</div><div class="line">    <span class="keyword">try</span> &#123;</div><div class="line">        java.lang.ClassLoader cl = r.packageInfo.getClassLoader();</div><div class="line">        activity = mInstrumentation.newActivity(</div><div class="line">                cl, component.getClassName(), r.intent);</div><div class="line">        .......</div><div class="line">    <span class="keyword">try</span> &#123;</div><div class="line">        Application app = r.packageInfo.makeApplication(<span class="keyword">false</span>, mInstrumentation);</div><div class="line">        .....</div><div class="line">        <span class="keyword">if</span> (activity != <span class="keyword">null</span>) &#123;</div><div class="line">            Context appContext = createBaseContextForActivity(r, activity);</div><div class="line">            .....</div><div class="line">            activity.attach(appContext, <span class="keyword">this</span>, getInstrumentation(), r.token,</div><div class="line">                    r.ident, app, r.intent, r.activityInfo, title, r.parent,</div><div class="line">                    r.embeddedID, r.lastNonConfigurationInstances, config);</div><div class="line">            ....</div><div class="line">            mInstrumentation.callActivityOnCreate(activity, r.state);</div><div class="line">            ....</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>变量packageInfo是一个LoadApk类型的对象，通过调用它的makeApplication()方法来创建Application Context。在该方法中，如果变量Activity不为空，还会调用createBaseContextForActviity()方法来创建Activity上下文Context。下面是LoadApk类中的makeApplication()方法来创建Application Context：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> Application <span class="title">makeApplication</span><span class="params">(<span class="keyword">boolean</span> forceDefaultAppClass,</span></span></div><div class="line">        Instrumentation instrumentation) &#123;</div><div class="line">    <span class="keyword">if</span> (mApplication != <span class="keyword">null</span>) &#123;</div><div class="line">        <span class="keyword">return</span> mApplication;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    Application app = <span class="keyword">null</span>;</div><div class="line">    .....</div><div class="line">    <span class="keyword">try</span> &#123;</div><div class="line">        java.lang.ClassLoader cl = getClassLoader();</div><div class="line">        ContextImpl appContext = <span class="keyword">new</span> ContextImpl();</div><div class="line">        appContext.init(<span class="keyword">this</span>, <span class="keyword">null</span>, mActivityThread);</div><div class="line">        app = mActivityThread.mInstrumentation.newApplication(</div><div class="line">                cl, appClass, appContext);</div><div class="line">        appContext.setOuterContext(app);</div><div class="line">    &#125; <span class="keyword">catch</span> (Exception e) &#123;</div><div class="line">        .......</div><div class="line">    &#125;</div><div class="line">    mActivityThread.mAllApplications.add(app);</div><div class="line">    mApplication = app;</div><div class="line"></div><div class="line">    <span class="keyword">if</span> (instrumentation != <span class="keyword">null</span>) &#123;</div><div class="line">        <span class="keyword">try</span> &#123;</div><div class="line">            instrumentation.callApplicationOnCreate(app);</div><div class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</div><div class="line">            ......</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">    </div><div class="line">    <span class="keyword">return</span> app;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>变量mApplication是LoadApk类中的全局变量，它是一个Application对象。假设第一次启动应用程序时，Application Context还没创建，会先创建一个ContextImpl实例，然后会通过ActivityThread的变量mInstrumentation（Instrumentation类型对象）的方法newApplication()创建一个Application对象app。然后把app对象通过setOuterContext()方法赋值给ContextImpl的mOuterContext变量，最后把该app对象赋值给LoadApk的人全局变量mApplication。</p>
+<p>下面看看Instrumentation类的newApplication方法：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">public</span> Application <span class="title">newApplication</span><span class="params">(Class&lt;?&gt; clazz, Context context)</span></span></div><div class="line">        <span class="keyword">throws</span> InstantiationException, IllegalAccessException, </div><div class="line">        ClassNotFoundException &#123;</div><div class="line">    Application app = (Application)clazz.newInstance();</div><div class="line">    app.attach(context);</div><div class="line">    <span class="keyword">return</span> app;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>newApplication()方法首先会创建一个Application类型的对象app，然后调用它的attach()方法将传进来的ContextImpl对象赋值给ContextWrapper类的mBase对象，最后返回app。<br>下面看看Application类的attach()方法：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="comment">/* package */</span> <span class="function"><span class="keyword">final</span> <span class="keyword">void</span> <span class="title">attach</span><span class="params">(Context context)</span> </span>&#123;</div><div class="line">    attachBaseContext(context);</div><div class="line">    mLoadedApk = ContextImpl.getImpl(context).mPackageInfo;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ContextWrapper</span> <span class="keyword">extends</span> <span class="title">Context</span> </span>&#123;</div><div class="line">    Context mBase;</div><div class="line">    .....</div><div class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">attachBaseContext</span><span class="params">(Context base)</span> </span>&#123;</div><div class="line">        <span class="keyword">if</span> (mBase != <span class="keyword">null</span>) &#123;</div><div class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> IllegalStateException(<span class="string">"Base context already set"</span>);</div><div class="line">        &#125;</div><div class="line">        mBase = base;</div><div class="line">    &#125;</div><div class="line">    ....</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>attach()方法调用父类的attachBaseContext()方，将ContextImpl对象赋值给ContextWrapper类的mBase对象。</p>
+<p>回到前面的makeApplication()方法中，这个过程之后会调用setOuterContext()方法将Application对象赋值给ContextImpl的mOuterContext变量：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">ContextImpl</span> <span class="keyword">extends</span> <span class="title">Context</span> </span>&#123;</div><div class="line">    <span class="keyword">private</span> Context mOuterContext;</div><div class="line">    ......</div><div class="line">    <span class="function"><span class="keyword">final</span> <span class="keyword">void</span> <span class="title">setOuterContext</span><span class="params">(Context context)</span> </span>&#123;</div><div class="line">        mOuterContext = context;</div><div class="line">    &#125;</div><div class="line">    ....</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>至此，Application Context的创建过程就介绍完毕。</p>
+<h3 id="获取·Application-Context"><a href="#获取·Application-Context" class="headerlink" title="获取·Application Context"></a>获取·Application Context</h3><p>在应用程序中，可以直接通过getApplicationContext()方法来获得ApplicationContext。而这个调用，会进入到框架层ContextWrapper类的getApplicationContext()方法中：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@Override</span></div><div class="line"><span class="function"><span class="keyword">public</span> Context <span class="title">getApplicationContext</span><span class="params">()</span> </span>&#123;</div><div class="line">    <span class="keyword">return</span> mBase.getApplicationContext();</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>变量mBase是COntextImpl类的对象，此处调用getApplicationContext()方法进入COntextImpl类的getApplicationContext()方法中：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@Override</span></div><div class="line"><span class="function"><span class="keyword">public</span> Context <span class="title">getApplicationContext</span><span class="params">()</span> </span>&#123;</div><div class="line">    <span class="keyword">return</span> (mPackageInfo != <span class="keyword">null</span>) ?</div><div class="line">            mPackageInfo.getApplication() : mMainThread.getApplication();</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>变量mPackageInfo是一个LoadApk对象，而变量mMainThread是一个ActivityThread对象。由于应用程序已经启动，mPackageInfo变量不为空，于是调用LoadApk的个体Application方法：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="function">Application <span class="title">getApplication</span><span class="params">()</span> </span>&#123;</div><div class="line">    <span class="keyword">return</span> mApplication;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>直接返回Application类型的mApplication对象，在前面LoadApk.java的makeApplication()方法中创建的。</p>
+<h2 id="Activity-Context创建过程"><a href="#Activity-Context创建过程" class="headerlink" title="Activity Context创建过程"></a>Activity Context创建过程</h2><p>前面的创建调用过程和Application的创建基本一致，都是由AMS服务调用scheduleLaunchActivity()方法开始，到performLaunchActivity()方法：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">private</span> Activity <span class="title">performLaunchActivity</span><span class="params">(ActivityClientRecord r, Intent customIntent)</span> </span>&#123;</div><div class="line">    ......</div><div class="line">    Activity activity = <span class="keyword">null</span>;</div><div class="line">    <span class="keyword">try</span> &#123;</div><div class="line">        java.lang.ClassLoader cl = r.packageInfo.getClassLoader();</div><div class="line">        activity = mInstrumentation.newActivity(</div><div class="line">                cl, component.getClassName(), r.intent);</div><div class="line">        .......</div><div class="line">    <span class="keyword">try</span> &#123;</div><div class="line">        Application app = r.packageInfo.makeApplication(<span class="keyword">false</span>, mInstrumentation);</div><div class="line">        .....</div><div class="line">        <span class="keyword">if</span> (activity != <span class="keyword">null</span>) &#123;</div><div class="line">            Context appContext = createBaseContextForActivity(r, activity);</div><div class="line">            .....</div><div class="line">            activity.attach(appContext, <span class="keyword">this</span>, getInstrumentation(), r.token,</div><div class="line">                    r.ident, app, r.intent, r.activityInfo, title, r.parent,</div><div class="line">                    r.embeddedID, r.lastNonConfigurationInstances, config);</div><div class="line">            ....</div><div class="line">            mInstrumentation.callActivityOnCreate(activity, r.state);</div><div class="line">            ....</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p><strong>大致流程可分为一下几个步骤：</strong></p>
+<ol>
+<li><p>变量cl是一个ClassLoader对象，即类加载器。通过Instrumentation对象的newActivity()方法创建一个Activity实例。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> Activity <span class="title">newActivity</span><span class="params">(ClassLoader cl, String className,</span></span></div><div class="line">        Intent intent)</div><div class="line">        <span class="keyword">throws</span> InstantiationException, IllegalAccessException,</div><div class="line">        ClassNotFoundException &#123;</div><div class="line">    <span class="keyword">return</span> (Activity)cl.loadClass(className).newInstance();</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+</li>
+<li><p>接着performLaunchActivity()方法调用createBaseContextForActivity()方法来创建ContextImpl类型对象appContext：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">private</span> Context <span class="title">createBaseContextForActivity</span><span class="params">(ActivityClientRecord r, <span class="keyword">final</span> Activity activity)</span> </span>&#123;</div><div class="line">    .....</div><div class="line">    ContextImpl appContext = ContextImpl.createActivityContext(</div><div class="line">            <span class="keyword">this</span>, r.packageInfo, r.token, displayId, r.overrideConfig);</div><div class="line">    appContext.setOuterContext(activity);</div><div class="line">    Context baseContext = appContext;</div><div class="line">    ......</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+</li>
+</ol>
+<p>通过调用ContextImpl的createActivityContext()方创建出一个ContextImpl实例，并通过ContextImpl的setOuterContext()方法将前面创建的activity实例对象赋值给ContextImpl类的mOuterContext变量。如下所示：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">static</span> ContextImpl <span class="title">createActivityContext</span><span class="params">(ActivityThread mainThread,</span></span></div><div class="line">        LoadedApk packageInfo, IBinder activityToken, <span class="keyword">int</span> displayId,</div><div class="line">        Configuration overrideConfiguration) &#123;</div><div class="line">    <span class="keyword">if</span> (packageInfo == <span class="keyword">null</span>) <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(<span class="string">"packageInfo"</span>);</div><div class="line">    <span class="keyword">return</span> <span class="keyword">new</span> ContextImpl(<span class="keyword">null</span>, mainThread, packageInfo, activityToken, <span class="keyword">null</span>, <span class="number">0</span>,</div><div class="line">            <span class="keyword">null</span>, overrideConfiguration, displayId);</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">ContextImpl</span> <span class="keyword">extends</span> <span class="title">Context</span> </span>&#123;</div><div class="line">    <span class="keyword">private</span> Context mOuterContext;</div><div class="line">    ......</div><div class="line">    <span class="function"><span class="keyword">final</span> <span class="keyword">void</span> <span class="title">setOuterContext</span><span class="params">(Context context)</span> </span>&#123;</div><div class="line">        mOuterContext = context;</div><div class="line">    &#125;</div><div class="line">    ....</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<ol>
+<li><p>接着performLaunchActivity()方法就调用Activity的attach()方法来讲前面所创建的ContextImpl对象appContext保存在Activity内部：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">final</span> <span class="keyword">void</span> <span class="title">attach</span><span class="params">(Context context, ActivityThread aThread,</span></span></div><div class="line">        Instrumentation instr, IBinder token, <span class="keyword">int</span> ident,</div><div class="line">        Application application, Intent intent, ActivityInfo info,</div><div class="line">        CharSequence title, Activity parent, String id,</div><div class="line">        NonConfigurationInstances lastNonConfigurationInstances,</div><div class="line">        Configuration config, String referrer, IVoiceInteractor voiceInteractor,</div><div class="line">        Window window) &#123;</div><div class="line">    <span class="comment">//调用父类的方法设置mBase，与上文Application类似</span></div><div class="line">    attachBaseContext(context);</div><div class="line"></div><div class="line">    mFragments.attachHost(<span class="keyword">null</span> <span class="comment">/*parent*/</span>);</div><div class="line"></div><div class="line">    mWindow = <span class="keyword">new</span> PhoneWindow(<span class="keyword">this</span>, window);</div><div class="line">    mWindow.setWindowControllerCallback(<span class="keyword">this</span>);</div><div class="line">    mWindow.setCallback(<span class="keyword">this</span>);</div><div class="line">    mWindow.setOnWindowDismissedCallback(<span class="keyword">this</span>);</div><div class="line">    mWindow.getLayoutInflater().setPrivateFactory(<span class="keyword">this</span>);</div><div class="line">    <span class="keyword">if</span> (info.softInputMode != WindowManager.LayoutParams.SOFT_INPUT_STATE_UNSPECIFIED) &#123;</div><div class="line">        mWindow.setSoftInputMode(info.softInputMode);</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">if</span> (info.uiOptions != <span class="number">0</span>) &#123;</div><div class="line">        mWindow.setUiOptions(info.uiOptions);</div><div class="line">    &#125;</div><div class="line">    mUiThread = Thread.currentThread();</div><div class="line"></div><div class="line">    mMainThread = aThread;</div><div class="line">    ........</div><div class="line"></div><div class="line">    mWindow.setWindowManager(</div><div class="line">            (WindowManager)context.getSystemService(Context.WINDOW_SERVICE),</div><div class="line">            mToken, mComponent.flattenToString(),</div><div class="line">            (info.flags &amp; ActivityInfo.FLAG_HARDWARE_ACCELERATED) != <span class="number">0</span>);</div><div class="line">    <span class="keyword">if</span> (mParent != <span class="keyword">null</span>) &#123;</div><div class="line">        mWindow.setContainer(mParent.getWindow());</div><div class="line">    &#125;</div><div class="line">    mWindowManager = mWindow.getWindowManager();</div><div class="line">    mCurrentConfig = config;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+</li>
+<li><p>最后performLaunchActivity()方法又通过调用mInstrumentation对象的方法callActivityOnCreate()来通知Activity进入它的生命周期onCreate()方法：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">callActivityOnCreate</span><span class="params">(Activity activity, Bundle icicle,</span></span></div><div class="line">        PersistableBundle persistentState) &#123;</div><div class="line">    prePerformCreate(activity);</div><div class="line">    activity.performCreate(icicle, persistentState);</div><div class="line">    postPerformCreate(activity);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+</li>
+</ol>
+<p>通过调用Activity的performCreate()方法：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">final</span> <span class="keyword">void</span> <span class="title">performCreate</span><span class="params">(Bundle icicle)</span> </span>&#123;</div><div class="line">    restoreHasCurrentPermissionRequest(icicle);</div><div class="line">    onCreate(icicle);</div><div class="line">    mActivityTransitionState.readState(icicle);</div><div class="line">    performCreateCommon();</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>根据java的多态性，onCreate()会进入Activity子类的onCreate()方法。</p>
+<h2 id="Service-Context的创建过程"><a href="#Service-Context的创建过程" class="headerlink" title="Service Context的创建过程"></a>Service Context的创建过程</h2><p>service在启动过程中，ActivityManagerService服务会被调用到ActivityThread类中，最后进入ActivityThread的handleCreateService()方法：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">handleCreateService</span><span class="params">(CreateServiceData data)</span> </span>&#123;</div><div class="line">    ......</div><div class="line">    Service service = <span class="keyword">null</span>;</div><div class="line">    <span class="keyword">try</span> &#123;</div><div class="line">        java.lang.ClassLoader cl = packageInfo.getClassLoader();</div><div class="line">        service = (Service) cl.loadClass(data.info.name).newInstance();</div><div class="line">    &#125; <span class="keyword">catch</span> (Exception e) &#123;</div><div class="line">        ......</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="keyword">try</span> &#123;</div><div class="line">        ContextImpl context = ContextImpl.createAppContext(<span class="keyword">this</span>, packageInfo);</div><div class="line">        context.setOuterContext(service);</div><div class="line"></div><div class="line">        Application app = packageInfo.makeApplication(<span class="keyword">false</span>, mInstrumentation);</div><div class="line">        service.attach(context, <span class="keyword">this</span>, data.info.name, data.token, app,</div><div class="line">                ActivityManagerNative.getDefault());</div><div class="line">        service.onCreate();</div><div class="line">        ....</div><div class="line">    &#125; <span class="keyword">catch</span> (Exception e) &#123;</div><div class="line">        .....</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>handleCreateService()方法首先加载一个ClassLoader对象，通过这个对象加载Service对象，构建Service实例。接着通过ContextImpl的createAppContext()方法创建ContextImpl类型实例context。然后通过这个ContextImpl类型实例context调用setOuterContext()方法把Service对象赋值给ContextImpl的mOuterContext变量。最后又通过调用Service的attach()方法把ContextImpl实例context赋值给ContextWrapper类的mBase变量。该过程和上面的两种基本相似，这里就不一一展开咯。。。。。</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Android/" rel="tag"># Android</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/09/16/拆轮子系列之剖析EventBus源码/" rel="next" title="拆轮子系列之剖析EventBus源码">
+                <i class="fa fa-chevron-left"></i> 拆轮子系列之剖析EventBus源码
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/userpic.jpg"
+               alt="XuJiaoJie" />
+          <p class="site-author-name" itemprop="name">XuJiaoJie</p>
+           
+              <p class="site-description motion-element" itemprop="description">Never stop, search for better yourself</p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives/">
+                <span class="site-state-item-count">27</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Context简介"><span class="nav-number">1.</span> <span class="nav-text">Context简介</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Application-Context创建过程"><span class="nav-number">2.</span> <span class="nav-text">Application Context创建过程</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#创建Application-Context"><span class="nav-number">2.1.</span> <span class="nav-text">创建Application Context</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#获取·Application-Context"><span class="nav-number">2.2.</span> <span class="nav-text">获取·Application Context</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Activity-Context创建过程"><span class="nav-number">3.</span> <span class="nav-text">Activity Context创建过程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Service-Context的创建过程"><span class="nav-number">4.</span> <span class="nav-text">Service Context的创建过程</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">XuJiaoJie</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+  
+  <script type="text/javascript" src="/lib/canvas-nest/canvas-nest.min.js"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.1"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.1"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.1"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.1"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.4.js"></script>
+  <script>AV.initialize("ijvKIHTx641VhncUAOKxTgyS-gzGzoHsz", "v3lnrYnhWmGzphYCPQ3GhyA0");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

@@ -1,0 +1,965 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Android,拆轮子系列," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.1" />
+
+
+
+
+
+
+<meta name="description" content="概述我们都听过或者用过butterknife，知道butterknife是一款View注入的框架。在android开发时省去我们重复的敲打findViewById等方法。ButterKnife源码的分析将会先行讲解注解，反射，注解处理器，再深入分析源码。">
+<meta name="keywords" content="Android,拆轮子系列">
+<meta property="og:type" content="article">
+<meta property="og:title" content="拆轮子系列之ButterKnife源码分析">
+<meta property="og:url" content="http://yoursite.com/2017/10/14/拆轮子系列之ButterKnife源码分析/index.html">
+<meta property="og:site_name" content="XBlog">
+<meta property="og:description" content="概述我们都听过或者用过butterknife，知道butterknife是一款View注入的框架。在android开发时省去我们重复的敲打findViewById等方法。ButterKnife源码的分析将会先行讲解注解，反射，注解处理器，再深入分析源码。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://otpesi023.bkt.clouddn.com/ButterKnife.png">
+<meta property="og:updated_time" content="2017-10-14T06:55:14.295Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="拆轮子系列之ButterKnife源码分析">
+<meta name="twitter:description" content="概述我们都听过或者用过butterknife，知道butterknife是一款View注入的框架。在android开发时省去我们重复的敲打findViewById等方法。ButterKnife源码的分析将会先行讲解注解，反射，注解处理器，再深入分析源码。">
+<meta name="twitter:image" content="http://otpesi023.bkt.clouddn.com/ButterKnife.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"right","display":"always","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2017/10/14/拆轮子系列之ButterKnife源码分析/"/>
+
+
+
+
+
+  <title>拆轮子系列之ButterKnife源码分析 | XBlog</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-right page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">XBlog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/10/14/拆轮子系列之ButterKnife源码分析/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="XuJiaoJie">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/userpic.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="XBlog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">拆轮子系列之ButterKnife源码分析</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-10-14T14:55:14+08:00">
+                2017-10-14
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/拆轮子系列/" itemprop="url" rel="index">
+                    <span itemprop="name">拆轮子系列</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/2017/10/14/拆轮子系列之ButterKnife源码分析/" class="leancloud_visitors" data-flag-title="拆轮子系列之ButterKnife源码分析">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">阅读次数 </span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p>我们都听过或者用过butterknife，知道butterknife是一款View注入的框架。在android开发时省去我们重复的敲打findViewById等方法。ButterKnife源码的分析将会先行讲解注解，反射，注解处理器，再深入分析源码。</p>
+<a id="more"></a>
+<h2 id="注解"><a href="#注解" class="headerlink" title="注解"></a>注解</h2><p><strong>说起注解，大家都很熟悉。不管是Java语言本身自带的@Override、@Override，还是热门的第三方框架butterknife的@BindView、retrofit的@Get等</strong></p>
+<h3 id="Java自带的注解"><a href="#Java自带的注解" class="headerlink" title="Java自带的注解"></a>Java自带的注解</h3><h4 id="普通注解-用于描述代码的注解"><a href="#普通注解-用于描述代码的注解" class="headerlink" title="普通注解-用于描述代码的注解"></a>普通注解-用于描述代码的注解</h4><ul>
+<li>@Override - 检查方法是否是重载。如果在父类或者实现的接口里没有找到原型的话，编译器就会报错。</li>
+<li>@Deprecated - 标记该方法已弃用。如果使用的话，编译器会提示。</li>
+<li>@SuppressWarnings - 使编译器忽略编译时的警告，使用如@SuppressWarnings(“unused”)，忽略无用代码的提示</li>
+</ul>
+<h4 id="元注解-注解的注解"><a href="#元注解-注解的注解" class="headerlink" title="元注解-注解的注解"></a>元注解-注解的注解</h4><p>元注解-meta-annotation，即注解用来注解其他注解的注解，常用来自定义注解。<br><strong>栗子：</strong><br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@Document</span></div><div class="line"><span class="meta">@Target</span>(ElementType.TYPE)  </div><div class="line"><span class="meta">@Retention</span>(RetentionPolicy.RUNTIME)  </div><div class="line"><span class="meta">@Inherited</span>  </div><div class="line"><span class="keyword">public</span> <span class="meta">@interface</span> Test &#123;   </div><div class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">name</span><span class="params">()</span> <span class="keyword">default</span> ""</span>;      </div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>元注解有四种，栗子里都用到，分别为meta-annotation，Document、Target、Retention、Inherited：</p>
+<h5 id="Document"><a href="#Document" class="headerlink" title="@Document"></a>@Document</h5><p>Document标记这个注解应该被javadoc工具记录。默认情况下，Javadoc是不包括注解的。</p>
+<h5 id="Target"><a href="#Target" class="headerlink" title="@Target"></a>@Target</h5><p>Target描述了这个注解的使用范围，使用方法如@Target(ElementType.TYPE)，ElementType的取值有七种，如下：</p>
+<ul>
+<li>CONSTRUCTOR：用于描述构造器</li>
+<li>FIELD：用于描述域</li>
+<li>LOCAL_VARIABLE：用于描述局部变量</li>
+<li>METHOD：用于描述方法</li>
+<li>PACKAGE：用于描述包</li>
+<li>PARAMETER：用于描述参数</li>
+<li>TYPE：用于描述类、接口(包括注解类型) 或enum声明</li>
+</ul>
+<h5 id="Retention"><a href="#Retention" class="headerlink" title="@Retention"></a>@Retention</h5><p>Retention用来描述这个注解的生命周期，即注解的”存活时间”，使用方法如@Retention(RetentionPolicy.RUNTIME)，RetentionPolicy有三种，如下：</p>
+<ul>
+<li>SOURCE: 将被编译器丢弃（即源文件保留）</li>
+<li>CLASS: 在class文件中可用，但会被JVM丢弃（即class保留）</li>
+<li>RUNTIME: 在运行时有效（即运行时保留）</li>
+</ul>
+<p>我们知道，Java代码会由源代码编译成class文件，然后再运行。Retention用来描述注解在这个阶段的存活时间。例如，当一个注解为RUNTIME时，表明我们可以在运行时通过反射获取到注解的内容，然后再去做相应的处理。</p>
+<h5 id="Inherited"><a href="#Inherited" class="headerlink" title="@Inherited"></a>@Inherited</h5><p>Inherited译为可继承的，如果一个使用了@Inherited 修饰的 annotation类型 被用于一个 class，则这个 annotation 将被用于该class的子类。</p>
+<p>认识这四个元注解，我们就能定义属于自己的注解！</p>
+<h3 id="自定义注解"><a href="#自定义注解" class="headerlink" title="自定义注解"></a>自定义注解</h3><p>使用@interface自定义注解时，不能继承其他的注解或接口。@interface用来声明一个注解，其中的每一个方法实际上是声明了一个配置参数。方法的名称就是参数的名称，返回值类型就是参数的类型（byte,short,char,int,long,float,double,boolean八种基本数据类型和 String,Enum,Class,annotations等数据类型,以及这一些类型的数组）。可以通过default来声明参数的默认值。</p>
+<p>值得一提的是，如果只有一个参数成员,最好把参数名称设为”value”，这样子，这样做有个好处。例如注解 A，正常调用时这样子：@A(value=”jerry”)，可以简化为@A(“jerry”)。</p>
+<p>这里我举两个栗子来进行介绍，一个是butterknife中的BindView注解，一个是项目中使用到的注解。</p>
+<h4 id="butterknife的BindView"><a href="#butterknife的BindView" class="headerlink" title="butterknife的BindView"></a>butterknife的BindView</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@Retention</span>(CLASS) <span class="meta">@Target</span>(FIELD)</div><div class="line"><span class="keyword">public</span> <span class="meta">@interface</span> BindView &#123;</div><div class="line">  <span class="comment">/** View ID to which the field will be bound. */</span></div><div class="line">  <span class="meta">@IdRes</span> <span class="function"><span class="keyword">int</span> <span class="title">value</span><span class="params">()</span></span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>BindView注解用来冗杂的findViewById操作，使用如下：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@BindView</span>(R.id.title) TextView title;</div></pre></td></tr></table></figure></p>
+<p>@Retention(CLASS)表明了BindView在class文件中保留，在runtime时不存在，这意味着butterknife是在编译时生成绑定View的代码，因此butterknife在运行时不会造成影响，只会影响编译时的速度，这也解释了butterknife受欢迎的原因。</p>
+<p>@Target(FIELD)表明该注解是用来修饰域变量的，如上面栗子所示。</p>
+<p>@IdRes int value(); @IdRes是android.support.annotation里定义的注解，表示只接受类似R.id.xxx形式(即为int的Id)的参数。</p>
+<h2 id="反射"><a href="#反射" class="headerlink" title="反射"></a>反射</h2><p>反射机制允许在运行时发现和使用类的信息。Class类与java.lang.reflect一起对反射的概念进行了支持，允许在运行时利用反射达到：</p>
+<ul>
+<li>判断任意一个对象所属的类；</li>
+<li>构造任意一个类的对象；</li>
+<li>判断任意一个类所具有的成员变量和方法（通过反射甚至可以调用private方法）；</li>
+<li>调用任意一个对象的方法</li>
+</ul>
+<h3 id="使用反射来模仿ButterKnife"><a href="#使用反射来模仿ButterKnife" class="headerlink" title="使用反射来模仿ButterKnife"></a>使用反射来模仿ButterKnife</h3><p>这里使用反射来模仿下ButterKnife来简化这些代码。当然ButterKnife不是用反射的，它是使用注解处理器的<br>先定义个BindView注解：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@Retention</span>(RUNTIME)</div><div class="line"><span class="meta">@Target</span>(FIELD)</div><div class="line"><span class="keyword">public</span> <span class="meta">@interface</span> BindView &#123;</div><div class="line">    <span class="comment">/** View ID to which the field will be bound. */</span></div><div class="line">    <span class="function"><span class="keyword">int</span> <span class="title">value</span><span class="params">()</span></span>;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>调用方法：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MainActivity</span> <span class="keyword">extends</span> <span class="title">Activity</span> </span>&#123;</div><div class="line"></div><div class="line">    <span class="meta">@BindView</span>(R.id.tv_title)</div><div class="line">    <span class="keyword">private</span> TextView tvTitle;</div><div class="line"></div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">onCreate</span><span class="params">(Bundle savedInstanceState)</span> </span>&#123;</div><div class="line">        <span class="keyword">super</span>.onCreate(savedInstanceState);</div><div class="line">        setContentView(R.layout.activity_main);</div><div class="line"></div><div class="line">        NewerKnife.bind(<span class="keyword">this</span>);</div><div class="line">        tvTitle.setText(<span class="string">"after bind view"</span>);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>在声明TextView时使用BindView注解，然后setContentView后，使用NewerKnife.bind(this)，这样就可以避免繁琐的findViewById操作。</p>
+<p>findViewById的操作都在NewerKnife.bind(this)这里面使用反射解决了。下面是实现的代码：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">NewerKnife</span> </span>&#123;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">bind</span><span class="params">(Activity activity)</span> </span>&#123;</div><div class="line">        Class&lt;? extends Activity&gt; clazz = activity.getClass();</div><div class="line">        <span class="comment">// 获取类的所有域变量</span></div><div class="line">        Field[] fields = clazz.getFields();</div><div class="line">        <span class="keyword">for</span> (Field field : fields) &#123;</div><div class="line">            <span class="comment">// 获取BindView注解</span></div><div class="line">            BindView bindView = field.getAnnotation(BindView.class);</div><div class="line">            <span class="keyword">if</span> (bindView != <span class="keyword">null</span>) &#123;</div><div class="line">                <span class="comment">// 存在注解，获取int值，ex:R.id.tv_title</span></div><div class="line">                <span class="keyword">int</span> viewId = bindView.value();</div><div class="line">                <span class="keyword">try</span> &#123;</div><div class="line">                    <span class="comment">// 获取findViewById的Method实例</span></div><div class="line">                    Method findViewMethod = clazz.getMethod(<span class="string">"findViewById"</span>, <span class="keyword">int</span>.class);</div><div class="line">                    <span class="comment">// 调用findViewMethod来获得View</span></div><div class="line">                    Object view = findViewMethod.invoke(activity, viewId);</div><div class="line">                    <span class="comment">// tvTitle-private，设置可操作性</span></div><div class="line">                    field.setAccessible(<span class="keyword">true</span>);</div><div class="line">                    <span class="comment">// 将结果赋值给field</span></div><div class="line">                    field.set(activity, view);</div><div class="line">                &#125; <span class="keyword">catch</span> (NoSuchMethodException e) &#123;</div><div class="line">                    e.printStackTrace();</div><div class="line">                &#125; <span class="keyword">catch</span> (InvocationTargetException e) &#123;</div><div class="line">                    e.printStackTrace();</div><div class="line">                &#125; <span class="keyword">catch</span> (IllegalAccessException e) &#123;</div><div class="line">                    e.printStackTrace();</div><div class="line">                &#125;</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<h2 id="注解处理器-AbstractProcessor"><a href="#注解处理器-AbstractProcessor" class="headerlink" title="注解处理器-AbstractProcessor"></a>注解处理器-AbstractProcessor</h2><p>前面说到的反射是在运行时处理注解，有些人可能担心反射对应用的性能有大的影响。其实通过注解处理器可以在编译时扫描注解，处理注解，包括生成代码等，这样就不会对应用的性能造成影响。前面我们提到的ButterKnife就是通过注解处理器来的。</p>
+<h3 id="Element"><a href="#Element" class="headerlink" title="Element"></a>Element</h3><p>在Java中，将源代码看成Element，Element的子接口有ExecutableElement, PackageElement, Parameterizable, QualifiedNameable, TypeElement, TypeParameterElement, VariableElement。通过下面的栗子就可以直观的理解：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">package</span> com.jerry.practice;    <span class="comment">// PackageElement</span></div><div class="line"></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Foo</span> </span>&#123;        <span class="comment">// TypeElement</span></div><div class="line"></div><div class="line">    <span class="keyword">private</span> <span class="keyword">int</span> a;      <span class="comment">// VariableElement</span></div><div class="line">    <span class="keyword">private</span> Foo b;  <span class="comment">// VariableElement</span></div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="title">Foo</span><span class="params">()</span> </span>&#123;</div><div class="line">    &#125;    <span class="comment">// ExecuteableElement</span></div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setA</span><span class="params">(  // ExecuteableElement</span></span></div><div class="line">                       <span class="keyword">int</span> newA   // TypeParameterElement</div><div class="line">    ) &#123;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<h3 id="TypeMirror"><a href="#TypeMirror" class="headerlink" title="TypeMirror"></a>TypeMirror</h3><p>TypeMirror表示 Java 编程语言中的类型。这些类型包括基本类型、声明类型（类和接口类型）、数组类型、类型变量和 null 类型。还可以表示通配符类型参数、executable 的签名和返回类型，以及对应于包和关键字 void 的伪类型。</p>
+<p>Element代表的是源代码。举个栗子，TypeElement代表源代码中的类或接口的元素，是未经编译的。也就是说我们无法根据TypeElement获取类的信息，例如类里面的方法、域、超类等信息。而通过TypeElement.asType()得到的TypeMirror就可以知道。</p>
+<h3 id="AbstractProcessor介绍"><a href="#AbstractProcessor介绍" class="headerlink" title="AbstractProcessor介绍"></a>AbstractProcessor介绍</h3><p>AbstractProcessor有四个比较重要的方法：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@Override</span></div><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title">init</span><span class="params">(ProcessingEnvironment processingEnv)</span> </span>&#123;</div><div class="line">    <span class="keyword">super</span>.init(processingEnv);</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="meta">@Override</span></div><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">process</span><span class="params">(Set&lt;? extends TypeElement&gt; annotations, RoundEnvironment roundEnv)</span> </span>&#123;</div><div class="line">    <span class="comment">// ...</span></div><div class="line">    <span class="keyword">return</span> <span class="keyword">false</span>;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="meta">@Override</span></div><div class="line"><span class="function"><span class="keyword">public</span> Set&lt;String&gt; <span class="title">getSupportedAnnotationTypes</span><span class="params">()</span> </span>&#123;</div><div class="line">    <span class="keyword">return</span> <span class="keyword">super</span>.getSupportedAnnotationTypes();</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="meta">@Override</span></div><div class="line"><span class="function"><span class="keyword">public</span> SourceVersion <span class="title">getSupportedSourceVersion</span><span class="params">()</span> </span>&#123;</div><div class="line">    <span class="keyword">return</span> <span class="keyword">super</span>.getSupportedSourceVersion();</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p><strong>init</strong></p>
+<p>初始化处理器，提供以下工具类</p>
+<blockquote>
+<ul>
+<li>Elements：一个用来处理Element的工具类，例如获取元素的包和注释等。</li>
+<li>Types：一个用来处理TypeMirror的工具类，例如获取类型的超类型等。</li>
+<li>Filer：顾名思义，使用Filer你可以创建文件。</li>
+<li>Messager：用来打印输出日志信息。</li>
+</ul>
+</blockquote>
+<p><strong>process</strong></p>
+<p>扫描处理注解，生成代码，必须重载。入参介绍：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">Set&lt;? extends TypeElement&gt; annotations  <span class="comment">//需要被处理的注解集合</span></div><div class="line">RoundEnvironment roundEnv    <span class="comment">//通过这个可以查询出包含特定注解的被注解元素</span></div></pre></td></tr></table></figure>
+<p>如果process返回true，说明不需要后续的Processor处理它；返回false则需要。</p>
+<p><strong>getSupportedAnnotationTypes</strong><br>返回你需要处理的注解集合，可以@SupportedAnnotationTypes代替。</p>
+<p><strong>getSupportedSourceVersion</strong><br>指定Java版本，可以用@SupportedSourceVersion代替。</p>
+<h3 id="AbstractProcessor使用"><a href="#AbstractProcessor使用" class="headerlink" title="AbstractProcessor使用"></a>AbstractProcessor使用</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@SupportedSourceVersion</span>(SourceVersion.RELEASE_7)</div><div class="line"><span class="meta">@SupportedAnnotationTypes</span>(&#123;<span class="string">"com.jerry.annotation.ProcessorParam"</span>&#125;)</div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Processor</span> <span class="keyword">extends</span> <span class="title">AbstractProcessor</span> </span>&#123;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">process</span><span class="params">(Set&lt;? extends TypeElement&gt; annotations, RoundEnvironment roundEnv)</span> </span>&#123;</div><div class="line">        System.out.println(<span class="string">"-------------------in"</span>);</div><div class="line">        Set&lt;Element&gt; elements = (Set&lt;Element&gt;) roundEnv.getElementsAnnotatedWith(ProcessorParam.class);</div><div class="line">        <span class="keyword">for</span> (Element element : elements) &#123;</div><div class="line">            System.out.println(element.getSimpleName());</div><div class="line">            System.out.println(element.getAnnotation(ProcessorParam.class).value());</div><div class="line">        &#125;</div><div class="line">        System.out.println(<span class="string">"-------------------"</span>);</div><div class="line">        <span class="keyword">return</span> <span class="keyword">false</span>;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MainActivity</span> <span class="keyword">extends</span> <span class="title">Activity</span> </span>&#123;</div><div class="line"></div><div class="line">    <span class="meta">@ProcessorParam</span>(<span class="string">"jerry"</span>)</div><div class="line">    <span class="keyword">private</span> String param;</div><div class="line"></div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">onCreate</span><span class="params">(Bundle savedInstanceState)</span> </span>&#123;</div><div class="line">        <span class="keyword">super</span>.onCreate(savedInstanceState);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>万事俱备只欠东风，我们需要将AbstractProcessor注册到编译器中。由于AbstractProcessor是属于javax.annotation.processing包的，因此需要新建一个依赖的Java Library。在这个library里，在src/main/resources/META-INF/services里需要有javax.annotation.processing.Processor这个文件，里面放了注解处理器的路径，例如：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">com.jerry.annotation.Processor</div></pre></td></tr></table></figure></p>
+<h2 id="ButterKnife源码分析"><a href="#ButterKnife源码分析" class="headerlink" title="ButterKnife源码分析"></a>ButterKnife源码分析</h2><p><img src="http://otpesi023.bkt.clouddn.com/ButterKnife.png" alt=""><br>上文我们详细介绍了注解处理器，这里再结合butterknife再次强调下。在编译源文件时，会分析扫描注解，当扫描到butterknife定义的@BindView、@OnClick等注解时，会使用JavaPoet来生成代码。生成后的文件会再次分析，直到没有分析到需要处理的注解位置。</p>
+<h3 id="JavaPoet简介"><a href="#JavaPoet简介" class="headerlink" title="JavaPoet简介"></a>JavaPoet简介</h3><p>Poet译为诗人，JavaPoet可以帮助便捷地生成代码，而不是手动繁琐的拼接语句。简要介绍下比较关键的几个类：</p>
+<blockquote>
+<ul>
+<li>MethodSpec 代表一个构造函数或方法声明。</li>
+<li>TypeSpec 代表一个类，接口，或者枚举声明。</li>
+<li>FieldSpec 代表一个成员变量，一个字段声明。</li>
+</ul>
+</blockquote>
+<h3 id="ButterKnife效果"><a href="#ButterKnife效果" class="headerlink" title="ButterKnife效果"></a>ButterKnife效果</h3><p><strong>源文件：</strong><br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MainActivity</span> <span class="keyword">extends</span> <span class="title">Activity</span> </span>&#123;</div><div class="line"></div><div class="line">    <span class="meta">@BindView</span>(R.id.tv_title)</div><div class="line">    <span class="keyword">public</span> TextView tvTitle;</div><div class="line"></div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">onCreate</span><span class="params">(Bundle savedInstanceState)</span> </span>&#123;</div><div class="line">        <span class="keyword">super</span>.onCreate(savedInstanceState);</div><div class="line">        setContentView(R.layout.activity_main);</div><div class="line">         ButterKnife.bind(<span class="keyword">this</span>);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="meta">@OnClick</span>(R.id.tv_title)</div><div class="line">    <span class="function"><span class="keyword">void</span> <span class="title">titleClick</span><span class="params">()</span> </span>&#123;</div><div class="line"></div><div class="line">    &#125;</div><div class="line"></div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>编译生成的文件可以在build/source/apt下可以看到：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MainActivity_ViewBinding</span> <span class="keyword">implements</span> <span class="title">Unbinder</span> </span>&#123;</div><div class="line">  <span class="keyword">private</span> MainActivity target;</div><div class="line"></div><div class="line">  <span class="keyword">private</span> View view2131034112;</div><div class="line"></div><div class="line">  <span class="meta">@UiThread</span></div><div class="line">  <span class="function"><span class="keyword">public</span> <span class="title">MainActivity_ViewBinding</span><span class="params">(MainActivity target)</span> </span>&#123;</div><div class="line">    <span class="keyword">this</span>(target, target.getWindow().getDecorView());</div><div class="line">  &#125;</div><div class="line"></div><div class="line">  <span class="meta">@UiThread</span></div><div class="line">  <span class="function"><span class="keyword">public</span> <span class="title">MainActivity_ViewBinding</span><span class="params">(<span class="keyword">final</span> MainActivity target, View source)</span> </span>&#123;</div><div class="line">    <span class="keyword">this</span>.target = target;</div><div class="line"></div><div class="line">    View view;</div><div class="line">    view = Utils.findRequiredView(source, R.id.tv_title, <span class="string">"field 'tvTitle' and method 'titleClick'"</span>);</div><div class="line">    target.tvTitle = Utils.castView(view, R.id.tv_title, <span class="string">"field 'tvTitle'"</span>, TextView.class);</div><div class="line">    view2131034112 = view;</div><div class="line">    view.setOnClickListener(<span class="keyword">new</span> DebouncingOnClickListener() &#123;</div><div class="line">      <span class="meta">@Override</span></div><div class="line">      <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">doClick</span><span class="params">(View p0)</span> </span>&#123;</div><div class="line">        target.titleClick();</div><div class="line">      &#125;</div><div class="line">    &#125;);</div><div class="line">  &#125;</div><div class="line"></div><div class="line">  <span class="meta">@Override</span></div><div class="line">  <span class="meta">@CallSuper</span></div><div class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">unbind</span><span class="params">()</span> </span>&#123;</div><div class="line">    MainActivity target = <span class="keyword">this</span>.target;</div><div class="line">    <span class="keyword">if</span> (target == <span class="keyword">null</span>) <span class="keyword">throw</span> <span class="keyword">new</span> IllegalStateException(<span class="string">"Bindings already cleared."</span>);</div><div class="line">    <span class="keyword">this</span>.target = <span class="keyword">null</span>;</div><div class="line"></div><div class="line">    target.tvTitle = <span class="keyword">null</span>;</div><div class="line"></div><div class="line">    view2131034112.setOnClickListener(<span class="keyword">null</span>);</div><div class="line">    view2131034112 = <span class="keyword">null</span>;</div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>注意到源文件名是MainActivity，而生成的文件是MainActivity_ViewBinding。</p>
+<p>在构造函数内，使用</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">target.tvTitle = Utils.findRequiredViewAsType(source, R.id.tv_title, <span class="string">"field 'tvTitle'"</span>, TextView.class);</div></pre></td></tr></table></figure>
+<p>利用Utils.findRequiredViewAsType得到的结果赋值到我们定义的TextView(tvTitle)上，这也解释了为什么tvTitle需要用public来修饰。</p>
+<p>进一步看看findRequiredViewAsType。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="keyword">static</span> &lt;T&gt; <span class="function">T <span class="title">findRequiredViewAsType</span><span class="params">(View source, @IdRes <span class="keyword">int</span> id, String who,</span></span></div><div class="line">      Class&lt;T&gt; cls) &#123;</div><div class="line">    View view = findRequiredView(source, id, who);</div><div class="line">    <span class="keyword">return</span> castView(view, id, who, cls);</div><div class="line">  &#125;</div></pre></td></tr></table></figure>
+<p>castView方法是将得到的View转化成具体的子View，这里是TextView。而findRequiredView里进行了findViewById的操作。</p>
+<p>这里我们可能会有疑问，在生成的MainActivity_ViewBinding的构造方法使用到MainActivity，而我们在使用ButterKnife时会使用ButterKnife.bind(this)将Activity传递到ButterKnife里，这之间是怎么一个过程？</p>
+<p>进去ButterKnife.bind(this)看看。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@NonNull</span> <span class="meta">@UiThread</span></div><div class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Unbinder <span class="title">bind</span><span class="params">(@NonNull Activity target)</span> </span>&#123;</div><div class="line">    View sourceView = target.getWindow().getDecorView();</div><div class="line">    <span class="keyword">return</span> createBinding(target, sourceView);</div><div class="line">  &#125;</div></pre></td></tr></table></figure>
+<p>根据activity得到DecorView，再传递到createBinding。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">static</span> Unbinder <span class="title">createBinding</span><span class="params">(@NonNull Object target, @NonNull View source)</span> </span>&#123;</div><div class="line">    Class&lt;?&gt; targetClass = target.getClass();</div><div class="line">    <span class="keyword">if</span> (debug) Log.d(TAG, <span class="string">"Looking up binding for "</span> + targetClass.getName());</div><div class="line">    Constructor&lt;? extends Unbinder&gt; constructor = findBindingConstructorForClass(targetClass);</div><div class="line"></div><div class="line">    <span class="keyword">if</span> (constructor == <span class="keyword">null</span>) &#123;</div><div class="line">      <span class="keyword">return</span> Unbinder.EMPTY;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="comment">//noinspection TryWithIdenticalCatches Resolves to API 19+ only type.</span></div><div class="line">    <span class="keyword">try</span> &#123;</div><div class="line">      <span class="keyword">return</span> constructor.newInstance(target, source);</div><div class="line">    &#125; <span class="keyword">catch</span> (IllegalAccessException e) &#123;</div><div class="line">      <span class="keyword">throw</span> <span class="keyword">new</span> RuntimeException(<span class="string">"Unable to invoke "</span> + constructor, e);</div><div class="line">    &#125; <span class="keyword">catch</span> (InstantiationException e) &#123;</div><div class="line">      <span class="keyword">throw</span> <span class="keyword">new</span> RuntimeException(<span class="string">"Unable to invoke "</span> + constructor, e);</div><div class="line">    &#125; <span class="keyword">catch</span> (InvocationTargetException e) &#123;</div><div class="line">      Throwable cause = e.getCause();</div><div class="line">      <span class="keyword">if</span> (cause <span class="keyword">instanceof</span> RuntimeException) &#123;</div><div class="line">        <span class="keyword">throw</span> (RuntimeException) cause;</div><div class="line">      &#125;</div><div class="line">      <span class="keyword">if</span> (cause <span class="keyword">instanceof</span> Error) &#123;</div><div class="line">        <span class="keyword">throw</span> (Error) cause;</div><div class="line">      &#125;</div><div class="line">      <span class="keyword">throw</span> <span class="keyword">new</span> RuntimeException(<span class="string">"Unable to create binding instance."</span>, cause);</div><div class="line">    &#125;</div><div class="line">  &#125;</div></pre></td></tr></table></figure></p>
+<p>上面的代码里，获取到Constructor后，再运用反射生成实例，在实例里的findView操作就会被调用到。接下来看看如何获取到Constructor的。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@Nullable</span> <span class="meta">@CheckResult</span> <span class="meta">@UiThread</span></div><div class="line">  <span class="keyword">private</span> <span class="keyword">static</span> Constructor&lt;? extends Unbinder&gt; findBindingConstructorForClass(Class&lt;?&gt; cls) &#123;</div><div class="line">    Constructor&lt;? extends Unbinder&gt; bindingCtor = BINDINGS.get(cls);</div><div class="line">    <span class="keyword">if</span> (bindingCtor != <span class="keyword">null</span>) &#123;</div><div class="line">      <span class="keyword">if</span> (debug) Log.d(TAG, <span class="string">"HIT: Cached in binding map."</span>);</div><div class="line">      <span class="keyword">return</span> bindingCtor;</div><div class="line">    &#125;</div><div class="line">    String clsName = cls.getName();</div><div class="line">    <span class="comment">// 过滤掉系统相关的类</span></div><div class="line">    <span class="keyword">if</span> (clsName.startsWith(<span class="string">"android."</span>) || clsName.startsWith(<span class="string">"java."</span>)) &#123;</div><div class="line">      <span class="keyword">if</span> (debug) Log.d(TAG, <span class="string">"MISS: Reached framework class. Abandoning search."</span>);</div><div class="line">      <span class="keyword">return</span> <span class="keyword">null</span>;</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">try</span> &#123;</div><div class="line">      Class&lt;?&gt; bindingClass = Class.forName(clsName + <span class="string">"_ViewBinding"</span>);</div><div class="line">      <span class="comment">//noinspection unchecked</span></div><div class="line">      bindingCtor = (Constructor&lt;? extends Unbinder&gt;) bindingClass.getConstructor(cls, View.class);</div><div class="line">      <span class="keyword">if</span> (debug) Log.d(TAG, <span class="string">"HIT: Loaded binding class and constructor."</span>);</div><div class="line">    &#125; <span class="keyword">catch</span> (ClassNotFoundException e) &#123;</div><div class="line">      <span class="keyword">if</span> (debug) Log.d(TAG, <span class="string">"Not found. Trying superclass "</span> + cls.getSuperclass().getName());</div><div class="line">      bindingCtor = findBindingConstructorForClass(cls.getSuperclass());</div><div class="line">    &#125; <span class="keyword">catch</span> (NoSuchMethodException e) &#123;</div><div class="line">      <span class="keyword">throw</span> <span class="keyword">new</span> RuntimeException(<span class="string">"Unable to find binding constructor for "</span> + clsName, e);</div><div class="line">    &#125;</div><div class="line">    BINDINGS.put(cls, bindingCtor);</div><div class="line">    <span class="keyword">return</span> bindingCtor;</div><div class="line">  &#125;</div></pre></td></tr></table></figure>
+<p>从上面可以看到Constructor获取的过程，根据className得到className_ViewBinding，就可以得到Constructor。并且会将得到的Constructor缓存起来，避免反射的性能问题。</p>
+<p>这样一来，ButterKnife.bind(this)传递进去的MainActivity会通过反射生成MainActivity_ViewBinding实例。在这个实例的构造函数内，进行findViewById、setOnclickListener等操作</p>
+<h3 id="编译过程"><a href="#编译过程" class="headerlink" title="编译过程"></a>编译过程</h3><p>MainActivity在编译时会生成处理findViewById等操作的MainActivity_ViewBinding。接下来我们探索下ButterKnife偷偷在注解处理器里做了什么。</p>
+<p>从process方法入手：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@Override</span> <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">process</span><span class="params">(Set&lt;? extends TypeElement&gt; elements, RoundEnvironment env)</span> </span>&#123;</div><div class="line"></div><div class="line">    Map&lt;TypeElement, BindingSet&gt; bindingMap = findAndParseTargets(env);</div><div class="line">    <span class="comment">// 利用JavaPoet生成代码</span></div><div class="line">    <span class="keyword">for</span> (Map.Entry&lt;TypeElement, BindingSet&gt; entry : bindingMap.entrySet()) &#123;</div><div class="line">      TypeElement typeElement = entry.getKey();</div><div class="line">      BindingSet binding = entry.getValue();</div><div class="line"></div><div class="line">      JavaFile javaFile = binding.brewJava(sdk);</div><div class="line">      <span class="keyword">try</span> &#123;</div><div class="line">        javaFile.writeTo(filer);</div><div class="line">      &#125; <span class="keyword">catch</span> (IOException e) &#123;</div><div class="line">        error(typeElement, <span class="string">"Unable to write binding for type %s: %s"</span>, typeElement, e.getMessage());</div><div class="line">      &#125;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="keyword">return</span> <span class="keyword">false</span>;</div><div class="line">  &#125;</div></pre></td></tr></table></figure>
+<p>process里主要做了两件事情：</p>
+<ul>
+<li><strong>findAndParseTargets</strong><br>获得TypeElement -&gt; BindingSet的映射关系，TypeElement指的是类或接口，在本文所举的栗子中是MainActivity。BindingSet里包含了生成代码时的一些参数。</li>
+<li><strong>运用JavaPoet框架来生成代码</strong><br>生成的代码类形式为xxxx_ViewBinding</li>
+</ul>
+<p><strong>深层的具体代码就暂不分析了，从宏观上把握以下ButterKnife的内部构造。。。。。</strong></p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Android/" rel="tag"># Android</a>
+          
+            <a href="/tags/拆轮子系列/" rel="tag"># 拆轮子系列</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/09/18/完全剖析Android上下文环境Context/" rel="next" title="完全剖析Android上下文环境Context">
+                <i class="fa fa-chevron-left"></i> 完全剖析Android上下文环境Context
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/userpic.jpg"
+               alt="XuJiaoJie" />
+          <p class="site-author-name" itemprop="name">XuJiaoJie</p>
+           
+              <p class="site-description motion-element" itemprop="description">Never stop, search for better yourself</p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives/">
+                <span class="site-state-item-count">28</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-categories">
+              <a href="/categories/index.html">
+                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#概述"><span class="nav-number">1.</span> <span class="nav-text">概述</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#注解"><span class="nav-number">2.</span> <span class="nav-text">注解</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Java自带的注解"><span class="nav-number">2.1.</span> <span class="nav-text">Java自带的注解</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#普通注解-用于描述代码的注解"><span class="nav-number">2.1.1.</span> <span class="nav-text">普通注解-用于描述代码的注解</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#元注解-注解的注解"><span class="nav-number">2.1.2.</span> <span class="nav-text">元注解-注解的注解</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#Document"><span class="nav-number">2.1.2.1.</span> <span class="nav-text">@Document</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Target"><span class="nav-number">2.1.2.2.</span> <span class="nav-text">@Target</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Retention"><span class="nav-number">2.1.2.3.</span> <span class="nav-text">@Retention</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#Inherited"><span class="nav-number">2.1.2.4.</span> <span class="nav-text">@Inherited</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#自定义注解"><span class="nav-number">2.2.</span> <span class="nav-text">自定义注解</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#butterknife的BindView"><span class="nav-number">2.2.1.</span> <span class="nav-text">butterknife的BindView</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#反射"><span class="nav-number">3.</span> <span class="nav-text">反射</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#使用反射来模仿ButterKnife"><span class="nav-number">3.1.</span> <span class="nav-text">使用反射来模仿ButterKnife</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#注解处理器-AbstractProcessor"><span class="nav-number">4.</span> <span class="nav-text">注解处理器-AbstractProcessor</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Element"><span class="nav-number">4.1.</span> <span class="nav-text">Element</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#TypeMirror"><span class="nav-number">4.2.</span> <span class="nav-text">TypeMirror</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#AbstractProcessor介绍"><span class="nav-number">4.3.</span> <span class="nav-text">AbstractProcessor介绍</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#AbstractProcessor使用"><span class="nav-number">4.4.</span> <span class="nav-text">AbstractProcessor使用</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ButterKnife源码分析"><span class="nav-number">5.</span> <span class="nav-text">ButterKnife源码分析</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#JavaPoet简介"><span class="nav-number">5.1.</span> <span class="nav-text">JavaPoet简介</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ButterKnife效果"><span class="nav-number">5.2.</span> <span class="nav-text">ButterKnife效果</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#编译过程"><span class="nav-number">5.3.</span> <span class="nav-text">编译过程</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">XuJiaoJie</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+  
+  <script type="text/javascript" src="/lib/canvas-nest/canvas-nest.min.js"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.1"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.1"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.1"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.1"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.4.js"></script>
+  <script>AV.initialize("ijvKIHTx641VhncUAOKxTgyS-gzGzoHsz", "v3lnrYnhWmGzphYCPQ3GhyA0");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

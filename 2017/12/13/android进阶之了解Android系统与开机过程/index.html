@@ -77,7 +77,7 @@
 <link href="/css/main.css?v=5.1.1" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="Android," />
+  <meta name="keywords" content="Android,android进阶," />
 
 
 
@@ -93,21 +93,22 @@
 
 
 
-<meta name="description" content="RemoteView**RemoteViews的作用是在其他进程中显示并更新View的界面，主要用于通知栏和桌面小部件。RemoteViews并不能支持所有的View类型，它所支持的所有类型如下所示： Layout：FrameLayout、LinearLayout、RelativeLayout、GridLayout View：AnalogClock、Button、Chronometer、Iamge">
-<meta name="keywords" content="Android">
+<meta name="description" content="Android简介Android系统的源代码数量非常庞大，这些代码主要分成4层，从低到高为Linux内核层、系统库层、应用程序框架层和应用程序层，它们分别由驱动工程师、系统工程师、框架工程师和应用程序工程师来开发。如图所示为整个Android系统的框架图：">
+<meta name="keywords" content="Android,android进阶">
 <meta property="og:type" content="article">
-<meta property="og:title" content="RemoteViews的内部机制">
-<meta property="og:url" content="http://yoursite.com/2017/07/25/RemoteViews的内部机制/index.html">
+<meta property="og:title" content="android进阶之了解Android系统与开机过程">
+<meta property="og:url" content="http://yoursite.com/2017/12/13/android进阶之了解Android系统与开机过程/index.html">
 <meta property="og:site_name" content="XBlog">
-<meta property="og:description" content="RemoteView**RemoteViews的作用是在其他进程中显示并更新View的界面，主要用于通知栏和桌面小部件。RemoteViews并不能支持所有的View类型，它所支持的所有类型如下所示： Layout：FrameLayout、LinearLayout、RelativeLayout、GridLayout View：AnalogClock、Button、Chronometer、Iamge">
+<meta property="og:description" content="Android简介Android系统的源代码数量非常庞大，这些代码主要分成4层，从低到高为Linux内核层、系统库层、应用程序框架层和应用程序层，它们分别由驱动工程师、系统工程师、框架工程师和应用程序工程师来开发。如图所示为整个Android系统的框架图：">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="http://img.blog.csdn.net/20170718125724356?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvWHVKaWFvSmll/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center">
-<meta property="og:image" content="http://img.blog.csdn.net/20170718125823892?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvWHVKaWFvSmll/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center">
-<meta property="og:updated_time" content="2017-07-29T12:58:01.990Z">
+<meta property="og:image" content="http://otpesi023.bkt.clouddn.com/android-framework.png">
+<meta property="og:image" content="http://otpesi023.bkt.clouddn.com/android-boot-up.png">
+<meta property="og:image" content="http://otpesi023.bkt.clouddn.com/%E5%BC%80%E6%9C%BA%E5%8A%A8%E7%94%BB%E6%98%BE%E7%A4%BA.jpg">
+<meta property="og:updated_time" content="2017-12-13T13:47:28.942Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="RemoteViews的内部机制">
-<meta name="twitter:description" content="RemoteView**RemoteViews的作用是在其他进程中显示并更新View的界面，主要用于通知栏和桌面小部件。RemoteViews并不能支持所有的View类型，它所支持的所有类型如下所示： Layout：FrameLayout、LinearLayout、RelativeLayout、GridLayout View：AnalogClock、Button、Chronometer、Iamge">
-<meta name="twitter:image" content="http://img.blog.csdn.net/20170718125724356?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvWHVKaWFvSmll/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center">
+<meta name="twitter:title" content="android进阶之了解Android系统与开机过程">
+<meta name="twitter:description" content="Android简介Android系统的源代码数量非常庞大，这些代码主要分成4层，从低到高为Linux内核层、系统库层、应用程序框架层和应用程序层，它们分别由驱动工程师、系统工程师、框架工程师和应用程序工程师来开发。如图所示为整个Android系统的框架图：">
+<meta name="twitter:image" content="http://otpesi023.bkt.clouddn.com/android-framework.png">
 
 
 
@@ -135,13 +136,13 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com/2017/07/25/RemoteViews的内部机制/"/>
+  <link rel="canonical" href="http://yoursite.com/2017/12/13/android进阶之了解Android系统与开机过程/"/>
 
 
 
 
 
-  <title>RemoteViews的内部机制 | XBlog</title>
+  <title>android进阶之了解Android系统与开机过程 | XBlog</title>
   
 
 
@@ -280,7 +281,7 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/07/25/RemoteViews的内部机制/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/12/13/android进阶之了解Android系统与开机过程/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="XuJiaoJie">
@@ -297,7 +298,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">RemoteViews的内部机制</h1>
+          <h1 class="post-title" itemprop="name headline">android进阶之了解Android系统与开机过程</h1>
         
 
         <div class="post-meta">
@@ -309,8 +310,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-07-25T16:21:06+08:00">
-                2017-07-25
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-12-13T21:47:28+08:00">
+                2017-12-13
               </time>
             
 
@@ -332,8 +333,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Android/" itemprop="url" rel="index">
-                    <span itemprop="name">Android</span>
+                  <a href="/categories/android进阶/" itemprop="url" rel="index">
+                    <span itemprop="name">android进阶</span>
                   </a>
                 </span>
 
@@ -349,7 +350,7 @@
 
           
           
-             <span id="/2017/07/25/RemoteViews的内部机制/" class="leancloud_visitors" data-flag-title="RemoteViews的内部机制">
+             <span id="/2017/12/13/android进阶之了解Android系统与开机过程/" class="leancloud_visitors" data-flag-title="android进阶之了解Android系统与开机过程">
                <span class="post-meta-divider">|</span>
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -377,22 +378,38 @@
       
 
       
-        <h2 id="RemoteView"><a href="#RemoteView" class="headerlink" title="RemoteView"></a>RemoteView</h2><p>**RemoteViews的作用是在其他进程中显示并更新View的界面，主要用于通知栏和桌面小部件。<br>RemoteViews并不能支持所有的View类型，它所支持的所有类型如下所示：</p>
-<p><strong>Layout：</strong>FrameLayout、LinearLayout、RelativeLayout、GridLayout</p>
-<p><strong>View：</strong>AnalogClock、Button、Chronometer、IamgeView、ProgressBar、TextView、ViewFlipper、ListView、GridView、StackView、AdapterViewFlipper、ViewStub</p>
-<p>RemoteViews由于跨进程，没有提供findViewById方法，而是提供了一系列set方法（大部分set方法是通过反射实现的）来完成，部分set方法如下所示：</p>
+        <h2 id="Android简介"><a href="#Android简介" class="headerlink" title="Android简介"></a>Android简介</h2><p><strong>Android系统的源代码数量非常庞大，这些代码主要分成4层，从低到高为Linux内核层、系统库层、应用程序框架层和应用程序层，它们分别由驱动工程师、系统工程师、框架工程师和应用程序工程师来开发。如图所示为整个Android系统的框架图：</strong></p>
 <a id="more"></a>
-<p><img src="http://img.blog.csdn.net/20170718125724356?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvWHVKaWFvSmll/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center" alt=""></p>
-<p>通知栏和桌面小部件分别由NotificationManager和AppWidgetManager管理，而NotificationManager和AppWidgetManager通过Binder分别和SystemServer进程中的NotifitionManagerService以及AppWidgetService进行通信。由此可见，通知栏和桌面小部件中的布局文件实际上市在NotifitionManagerService和AppWidgetService中被加载的，而它们运行在系统的SystemServer中，这就和我们的进程构成了跨进程通信的场景。</p>
-<h2 id="具体过程"><a href="#具体过程" class="headerlink" title="具体过程"></a>具体过程</h2><p><strong>首先RemoteViews会通过Binder传递到SystemServer进程，这是因为RemoteViews实现了Parcelable接口，因此它可以跨进程传输，系统会根据RemoteViews中的包名等信息区得到该应用的资源。然后会通过LayoutInflater加载RemoteViews中的布局文件，在SystemServer进程中加载后的布局文件是一个普通的View，只不过相对我们的进程它是一个RemoteViews而已。接着系统会对View执行一系列的界面更新任务，这些任务就是我们通过set方法提交的。set方法对View所做的更新并不是立刻执行的，在RemoteViews内部会记录所有的更新操作，具体的执行操作要等到RemoteViews被加载以后才能执行，这样RemoteViews就可以在SystemServer进程中显示了。当需要更新RemoteViews时，我们需要调用一系列set方法并通过NotificationManager和AppWidgetManager来提交更新任务，具体的更新操作也是在SystemServer进程中文成的。</strong></p>
-<p>RemoteViews内部提供了一个Action的概念，Action代表一个View操作，Action同样实现了Parcelable接口。系统首先将VIew操作封装带Action对象并将这些对象传输到远程进程，接着在远程进程中执行Action对象的具体操作。我们在应用中每调用一次set方法，RemoteViews中就会添加一个对应的Action对象，当我们通过NotificationManager和AppWidgetManager来提交我们的更新时，这些Action对象就会传输到远程进程并在远程进程中依次执行。远程进程通过RemoteViews的apply方法进行View的更新操作，RemoteViews的apply方法内部则会去调用所有Action对象并调用它们的apply方法，具体的View更新操作游Action对象的apply方法来完成。大致过程 可参看下图：</p>
-<p><img src="http://img.blog.csdn.net/20170718125823892?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvWHVKaWFvSmll/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/Center" alt=""></p>
-<h2 id="源码分析"><a href="#源码分析" class="headerlink" title="源码分析"></a>源码分析</h2><p>分析一下setTextViewText方法，源码如下：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setTextViewText</span><span class="params">(<span class="keyword">int</span> viewId, CharSequence text)</span> </span>&#123;  </div><div class="line">    setCharSequence(viewId, <span class="string">"setText"</span>, text);  </div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
-<p>看一下setCharSequence方法的源码：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setCharSequence</span><span class="params">(<span class="keyword">int</span> viewId, String methodName, CharSequence value)</span> </span>&#123;  </div><div class="line">    addAction(<span class="keyword">new</span> ReflectionAction(viewId, methodName, ReflectionAction.CHAR_SEQUENCE, value));  </div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
-<p>addAction方法的源码是这样的：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">addAction</span><span class="params">(Action a)</span> </span>&#123;  </div><div class="line">    <span class="keyword">if</span> (hasLandscapeAndPortraitLayouts()) &#123;  </div><div class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> RuntimeException(<span class="string">"RemoteViews specifying separate landscape and portrait"</span> +  </div><div class="line">                <span class="string">" layouts cannot be modified. Instead, fully configure the landscape and"</span> +  </div><div class="line">                <span class="string">" portrait layouts individually before constructing the combined layout."</span>);  </div><div class="line">    &#125;  </div><div class="line">    <span class="keyword">if</span> (mActions == <span class="keyword">null</span>) &#123;  </div><div class="line">        mActions = <span class="keyword">new</span> ArrayList&lt;Action&gt;();  </div><div class="line">    &#125;  </div><div class="line">    mActions.add(a);  </div><div class="line">    <span class="comment">// update the memory usage stats  </span></div><div class="line">    a.updateMemoryUsageEstimate(mMemoryUsageCounter);  </div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
-<p>RemoteViews内部有一个ArrayList的mActions成员，每调用一次set方法，就会创建一个Action对象并加入到ArrayList中。<br>接下来看一下RemoteView的apply方法：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> View <span class="title">apply</span><span class="params">(Context context, ViewGroup parent, OnClickHandler handler)</span> </span>&#123;  </div><div class="line">    RemoteViews rvToApply = getRemoteViewsToApply(context);  </div><div class="line">    View result = inflateView(context, rvToApply, parent);  </div><div class="line">    loadTransitionOverride(context, handler);  </div><div class="line">    rvToApply.performApply(result, parent, handler);  </div><div class="line">    <span class="keyword">return</span> result;  </div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
-<p>由上面代码可看出，加载出RemoteViews的布局文件后通过performApply方法执行操作，performApply方法内部则是遍历mActions并执行每一个Action对象的apply方法。</p>
-<p><strong>通知栏和桌面小部件的工作过程和上面的描述过程是一致的，通过NotificationManager和AppWidgetManager更新界面，在其内部的确是通过RemoteView是的apply和reapply方法来加载或者更新界面的，apply和reapply的区别在于：apply会加载局部并更新界面，而reapply则只会更新界面。</strong></p>
+<p><img src="http://otpesi023.bkt.clouddn.com/android-framework.png" alt=""></p>
+<h3 id="Linux内核层"><a href="#Linux内核层" class="headerlink" title="Linux内核层"></a>Linux内核层</h3><p>Android是基于Linux内核的，Linux内核为Android框架层提供了非常和核心的支持，比如Camera驱动、USB驱动、Wi-Fi驱动等。还实现了比如非常重要的进程间通信Binder驱动。Linux内核层就好比房子的地基一样。</p>
+<h3 id="系统库层"><a href="#系统库层" class="headerlink" title="系统库层"></a>系统库层</h3><p>系统库层主要包括Android Libraries和Android Runtime。<br><strong>Android Libraries：</strong>主要包括SQLite库、Webkit库和OpenGL库等。SQLite库用来支持数据库，Webkit库支持浏览器，OpenGL库支持3D图像。<br><strong>Android Runtime：</strong>主要包含一个Core库和Android虚拟机。Core库提供了Java编程语言的功能，而Android虚拟机用来运行apk程序的。每一个Android应用程序都在自己的独立进程中运行，都拥有一个独立的虚拟机实例。</p>
+<h3 id="应用程序框架层"><a href="#应用程序框架层" class="headerlink" title="应用程序框架层"></a>应用程序框架层</h3><p><strong>应用程序框架层，即Android Framework层，主要实现Android系统的核心服务和提供接口来开发应用程序，这些核心服务支撑整个Android系统的上层，分为多个模块：</strong></p>
+<ul>
+<li>ActivityManagerService：管理Android四大组件和进程内存</li>
+<li>WindowManagerService：管理Android窗口</li>
+<li>PackageManagerService：包管理服务，主要是apk的安装和权限的分配</li>
+<li>PowerManagerService：电源服务</li>
+<li>MultMedia：多媒体服务</li>
+<li>NotificationManagerService:通知管理服务</li>
+<li>View系统：UI的绘制和UI事件的分发</li>
+<li>……..</li>
+</ul>
+<h3 id="应用程序层"><a href="#应用程序层" class="headerlink" title="应用程序层"></a>应用程序层</h3><p>应用程序层，即Android应用程序，它包括系统应用和第三方应用。大多数Android开发人员都从事应用程序层开发。</p>
+<h2 id="开机启动流程"><a href="#开机启动流程" class="headerlink" title="开机启动流程"></a>开机启动流程</h2><h3 id="开机到Launcher显示"><a href="#开机到Launcher显示" class="headerlink" title="开机到Launcher显示"></a>开机到Launcher显示</h3><p><strong>Android系统的开机过程即Android的启动过程，可以分为两个阶段，第一个阶段是Linux的启动，第二阶段是Android的启动。Linux的启动主要是加载Bootloader和内核启动。这里我们主要了解第二阶段Android的启动：</strong><br>这个过程从Init进程启动开始，到Launcher主界面显示结束。当Init进程启动之后，它主要做两件核心的事情，一是启动属性服务类实现Android系统设置和获取，二是他会去解析init.rc文件，并且启动配置在这个文件里的native service进程，如Zygote、SurfaceFlinger、Vold等Native进程。当SurfaceFlinger进程被Init进程启动后，它会去启动开机动画程序bootanimation。Init进程在启动SurfaceFlinger进程的同时，也会去启动Zygote进程，当Zygote进程启动好了之后，Zygote进程会去启动SystemServer进程，而SystemServer进程启动了Android框架层的核心服务AMS、WMS、PMS等，这些服务支撑整个上层应用程序。当SystemServer进程中的核心服务AMS启动好了之后，AMS会启动Android应用程序Launcher主界面，Launcher会加载所有的应用程序图标到界面上，当Launcher启动完成之后，AMS会去请求SurfaceFlinger退出开机动画，开机动画一退出，Launcher界面就显示出来了。</p>
+<p><strong>系统开机大致图示：</strong><br><img src="http://otpesi023.bkt.clouddn.com/android-boot-up.png" alt=""></p>
+<h3 id="Launcher启动应用程序"><a href="#Launcher启动应用程序" class="headerlink" title="Launcher启动应用程序"></a>Launcher启动应用程序</h3><p>Launcher应用程序显示的主界面其实是个Activity，在其原生的AndroidManifest文件里配置了“android.initen.category.HOME”属性，即：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">&lt;category android:name=<span class="string">"android.intent.category.HOME"</span>/&gt;</div></pre></td></tr></table></figure></p>
+<p>Launcherde在onCreate()方法中加载了应用程序图标的操作，即把安装的所有程序以图标的方式显示到主界面桌面上，当在主界面的桌面上点击某个应用程序的图标时，就会启动该应用程序，Launcher会通过PackageManagerService的queryIntentActivities()方法来获得那些Action类型为Intent.ACTION_MAIN，Category类型为Intent。CATEGORY_LAUNCHER的Activity，从而启动对应的Activity作为应用程序的主界面入口。</p>
+<p><strong>Android系统开机慢的原因：</strong></p>
+<ul>
+<li>在启动Launcher的时候PackageManagerService会去解析已经安装的应用程序，安装的应用程序越多，解析时间也就越长。</li>
+<li>在Android系统的Zygote进程启动过程中，它会去预加载资源和类，消耗时间，这部分将会在后面讲解Zygote进程时详说。</li>
+</ul>
+<h2 id="Android-Init进程"><a href="#Android-Init进程" class="headerlink" title="Android Init进程"></a>Android Init进程</h2><p>Init进程在Android系统中非常重要，它是Linux系统中用户空间的第一个进程。由于Android系统基于Linux，所以它也是Android系统用户空间第一个进程。作为常见的天字一号进程，它的进程号为1。Init进程的源代码在system/core/init/目录下，主文件是init.cpp。</p>
+<h2 id="开机动画bootanimation"><a href="#开机动画bootanimation" class="headerlink" title="开机动画bootanimation"></a>开机动画bootanimation</h2><p>Android系统在启动的过程中，一般有两个开机动画，每一个界面都是用来表示不同的启动阶段。第一个开机界面在内核启动的过程中出现，是静态的界面。第二个开机界面在系统服务启动的过程中出现，是动态的界面。而这个动态的界面就是开机动画bootanimation，由SurfaceFlinger进程启动。当Android系统完全启动之后，Android系统框架里的ActivityManagerService服务会调用WindowManagerService里的接口来请求SurfaceFlinger停止开机动画bootanimation，以便显示Launcher界面。</p>
+<p><strong>第一个界面由于是kernel启动的，所以它的实现在kernel里。第二个界面是bootanimation，它是framework里的一个Native Service，即它是一个Native进程。具体的代码实现在framework/base/cmds/bootanimation/目录里。</strong></p>
+<p><strong>设计两个开机界面的原因：</strong><br>第一个开机界面是为了显示长按电源键有效果，系统已经启动。而第二个界面是由于Android系统的启动时间较长，从而显示第二个动态的开机动画，其可能是原生的一帧帧图片播放或是播放视频。</p>
+<p><strong>下图为开机动画显示和退出的整体过程框架：</strong><br><img src="http://otpesi023.bkt.clouddn.com/%E5%BC%80%E6%9C%BA%E5%8A%A8%E7%94%BB%E6%98%BE%E7%A4%BA.jpg" alt=""></p>
+<p><strong>开机动画显示和退出的整体过程总结：</strong><br>Android系统开机之后，Android内核先启动，接着启动Android用户空间的第一个进程，即启动Init进程。Init进程启动之后去解析init.rc中配置的那些Native进程，其中包括SurfaceFlinger进程和Zygote进程。当SurfaceFlinger进程被Init进程解析并启动后，就会进入main函数，在它的main()函数里调用init函数，而在init()函数会设置系统属性“ctl.start”的值为“bootanim”，这样，程序bootanimation就被启动显示开机动画。在SurfaceFlinger被启动的同时，Zygote进程也会被Init进程启动，Zygote进程会去启动SystemServer进程，而SystemServer进程启动了Android框架层的核心服务AMS、WMS、PMS等。当Android系统核心服务AMS启动完成之后，AMS就会去调用它的startHomeActivityLocked()方法来启动主界面Launcher，当Launcher启动完成之后，AMS就会去通知WMS调用SurfaceFlinger的bootFinish()函数，这个函数里会设置属性“service.bootanimation.exit”的值为字符串1，这样bootanimation就退出播放。bootanimation一旦退出，Launcher就显示出来了。</p>
 
       
     </div>
@@ -424,6 +441,8 @@
           
             <a href="/tags/Android/" rel="tag"># Android</a>
           
+            <a href="/tags/android进阶/" rel="tag"># android进阶</a>
+          
         </div>
       
 
@@ -435,8 +454,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2017/07/25/源码分析多进程下的SharedPreferences/" rel="next" title="源码分析多进程下的SharedPreferences">
-                <i class="fa fa-chevron-left"></i> 源码分析多进程下的SharedPreferences
+              <a href="/2017/11/28/解析HTTPS/" rel="next" title="解析HTTPS">
+                <i class="fa fa-chevron-left"></i> 解析HTTPS
               </a>
             
           </div>
@@ -444,10 +463,6 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2017/07/25/设计模式之Builder和AlertDialog的源码分析/" rel="prev" title="设计模式之Builder和AlertDialog的源码分析">
-                设计模式之Builder和AlertDialog的源码分析 <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -577,7 +592,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#RemoteView"><span class="nav-number">1.</span> <span class="nav-text">RemoteView</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#具体过程"><span class="nav-number">2.</span> <span class="nav-text">具体过程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#源码分析"><span class="nav-number">3.</span> <span class="nav-text">源码分析</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Android简介"><span class="nav-number">1.</span> <span class="nav-text">Android简介</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Linux内核层"><span class="nav-number">1.1.</span> <span class="nav-text">Linux内核层</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#系统库层"><span class="nav-number">1.2.</span> <span class="nav-text">系统库层</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#应用程序框架层"><span class="nav-number">1.3.</span> <span class="nav-text">应用程序框架层</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#应用程序层"><span class="nav-number">1.4.</span> <span class="nav-text">应用程序层</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#开机启动流程"><span class="nav-number">2.</span> <span class="nav-text">开机启动流程</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#开机到Launcher显示"><span class="nav-number">2.1.</span> <span class="nav-text">开机到Launcher显示</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Launcher启动应用程序"><span class="nav-number">2.2.</span> <span class="nav-text">Launcher启动应用程序</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Android-Init进程"><span class="nav-number">3.</span> <span class="nav-text">Android Init进程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#开机动画bootanimation"><span class="nav-number">4.</span> <span class="nav-text">开机动画bootanimation</span></a></li></ol></div>
             
 
           </div>

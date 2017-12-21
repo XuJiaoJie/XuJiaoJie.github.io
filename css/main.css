@@ -539,9 +539,7 @@ pre code {
 .highlight .gutter pre {
   padding-left: 10px;
   padding-right: 10px;
-  color: #869194;
   text-align: right;
-  background-color: #eff2f3;
 }
 .highlight .code pre {
   width: 100%;
@@ -1678,7 +1676,7 @@ pre .javascript .function {
   width: 4px;
   height: 4px;
   border-radius: 50%;
-  background: #ff94db;
+  background: #88a870;
 }
 .links-of-blogroll {
   font-size: 13px;
